@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #1C1C1E; /* Deep dark grey/black used in the reference UI */
+  --color-primary-inverse: #ffffff;
+  
+  /* Redesign Signature Lime Accent */
+  --color-accent: #D9FB41;
+  --color-accent-hover: #C5E838;
+  
+  --color-background: #F8F9FA; /* Slightly off-white for contrast with white cards */
+  --color-surface: #FFFFFF;
+  --color-dark-surface: #2D2F33; /* Dark floating elements */
+  
+  --color-text-primary: #1C1C1E;
+  --color-text-secondary: #8A8E9B;
+  --color-border: #E8EAEF;
+
+  --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.05);
+  --shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.08);
+  --shadow-floating: 0 10px 40px rgba(0, 0, 0, 0.15); /* For float widgets */
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  /* Enhanced Radii for App-like feel */
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1.25rem;
+  --radius-3xl: 2rem;
+  --radius-4xl: 2.5rem;
+  --radius-pill: 9999px;
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
