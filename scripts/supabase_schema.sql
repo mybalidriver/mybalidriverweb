@@ -89,3 +89,28 @@ CREATE TRIGGER update_blogs_modtime BEFORE UPDATE ON public.blogs FOR EACH ROW E
 CREATE INDEX IF NOT EXISTS idx_listings_status ON public.listings(status);
 CREATE INDEX IF NOT EXISTS idx_listings_type ON public.listings(type);
 CREATE INDEX IF NOT EXISTS idx_blogs_slug ON public.blogs(slug);
+
+-- ==========================================
+-- STORAGE BUCKET: LISTING IMAGES
+-- ==========================================
+
+-- Create the public bucket if it doesn't exist
+INSERT INTO storage.buckets (id, name, public) 
+VALUES ('discovering_bali_images', 'discovering_bali_images', true)
+ON CONFLICT (id) DO NOTHING;
+
+-- Storage Security Policies
+-- 1. Allow anyone to read/view images
+CREATE POLICY "Public Image Read" 
+ON storage.objects FOR SELECT 
+USING (bucket_id = 'discovering_bali_images');
+
+-- 2. Allow authenticated users to upload new images
+CREATE POLICY "Authenticated Image Upload" 
+ON storage.objects FOR INSERT 
+WITH CHECK (bucket_id = 'discovering_bali_images' AND auth.role() = 'authenticated');
+
+-- 3. Allow anonymous/public image uploads (Warning: Use cautiously in production!)
+CREATE POLICY "Public Image Upload (Dev Mode)" 
+ON storage.objects FOR INSERT 
+WITH CHECK (bucket_id = 'discovering_bali_images');

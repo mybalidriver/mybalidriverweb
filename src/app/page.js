@@ -81,7 +81,6 @@ const campaigns = [
 const popularTrips = [];
 
 
-const allListings = [];
 
 export default function Home() {
   const router = useRouter();
@@ -113,6 +112,24 @@ export default function Home() {
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [priceFilter, setPriceFilter] = useState([0, 5000000]);
   const [recommendedPlaces, setRecommendedPlaces] = useState([]);
+
+  // Dynamic Data from Admin
+  const [allListings, setAllListings] = useState([]);
+
+  useEffect(() => {
+    const savedAdmin = localStorage.getItem("bali_admin_listings");
+    if (savedAdmin) {
+      try {
+        const parsedAdmin = JSON.parse(savedAdmin);
+        setAllListings([
+          ...(parsedAdmin.Tour || []),
+          ...(parsedAdmin.Spa || []),
+          ...(parsedAdmin.Scooter || []),
+          ...(parsedAdmin.Transport || [])
+        ]);
+      } catch(e) {}
+    }
+  }, []);
 
   useEffect(() => {
     const saved = localStorage.getItem("bali_places_v3");

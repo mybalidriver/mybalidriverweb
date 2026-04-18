@@ -29,6 +29,13 @@ export default function AdminListings() {
 
   const tabs = ["Tour", "Spa", "Scooter", "Transport"];
   const [listingsData, setListingsData] = useState(allListings);
+
+  React.useEffect(() => {
+    const saved = localStorage.getItem("bali_admin_listings");
+    if (saved) {
+      setListingsData(JSON.parse(saved));
+    }
+  }, []);
   let currentListings = listingsData[activeTab].filter(item => item.title.toLowerCase().includes(searchQuery.toLowerCase()));
 
   const handleEdit = (item) => {
@@ -37,18 +44,26 @@ export default function AdminListings() {
 
   const handleDelete = (item) => {
     if (confirm(`Are you sure you want to delete "${item.title}"?`)) {
-       setListingsData(prev => ({
-         ...prev,
-         [activeTab]: prev[activeTab].filter(i => i.id !== item.id)
-       }));
+       setListingsData(prev => {
+         const newData = {
+           ...prev,
+           [activeTab]: prev[activeTab].filter(i => i.id !== item.id)
+         };
+         localStorage.setItem("bali_admin_listings", JSON.stringify(newData));
+         return newData;
+       });
     }
   };
 
   const handleToggleStatus = (item) => {
-    setListingsData(prev => ({
-       ...prev,
-       [activeTab]: prev[activeTab].map(i => i.id === item.id ? { ...i, status: i.status === 'Active' ? 'Draft' : 'Active' } : i)
-    }));
+    setListingsData(prev => {
+       const newData = {
+         ...prev,
+         [activeTab]: prev[activeTab].map(i => i.id === item.id ? { ...i, status: i.status === 'Active' ? 'Draft' : 'Active' } : i)
+       };
+       localStorage.setItem("bali_admin_listings", JSON.stringify(newData));
+       return newData;
+    });
   };
 
   const handlePreview = (item) => {
@@ -56,10 +71,19 @@ export default function AdminListings() {
   };
 
   const handleSaveItem = (updatedItem) => {
-    setListingsData(prev => ({
-      ...prev,
-      [activeTab]: prev[activeTab].map(i => i.id === updatedItem.id ? updatedItem : i)
-    }));
+    setListingsData(prev => {
+      const currentList = prev[activeTab];
+      const exists = currentList.find(i => i.id === updatedItem.id);
+      let newList;
+      if (exists) {
+        newList = currentList.map(i => i.id === updatedItem.id ? updatedItem : i);
+      } else {
+        newList = [...currentList, updatedItem];
+      }
+      const newData = { ...prev, [activeTab]: newList };
+      localStorage.setItem("bali_admin_listings", JSON.stringify(newData));
+      return newData;
+    });
     setEditingItem(null);
   };
 
@@ -79,14 +103,15 @@ export default function AdminListings() {
     }
     const newItem = {
       id: `NEW-${Math.floor(Math.random() * 10000)}`,
-      title: "",
+      title: "New " + activeTab,
       location: "Bali, Indonesia",
       duration: "1 Day",
       price: "0",
       rating: "5.0",
       reviews: "0",
-      category: activeTab,
-      status: "Draft",
+      service: activeTab,
+      category: "Nature",
+      status: "Active",
       image: ""
     };
     setEditingItem(newItem);
