@@ -26,9 +26,16 @@ export default function TourDetail({ params }) {
        const combined = [...(parsed.Tour||[]), ...(parsed.Spa||[]), ...(parsed.Scooter||[]), ...(parsed.Transport||[])];
        const found = combined.find(t => String(t.id) === String(resolvedParams.id));
        if (found) {
-          found.images = found.image 
-             ? [found.image, found.image, found.image, found.image, found.image] 
-             : ["https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80", "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=800&q=80", "https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?auto=format&fit=crop&w=800&q=80", "https://images.unsplash.com/photo-1552733407-5d5c46c3bb3b?auto=format&fit=crop&w=800&q=80", "https://images.unsplash.com/photo-1523731407965-2430cd12f5e4?auto=format&fit=crop&w=800&q=80"];
+          const defaultImg = "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80";
+          const coverImg = found.image || defaultImg;
+          const validGallery = (found.gallery || []).filter(img => img && img.trim() !== "");
+          
+          found.images = [
+             coverImg, 
+             ...validGallery, 
+             coverImg, coverImg, coverImg, coverImg, coverImg
+          ].slice(0, 5); // Take max 5 for grid stability
+          
           setTourData(found);
        }
     }

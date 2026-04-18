@@ -39,6 +39,8 @@ export default function EditListingModal({ item, activeTab, onClose, onSave }) {
     excluded: item.excluded || ""
   });
 
+  const [gallery, setGallery] = useState(item.gallery || ["", "", ""]);
+
   const categoryOptions = {
     Tour: [
       { name: "Island Tour", icon: Compass },
@@ -111,6 +113,7 @@ export default function EditListingModal({ item, activeTab, onClose, onSave }) {
       ...details,
       ...pins,
       itinerary: itinerary,
+      gallery: gallery.filter(link => link.trim() !== "")
     };
     if (activeTab === "Scooter") {
        finalItem.dailyPrice = scooterPrices.daily;
@@ -576,19 +579,19 @@ export default function EditListingModal({ item, activeTab, onClose, onSave }) {
                    </div>
                    <div className="flex-1 space-y-3">
                      <div>
-                       <p className="text-xs font-semibold text-gray-500 mb-1.5">Direct Image URL</p>
+                       <p className="text-xs font-semibold text-gray-500 mb-1.5 break-words">Main Cover Image URL</p>
                        <input 
                          type="text" 
                          name="image"
                          value={formData.image} 
                          onChange={handleChange}
-                         placeholder="https://..." 
-                         className="w-full bg-gray-50 text-sm font-semibold text-primary rounded-xl px-4 py-2 border border-gray-200 focus:border-accent outline-none" 
+                         placeholder="https://images.unsplash.com/..." 
+                         className="w-full bg-gray-50 text-sm font-semibold text-primary rounded-xl px-4 py-2 border border-gray-200 focus:border-accent outline-none truncate" 
                        />
                      </div>
                      <div className="relative overflow-hidden w-fit">
                        <button type="button" className="bg-gray-100 hover:bg-gray-200 text-primary text-xs font-bold px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
-                         <ImageIcon size={14} /> Local Device File Upload
+                         <ImageIcon size={14} /> Local Device Base64 File
                        </button>
                        <input 
                          type="file" 
@@ -596,6 +599,27 @@ export default function EditListingModal({ item, activeTab, onClose, onSave }) {
                          onChange={handleImageUpload} 
                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
                        />
+                     </div>
+
+                     <div className="pt-3 mt-3 border-t border-gray-200">
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Gallery Image URLs (Optional)</label>
+                        <div className="space-y-2">
+                           {gallery.map((url, i) => (
+                              <input 
+                                key={i}
+                                type="text" 
+                                value={url} 
+                                onChange={(e) => {
+                                  const newG = [...gallery]; newG[i] = e.target.value; setGallery(newG);
+                                }}
+                                placeholder={`Gallery Image ${i + 1} URL`} 
+                                className="w-full bg-gray-50 text-xs font-semibold text-primary rounded-lg px-3 py-1.5 border border-gray-200 focus:border-accent outline-none truncate" 
+                              />
+                           ))}
+                           {gallery.length < 5 && (
+                             <button onClick={() => setGallery([...gallery, ""])} className="text-xs font-bold text-accent hover:underline flex items-center gap-1">+ Add another photo</button>
+                           )}
+                        </div>
                      </div>
                    </div>
                  </div>

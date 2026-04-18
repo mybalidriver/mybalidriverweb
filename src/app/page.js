@@ -162,6 +162,19 @@ export default function Home() {
   // Apply Price Filter
   filteredTours = filteredTours.filter(t => t.price >= priceFilter[0] && t.price <= priceFilter[1]);
 
+  const pinnedCampaigns = allListings.filter(t => t.isCampaignPinned).map((t, idx) => ({
+    id: t.id || idx,
+    title: t.campaignTitle || t.title,
+    subtitle: t.campaignDescription || t.location,
+    badge: "Featured Deal",
+    image: t.image || "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80",
+    targetId: t.id
+  }));
+  const displayCampaigns = pinnedCampaigns.length > 0 ? pinnedCampaigns : campaigns;
+
+  const bestTrips = allListings.filter(t => t.isBestTripPinned && t.service === activeService);
+  const displayPopularTrips = bestTrips.length > 0 ? bestTrips : popularTrips;
+
   // Suggestions for smart keyboard integration
   const availableSuggestions = Array.from(new Set(
      allListings.filter(t => t.service === activeService).flatMap(t => [t.title, t.location])
@@ -331,7 +344,7 @@ export default function Home() {
             if (index !== currentCampIdx) setCurrentCampIdx(index);
           }}
         >
-          {campaigns.map((camp, idx) => (
+          {displayCampaigns.map((camp, idx) => (
             <div key={camp.id} className="relative w-full shrink-0 snap-center aspect-[4/3] rounded-[28px] overflow-hidden shadow-soft border border-border bg-black select-none">
               <img src={camp.image} alt={camp.badge} className="absolute inset-0 w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#1C1C1E] via-[#1C1C1E]/40 to-transparent z-0" />
@@ -347,9 +360,9 @@ export default function Home() {
                 <h3 className="text-[26px] sm:text-[32px] font-extrabold text-white leading-[1.05] mb-2 font-sans tracking-tight whitespace-pre-line drop-shadow-lg">{camp.title}</h3>
                 <p className="text-white/90 text-[13px] sm:text-[15px] font-medium mb-4 leading-snug drop-shadow-md">{camp.subtitle}</p>
                 
-                <button className="bg-white text-primary px-6 py-3 rounded-full font-bold text-[14px] shadow-xl active:scale-95 transition-transform flex items-center justify-center pointer-events-auto">
-                  Claim Offer
-                </button>
+                <Link href={camp.targetId ? `/tours/${camp.targetId}` : "#"} className="bg-white text-primary px-6 py-3 rounded-full font-bold text-[14px] shadow-xl active:scale-95 transition-transform flex items-center justify-center pointer-events-auto">
+                  View Detail
+                </Link>
               </div>
             </div>
           ))}
@@ -372,7 +385,7 @@ export default function Home() {
       {/* Desktop/iPad Cinematic Campaign Slider (Card Style) */}
       <section className="hidden md:block px-6 pt-5 mb-12 max-w-[1240px] mx-auto relative">
         <div className="relative w-full aspect-[2.5/1] rounded-[32px] overflow-hidden bg-black group shadow-medium border border-border">
-          {campaigns.map((camp, idx) => (
+          {displayCampaigns.map((camp, idx) => (
             <div 
               key={camp.id} 
               className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${idx === currentCampIdx ? 'opacity-100 pointer-events-auto z-10' : 'opacity-0 pointer-events-none z-0'}`}
@@ -389,9 +402,9 @@ export default function Home() {
                 <h3 className="text-[44px] lg:text-[54px] font-extrabold text-white leading-[1.05] mb-4 font-sans tracking-tight whitespace-pre-line drop-shadow-xl">{camp.title}</h3>
                 <p className="text-white/90 text-[16px] lg:text-[18px] font-medium mb-8 leading-normal max-w-sm drop-shadow-md">{camp.subtitle}</p>
                 
-                <button className="bg-white text-primary px-10 py-4 rounded-full font-bold text-[15px] shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center hover:bg-gray-50 hover:shadow-2xl">
-                  Claim Offer
-                </button>
+                <Link href={camp.targetId ? `/tours/${camp.targetId}` : "#"} className="bg-white text-primary px-10 py-4 rounded-full font-bold text-[15px] shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center hover:bg-gray-50 hover:shadow-2xl">
+                  View Detail
+                </Link>
               </div>
             </div>
           ))}
@@ -413,7 +426,7 @@ export default function Home() {
           </div>
 
           <div className="absolute bottom-12 left-12 z-20 flex gap-2 items-center">
-            {campaigns.map((_, idx) => (
+            {displayCampaigns.map((_, idx) => (
               <button 
                 key={idx}
                 onClick={() => setCurrentCampIdx(idx)}
@@ -442,8 +455,8 @@ export default function Home() {
 
           {/* Horizontal Scroll Area */}
           <div className="flex overflow-x-auto no-scrollbar gap-5 px-6 pb-6 snap-x snap-mandatory hide-scroll">
-            {popularTrips.map((trip) => (
-              <Link href={`/tours/${trip.id}`} key={trip.id} className="block relative w-[240px] md:w-[280px] aspect-[4/5] rounded-[28px] overflow-hidden shadow-soft shrink-0 snap-start group border border-border">
+            {displayPopularTrips.length > 0 ? displayPopularTrips.map((trip) => (
+              <Link href={`/tours/${trip.id}`} key={trip.id} className="block relative w-[240px] md:w-[280px] aspect-[4/5] rounded-[28px] overflow-hidden shadow-soft shrink-0 snap-start group border border-border bg-white">
                 <img src={trip.image} className="absolute inset-0 w-full h-full object-cover transition-transform duration-[8s] ease-out group-hover:scale-110" alt={trip.title} />
 
                 {/* Heart Button */}
@@ -461,13 +474,17 @@ export default function Home() {
                     </div>
                     <div className="flex flex-col items-end shrink-0">
                       <span className="font-extrabold text-[15px] text-primary tracking-tight pr-1">
-                        {trip.price >= 1000 ? `IDR ${(trip.price).toLocaleString('id-ID')}` : `$${trip.price}`}
+                        IDR {Number(trip.price).toLocaleString('id-ID')}
                       </span>
                     </div>
                   </div>
                 </div>
               </Link>
-            ))}
+            )) : (
+              <div className="w-full text-center py-6 text-gray-400 font-medium text-sm">
+                 No items pinned as Best Trips for this category.
+              </div>
+            )}
           </div>
         </section>
 
