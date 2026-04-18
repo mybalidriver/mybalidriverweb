@@ -55,21 +55,13 @@ CREATE TABLE IF NOT EXISTS public.blogs (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Security: Enable Row Level Security (RLS)
-ALTER TABLE public.companies ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.listings ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.blogs ENABLE ROW LEVEL SECURITY;
+-- Security: Row Level Security (RLS) is disabled for rapid CMS entry via custom dashboard
+ALTER TABLE public.companies DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.listings DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.blogs DISABLE ROW LEVEL SECURITY;
 
--- Access Policies (Public can read active/published items)
--- Using DROP POLICY IF EXISTS makes the script safe to run multiple times!
-DROP POLICY IF EXISTS "Allow public read access to active listings" ON public.listings;
-CREATE POLICY "Allow public read access to active listings" ON public.listings FOR SELECT USING (status = 'Active');
-
-DROP POLICY IF EXISTS "Allow public read access to verified companies" ON public.companies;
-CREATE POLICY "Allow public read access to verified companies" ON public.companies FOR SELECT USING (verified = true);
-
-DROP POLICY IF EXISTS "Allow public read access to published blogs" ON public.blogs;
-CREATE POLICY "Allow public read access to published blogs" ON public.blogs FOR SELECT USING (status = 'Published');
+-- Access Policies (Skipped since RLS is currently disabled)
+-- You can re-enable RLS later when you add JWT login functionality to your Admin Dashboard!
 
 -- Structured Schema Enhancements (No AI Data)
 

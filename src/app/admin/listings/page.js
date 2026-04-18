@@ -170,7 +170,7 @@ export default function AdminListings() {
       reviews: "0",
       service: activeTab,
       category: "Nature",
-      status: "Draft",
+      status: "Active",
       image: ""
     };
     setEditingItem(newItem);
