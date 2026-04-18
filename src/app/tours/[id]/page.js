@@ -377,7 +377,7 @@ export default function TourDetail({ params }) {
       <BookingModal 
         isOpen={isBookingModalOpen} 
         onClose={() => setIsBookingModalOpen(false)} 
-        serviceData={{ type: 'tour', id: tourData.id, title: tourData.title, price: tourData.price }} 
+        serviceData={{ type: 'tour', id: tourData.id, title: tourData.title, price: tourData.price, pricingType: tourData.pricingType }} 
         initialPax={desktopPax}
         initialDate={desktopDate}
         startStep={modalStartStep}

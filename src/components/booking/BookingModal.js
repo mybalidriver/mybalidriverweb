@@ -85,7 +85,7 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
       // rough multiplication if pax/duration matters 
       let multiplier = 1;
       if (["tour", "spa", "transport"].includes(serviceData?.type)) {
-         multiplier = parseInt(formData.guests) || 1;
+         multiplier = serviceData?.pricingType === "Per Group" ? 1 : (parseInt(formData.guests) || 1);
       } else if (serviceData?.type === "scooter") {
          multiplier = parseInt(formData.duration) || 1;
       }
@@ -280,7 +280,7 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
                <span className="text-[14px] font-bold text-gray-500">Expected Total</span>
                <span className="text-[22px] font-extrabold text-primary">
                  {serviceData.type === 'scooter' ? formatIDR(serviceData.price * (parseInt(formData.duration) || 1)) : 
-                  ["tour", "spa", "transport"].includes(serviceData?.type) ? formatIDR(serviceData.price * (parseInt(formData.guests) || 1)) : 
+                  ["tour", "spa", "transport"].includes(serviceData?.type) ? formatIDR(serviceData.price * (serviceData?.pricingType === "Per Group" ? 1 : (parseInt(formData.guests) || 1))) : 
                   formatIDR(serviceData.price)}
                </span>
              </div>
