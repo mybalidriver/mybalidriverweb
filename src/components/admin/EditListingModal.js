@@ -31,6 +31,7 @@ export default function EditListingModal({ item, activeTab, onClose, onSave }) {
   const [itinerary, setItinerary] = useState(item.itinerary || [{ title: '', description: '' }]);
 
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   // Rich Text Fields
   const [details, setDetails] = useState({
