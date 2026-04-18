@@ -145,8 +145,8 @@ export default function TourDetail({ params }) {
               <div className="flex flex-wrap items-center gap-4 mt-1">
                 <div className="flex items-center gap-1">
                   <Star size={16} className="fill-accent text-accent" />
-                  <span className="font-bold text-primary text-[15px]">{tourData.rating}</span>
-                  <span className="text-text-secondary text-[13px] underline cursor-pointer hover:text-text-primary">({tourData.reviews} reviews)</span>
+                  <span className="font-bold text-primary text-[15px]">{Number(tourData.rating).toFixed(1)}</span>
+                  <span className="text-text-secondary text-[13px] underline cursor-pointer hover:text-text-primary">({tourData.reviews || 0} reviews)</span>
                 </div>
                 <div className="w-1 h-1 bg-gray-300 rounded-full"></div>
                 <span className="text-text-secondary font-medium text-[14px] hover:underline cursor-pointer">{tourData.location}</span>
@@ -353,14 +353,13 @@ export default function TourDetail({ params }) {
       </div>
 
       {/* Floating Bottom Booking Bar (Mobile Only) */}
-      <div className="md:hidden fixed bottom-0 left-0 w-full bg-white z-40 px-6 pt-4 pb-[calc(env(safe-area-inset-bottom)+20px)] shadow-[0_-10px_40px_rgba(0,0,0,0.08)] border-t border-border">
-        <div className="flex items-center justify-between">
-          <div className="flex items-end gap-1">
-            <div className="flex flex-col">
-              <span className="text-[12px] font-bold text-text-secondary uppercase tracking-wider mb-0.5">Price</span>
-              <div className="flex items-end leading-none gap-0.5">
-                <span className="text-[26px] font-extrabold text-primary leading-none">IDR {Number(tourData.price).toLocaleString('id-ID')}</span>
-              </div>
+      <div className="md:hidden fixed bottom-0 left-0 w-full bg-white z-40 px-5 pt-3.5 pb-[calc(env(safe-area-inset-bottom)+16px)] shadow-[0_-10px_40px_rgba(0,0,0,0.08)] border-t border-border">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex flex-col flex-1 overflow-hidden">
+            <span className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-0.5">Price starting from</span>
+            <div className="flex items-baseline gap-1.5 truncate">
+              <span className="text-[12px] font-extrabold text-primary">IDR</span>
+              <span className="text-[20px] font-black text-primary leading-none tracking-tight truncate">{Number(tourData.price).toLocaleString('id-ID')}</span>
             </div>
           </div>
           <button 
@@ -368,9 +367,9 @@ export default function TourDetail({ params }) {
               setModalStartStep(1);
               setIsBookingModalOpen(true);
             }} 
-            className="bg-accent hover:bg-accent-hover px-10 py-4 rounded-full flex items-center gap-2 font-bold text-primary transition-all active:-translate-y-1"
+            className="bg-accent hover:bg-accent-hover px-6 py-3 rounded-xl flex items-center justify-center gap-2 font-bold text-primary transition-transform active:scale-95 shrink-0 whitespace-nowrap"
           >
-            Book Now <ArrowRight size={18} strokeWidth={2.5} />
+            Book Now <ArrowRight size={16} strokeWidth={3} className="-mr-1" />
           </button>
         </div>
       </div>

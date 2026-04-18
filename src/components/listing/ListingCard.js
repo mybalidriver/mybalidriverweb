@@ -44,8 +44,8 @@ export default function ListingCard({ item, linkTo }) {
         {/* Ratings */}
         <div className="flex items-center gap-1 mb-4">
           <Star size={13} strokeWidth={2.5} className="fill-[#F59E0B] text-[#F59E0B] pb-[0.5px]" />
-          <span className="text-[13px] font-bold text-primary">{item.rating || 4.8}</span>
-          <span className="text-[13px] font-semibold text-text-secondary">({item.reviews || 100})</span>
+          <span className="text-[13px] font-bold text-primary">{Number(item.rating || 5).toFixed(1)}</span>
+          <span className="text-[13px] font-semibold text-text-secondary">({item.reviews || 0} reviews)</span>
         </div>
 
         {/* Footer (Price + Button/Date) */}
