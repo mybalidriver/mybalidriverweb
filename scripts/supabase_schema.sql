@@ -34,6 +34,7 @@ CREATE TABLE IF NOT EXISTS public.listings (
     status TEXT DEFAULT 'Active' CHECK (status IN ('Active', 'Draft')),
     image TEXT,
     company_name TEXT, 
+    data JSONB DEFAULT '{}'::JSONB,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

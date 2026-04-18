@@ -117,18 +117,29 @@ export default function Home() {
   const [allListings, setAllListings] = useState([]);
 
   useEffect(() => {
-    const savedAdmin = localStorage.getItem("bali_admin_listings");
-    if (savedAdmin) {
-      try {
-        const parsedAdmin = JSON.parse(savedAdmin);
-        setAllListings([
-          ...(parsedAdmin.Tour || []),
-          ...(parsedAdmin.Spa || []),
-          ...(parsedAdmin.Scooter || []),
-          ...(parsedAdmin.Transport || [])
-        ]);
-      } catch(e) {}
-    }
+    const fetchPublicListings = async () => {
+      const { supabase } = await import('@/lib/supabase');
+      const { data, error } = await supabase.from('listings').select('*').eq('status', 'Active');
+      if (data) {
+         const publicItems = data.map(d => ({
+           id: d.id,
+           service: d.type,
+           title: d.title,
+           location: d.location,
+           price: d.price,
+           duration: d.duration,
+           category: d.category,
+           rating: d.rating,
+           reviews: d.reviews,
+           status: d.status,
+           image: d.image,
+           company: d.company_name,
+           ...(d.data || {}) // Spread gallery, itinerary, pins, etc.
+         }));
+         setAllListings(publicItems);
+      }
+    };
+    fetchPublicListings();
   }, []);
 
   useEffect(() => {

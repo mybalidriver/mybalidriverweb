@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { supabase } from "@/lib/supabase";
 import { 
   X, Save, Image as ImageIcon, MapPin, DollarSign, Clock, Tag, Plus, Target, Star, Trash2,
   Compass, Map, Camera, Footprints, Droplet, Sparkles, Heart, Activity,
@@ -95,14 +96,64 @@ export default function EditListingModal({ item, activeTab, onClose, onSave }) {
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
   const handleDetailChange = (e) => setDetails({ ...details, [e.target.name]: e.target.value });
 
-  const handleImageUpload = (e) => {
+  const handleImageUpload = async (e) => {
     const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData({ ...formData, image: reader.result });
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+    
+    setIsUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2)}_${Date.now()}.${fileExt}`;
+      const filePath = `cover_images/${fileName}`;
+
+      const { error } = await supabase.storage
+        .from('discovering_bali_images')
+        .upload(filePath, file);
+
+      if (error) throw error;
+      const { data: { publicUrl } } = supabase.storage.from('discovering_bali_images').getPublicUrl(filePath);
+
+      setFormData({ ...formData, image: publicUrl });
+    } catch (err) {
+      alert("Error uploading cover image: " + err.message);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleGalleryUpload = async (e) => {
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
+    
+    setIsUploading(true);
+    try {
+      const newUrls = await Promise.all(files.map(async (file) => {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random().toString(36).substring(2)}_${Date.now()}.${fileExt}`;
+        const filePath = `gallery/${fileName}`;
+
+        const { error } = await supabase.storage.from('discovering_bali_images').upload(filePath, file);
+        if (error) throw error;
+        
+        return supabase.storage.from('discovering_bali_images').getPublicUrl(filePath).data.publicUrl;
+      }));
+
+      const updatedGallery = [...gallery];
+      let newUrlsQueue = [...newUrls];
+      
+      for(let i = 0; i < updatedGallery.length; i++) {
+        if(updatedGallery[i] === "" && newUrlsQueue.length > 0) {
+           updatedGallery[i] = newUrlsQueue.shift();
+        }
+      }
+      while(newUrlsQueue.length > 0 && updatedGallery.length < 5) {
+         updatedGallery.push(newUrlsQueue.shift());
+      }
+      setGallery(updatedGallery);
+    } catch (err) {
+       alert("Error uploading gallery: " + err.message);
+    } finally {
+       setIsUploading(false);
     }
   };
 
@@ -590,19 +641,29 @@ export default function EditListingModal({ item, activeTab, onClose, onSave }) {
                        />
                      </div>
                      <div className="relative overflow-hidden w-fit">
-                       <button type="button" className="bg-gray-100 hover:bg-gray-200 text-primary text-xs font-bold px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
-                         <ImageIcon size={14} /> Local Device Base64 File
+                       <button type="button" disabled={isUploading} className={`${isUploading ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-gray-100 hover:bg-gray-200 text-primary'} text-xs font-bold px-4 py-2 rounded-lg transition-colors flex items-center gap-2`}>
+                         <ImageIcon size={14} /> {isUploading ? 'Uploading...' : 'Upload Storage File'}
                        </button>
                        <input 
                          type="file" 
                          accept="image/*"
                          onChange={handleImageUpload} 
+                         disabled={isUploading}
                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
                        />
                      </div>
 
                      <div className="pt-3 mt-3 border-t border-gray-200">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Gallery Image URLs (Optional)</label>
+                        <div className="flex justify-between items-center mb-2">
+                           <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block">Gallery Image URLs (Optional)</label>
+                           
+                           {/* Brand new Quick Gallery Uploader (multi file) */}
+                           <div className="relative overflow-hidden">
+                             <button type="button" disabled={isUploading} className="text-[10px] font-bold bg-[#F4F4F6] px-2 py-1 rounded-md text-primary hover:bg-[#EAEAEA] transition-colors">{isUploading ? 'WAIT...' : 'UPLOAD BATCH'}</button>
+                             <input type="file" multiple accept="image/*" onChange={handleGalleryUpload} disabled={isUploading} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                           </div>
+                        </div>
+
                         <div className="space-y-2">
                            {gallery.map((url, i) => (
                               <input 

@@ -20,25 +20,40 @@ export default function TourDetail({ params }) {
   const [tourData, setTourData] = useState(null);
 
   React.useEffect(() => {
-    const saved = localStorage.getItem("bali_admin_listings");
-    if (saved) {
-       const parsed = JSON.parse(saved);
-       const combined = [...(parsed.Tour||[]), ...(parsed.Spa||[]), ...(parsed.Scooter||[]), ...(parsed.Transport||[])];
-       const found = combined.find(t => String(t.id) === String(resolvedParams.id));
-       if (found) {
+    const fetchDetail = async () => {
+       const { supabase } = await import('@/lib/supabase');
+       const { data, error } = await supabase.from('listings').select('*').eq('id', resolvedParams.id).single();
+       if (data) {
+          const frontendObj = {
+             id: data.id,
+             service: data.type,
+             title: data.title,
+             location: data.location,
+             price: data.price,
+             duration: data.duration,
+             category: data.category,
+             rating: data.rating,
+             reviews: data.reviews,
+             status: data.status,
+             image: data.image,
+             company: data.company_name,
+             ...(data.data || {})
+          };
+
           const defaultImg = "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80";
-          const coverImg = found.image || defaultImg;
-          const validGallery = (found.gallery || []).filter(img => img && img.trim() !== "");
+          const coverImg = frontendObj.image || defaultImg;
+          const validGallery = (frontendObj.gallery || []).filter(img => img && img.trim() !== "");
           
-          found.images = [
+          frontendObj.images = [
              coverImg, 
              ...validGallery, 
              coverImg, coverImg, coverImg, coverImg, coverImg
           ].slice(0, 5); // Take max 5 for grid stability
           
-          setTourData(found);
+          setTourData(frontendObj);
        }
-    }
+    };
+    fetchDetail();
   }, [resolvedParams.id]);
 
   const tabs = ["About this activity", "Experience", "Itinerary", "Important information"];

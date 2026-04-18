@@ -29,60 +29,119 @@ export default function AdminListings() {
 
   const tabs = ["Tour", "Spa", "Scooter", "Transport"];
   const [listingsData, setListingsData] = useState(allListings);
+  const [isLoading, setIsLoading] = useState(true);
 
   React.useEffect(() => {
-    const saved = localStorage.getItem("bali_admin_listings");
-    if (saved) {
-      setListingsData(JSON.parse(saved));
-    }
+    const fetchListings = async () => {
+       const { supabase } = await import('@/lib/supabase');
+       const { data, error } = await supabase.from('listings').select('*').order('created_at', { ascending: false });
+       if (error) {
+         console.error("Error fetching listings:", error);
+         setIsLoading(false);
+         return;
+       }
+       if (data) {
+         const grouped = { Tour: [], Spa: [], Scooter: [], Transport: [] };
+         data.forEach(d => {
+            const frontendItem = {
+               id: d.id,
+               service: d.type,
+               title: d.title,
+               location: d.location,
+               price: d.price,
+               duration: d.duration,
+               category: d.category,
+               rating: d.rating,
+               reviews: d.reviews,
+               status: d.status,
+               image: d.image,
+               company: d.company_name,
+               ...(d.data || {}) // Spread the nested JSONB details
+            };
+            if(grouped[frontendItem.service]) grouped[frontendItem.service].push(frontendItem);
+         });
+         setListingsData(grouped);
+       }
+       setIsLoading(false);
+    };
+    fetchListings();
   }, []);
+
   let currentListings = listingsData[activeTab].filter(item => item.title.toLowerCase().includes(searchQuery.toLowerCase()));
 
   const handleEdit = (item) => {
     setEditingItem(item);
   };
 
-  const handleDelete = (item) => {
+  const handleDelete = async (item) => {
     if (confirm(`Are you sure you want to delete "${item.title}"?`)) {
-       setListingsData(prev => {
-         const newData = {
+       const { supabase } = await import('@/lib/supabase');
+       const { error } = await supabase.from('listings').delete().eq('id', item.id);
+       if (!error) {
+         setListingsData(prev => ({
            ...prev,
            [activeTab]: prev[activeTab].filter(i => i.id !== item.id)
-         };
-         localStorage.setItem("bali_admin_listings", JSON.stringify(newData));
-         return newData;
-       });
+         }));
+       } else {
+         alert("Failed to delete from database: " + error.message);
+       }
     }
   };
 
-  const handleToggleStatus = (item) => {
-    setListingsData(prev => {
-       const newData = {
+  const handleToggleStatus = async (item) => {
+    const newStatus = item.status === 'Active' ? 'Draft' : 'Active';
+    const { supabase } = await import('@/lib/supabase');
+    const { error } = await supabase.from('listings').update({ status: newStatus }).eq('id', item.id);
+    if (!error) {
+       setListingsData(prev => ({
          ...prev,
-         [activeTab]: prev[activeTab].map(i => i.id === item.id ? { ...i, status: i.status === 'Active' ? 'Draft' : 'Active' } : i)
-       };
-       localStorage.setItem("bali_admin_listings", JSON.stringify(newData));
-       return newData;
-    });
+         [activeTab]: prev[activeTab].map(i => i.id === item.id ? { ...i, status: newStatus } : i)
+       }));
+    }
   };
 
   const handlePreview = (item) => {
     window.open(`/tours/${item.id}`, '_blank');
   };
 
-  const handleSaveItem = (updatedItem) => {
+  const handleSaveItem = async (updatedItem) => {
+    const { supabase } = await import('@/lib/supabase');
+    
+    // Deconstruct for Supabase schema
+    const { 
+      id, service, title, location, price, duration, category, rating, 
+      reviews, status, image, company, ...nestedData 
+    } = updatedItem;
+
+    const dbPayload = {
+       id: id,
+       type: service,
+       title: title || "Untitled",
+       location: location || "Bali",
+       price: parseInt(price) || 0,
+       duration: String(duration),
+       category: category || "General",
+       rating: parseFloat(rating) || 5.0,
+       reviews: parseInt(reviews) || 0,
+       status: status,
+       image: image,
+       company_name: company || null,
+       data: nestedData
+    };
+
+    const { error } = await supabase.from('listings').upsert(dbPayload);
+    if (error) {
+       alert("Error saving safely to database: " + error.message);
+       return;
+    }
+
     setListingsData(prev => {
       const currentList = prev[activeTab];
       const exists = currentList.find(i => i.id === updatedItem.id);
-      let newList;
-      if (exists) {
-        newList = currentList.map(i => i.id === updatedItem.id ? updatedItem : i);
-      } else {
-        newList = [...currentList, updatedItem];
-      }
-      const newData = { ...prev, [activeTab]: newList };
-      localStorage.setItem("bali_admin_listings", JSON.stringify(newData));
-      return newData;
+      let newList = exists 
+        ? currentList.map(i => i.id === updatedItem.id ? updatedItem : i)
+        : [updatedItem, ...currentList];
+      return { ...prev, [activeTab]: newList };
     });
     setEditingItem(null);
   };
@@ -102,7 +161,7 @@ export default function AdminListings() {
       return;
     }
     const newItem = {
-      id: `NEW-${Math.floor(Math.random() * 10000)}`,
+      id: crypto.randomUUID(), // Valid UUID for Postgres!
       title: "New " + activeTab,
       location: "Bali, Indonesia",
       duration: "1 Day",
@@ -111,7 +170,7 @@ export default function AdminListings() {
       reviews: "0",
       service: activeTab,
       category: "Nature",
-      status: "Active",
+      status: "Draft",
       image: ""
     };
     setEditingItem(newItem);
