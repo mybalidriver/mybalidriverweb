@@ -11,9 +11,9 @@ import { motion, AnimatePresence } from "framer-motion";
 const services = [
   { id: "Tour", icon: TourIcon },
   { id: "Massage", icon: SpaIcon },
-  { id: "Transport", icon: TransportIcon },
   { id: "Scooter", icon: ScooterIcon },
   { id: "Esim", icon: Wifi },
+  { id: "Transport", icon: TransportIcon },
 ];
 
 const getCategoriesForService = (service) => {

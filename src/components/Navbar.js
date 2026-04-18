@@ -30,9 +30,9 @@ export default function Navbar() {
   const services = [
     { id: "Tour", icon: TourIcon },
     { id: "Massage", icon: SpaIcon },
-    { id: "Transport", icon: TransportIcon },
     { id: "Scooter", icon: ScooterIcon },
     { id: "Esim", icon: Wifi },
+    { id: "Transport", icon: TransportIcon },
   ];
 
   // Hide the global Navbar on individual tour detail pages or the map page
