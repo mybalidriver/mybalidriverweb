@@ -108,7 +108,6 @@ export default function Home() {
   const router = useRouter();
   const [activeCat, setActiveCat] = useState("All");
   const [activeService, setActiveService] = useState("Tour");
-  const [filterOpen, setFilterOpen] = useState(false);
   const [currentCampIdx, setCurrentCampIdx] = useState(0);
   
   // Custom event listeners to sync with Desktop Navbar.js
@@ -189,94 +188,85 @@ export default function Home() {
     <div className="w-full bg-background min-h-[100dvh] font-sans pb-32">
 
       {/* Mobile Top Header Search (Hidden on Desktop) */}
-      <div className="md:hidden px-6 pt-4 pb-2 relative z-40">
-        <div className="flex items-center bg-white border border-border shadow-soft rounded-full pl-2 pr-2 py-2 relative">
-          <button 
-            onClick={() => setFilterOpen(!filterOpen)} 
-            className="flex items-center gap-1.5 pl-3 pr-2 py-1.5 rounded-full hover:bg-gray-50 text-primary active:scale-95 transition-all outline-none"
-          >
-            <span className="font-extrabold text-[14px] tracking-tight">{activeService}</span>
-            <ChevronDown size={14} className={`text-text-secondary transition-transform duration-300 ${filterOpen ? 'rotate-180' : ''}`} />
-          </button>
-          
-          <div className="h-5 w-[1px] bg-border/80 mx-1 shrink-0"></div>
-          
-          <Search size={18} className="text-text-secondary mx-2 shrink-0" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onFocus={() => setIsSearchFocused(true)}
-            onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
-            placeholder={`Search ${activeService.toLowerCase()}s...`}
-            className="flex-1 min-w-0 outline-none text-[14px] font-medium bg-transparent text-primary placeholder:text-text-secondary pr-2"
-          />
-          
-          {/* Filter Modal Toggle */}
-          <button 
-            onClick={() => setIsFilterModalOpen(true)}
-            className={`w-[36px] h-[36px] rounded-full flex items-center justify-center shrink-0 shadow-sm transition-all active:scale-95 bg-accent text-primary hover:scale-105`}
-          >
-             <Settings2 size={16} strokeWidth={2.5} />
-          </button>
+      <div className="md:hidden pt-4 pb-2 relative z-40 bg-background">
+        
+        {/* App-like Service Filter (Above Search Bar) */}
+        <div className="flex overflow-x-auto no-scrollbar gap-3 px-6 pb-5 hide-scroll" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+          {services.map((s) => {
+            const Icon = s.icon;
+            const isActive = activeService === s.id;
+            return (
+              <button
+                key={s.id}
+                onClick={() => {
+                  if (s.id === "Transport") {
+                    router.push("/map?service=Transport");
+                    return;
+                  }
+                  setActiveService(s.id);
+                  setActiveCat("All");
+                  setSearchQuery("");
+                  
+                  if (s.id === "Scooter") {
+                     setTimeout(() => {
+                         const el = document.getElementById("categories-section");
+                         if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                     }, 50);
+                  }
+                }}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-full shrink-0 transition-all active:scale-95 outline-none shadow-sm border ${isActive ? 'bg-accent border-accent text-primary' : 'bg-[#F8FAFC] border-[#F8FAFC] text-text-secondary hover:bg-gray-50'}`}
+              >
+                <Icon size={18} strokeWidth={isActive ? 2 : 1.5} className={isActive ? 'text-primary' : 'text-text-secondary'}/>
+                <span className={`text-[15px] font-bold ${isActive ? 'text-primary' : 'text-text-secondary'}`}>{s.id}</span>
+              </button>
+            )
+          })}
         </div>
 
-        {/* Search Autocomplete Dropdown */}
-        {isSearchFocused && searchQuery.length > 0 && (
-          <div className="absolute top-[64px] left-6 right-6 bg-white rounded-2xl p-2 shadow-2xl border border-border animate-in fade-in zoom-in-95 duration-200 z-[60]">
-            {searchSuggestions.length > 0 ? (
-              searchSuggestions.map((loc, idx) => (
-                 <button 
-                   key={idx}
-                   onClick={() => { setSearchQuery(loc); setIsSearchFocused(false); }}
-                   className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 active:bg-gray-100 transition-colors text-left"
-                 >
-                   {allListings.some(t => t.location === loc) ? <MapPin size={16} className="text-secondary" /> : <Search size={16} className="text-secondary" />}
-                   <span className="font-bold text-[14px] text-primary truncate block flex-1">{loc}</span>
-                 </button>
-              ))
-            ) : (
-                <div className="px-4 py-3 text-[14px] text-text-secondary font-medium text-center">
-                  No places found
-                </div>
-            )}
+        <div className="px-6 relative">
+          <div className="flex items-center bg-white border border-border shadow-soft rounded-full pl-4 pr-2 py-2 relative">
+            <Search size={18} className="text-text-secondary shrink-0 mr-2" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => setIsSearchFocused(true)}
+              onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
+              placeholder={`Search ${activeService.toLowerCase()}s...`}
+              className="flex-1 min-w-0 outline-none text-[15px] font-medium bg-transparent text-primary placeholder:text-text-secondary pr-2"
+            />
+            
+            {/* Filter Modal Toggle */}
+            <button 
+              onClick={() => setIsFilterModalOpen(true)}
+              className={`w-[38px] h-[38px] rounded-full flex items-center justify-center shrink-0 shadow-sm transition-all active:scale-95 bg-accent text-primary hover:scale-105`}
+            >
+               <Settings2 size={16} strokeWidth={2.5} />
+            </button>
           </div>
-        )}
 
-        {/* Expanded Dropdown Category Filters */}
-        {filterOpen && (
-          <div className="absolute top-[64px] left-6 md:top-[80px] md:left-8 bg-white/95 backdrop-blur-xl rounded-2xl p-2 shadow-2xl flex flex-col min-w-[140px] border border-border animate-in fade-in zoom-in-95 duration-200 z-50">
-            {services.map((s) => {
-              const Icon = s.icon;
-              return (
-                <button 
-                  key={s.id} 
-                  onClick={() => { 
-                    if (s.id === "Transport") {
-                      router.push("/map?service=Transport");
-                      return;
-                    }
-                    setActiveService(s.id); 
-                    setActiveCat("All"); 
-                    setSearchQuery("");
-                    setFilterOpen(false); 
-                    
-                    if (s.id === "Scooter") {
-                       setTimeout(() => {
-                           const el = document.getElementById("categories-section");
-                           if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                       }, 50);
-                    }
-                  }} 
-                  className={`flex items-center gap-3 px-4 py-2.5 rounded-xl font-bold text-[13px] text-left transition-colors ${activeService === s.id ? 'bg-primary text-accent' : 'bg-transparent text-text-secondary hover:bg-gray-50 hover:text-primary'} outline-none w-full`}
-                >
-                  <Icon size={16} className={activeService === s.id ? 'text-accent' : 'text-text-secondary'} strokeWidth={2} />
-                  {s.id}
-                </button>
-              );
-            })}
-          </div>
-        )}
+          {/* Search Autocomplete Dropdown */}
+          {isSearchFocused && searchQuery.length > 0 && (
+            <div className="absolute top-[100%] mt-2 left-6 right-6 bg-white rounded-2xl p-2 shadow-2xl border border-border animate-in fade-in zoom-in-95 duration-200 z-[60]">
+              {searchSuggestions.length > 0 ? (
+                searchSuggestions.map((loc, idx) => (
+                   <button 
+                     key={idx}
+                     onClick={() => { setSearchQuery(loc); setIsSearchFocused(false); }}
+                     className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 active:bg-gray-100 transition-colors text-left"
+                   >
+                     {allListings.some(t => t.location === loc) ? <MapPin size={16} className="text-secondary" /> : <Search size={16} className="text-secondary" />}
+                     <span className="font-bold text-[14px] text-primary truncate block flex-1">{loc}</span>
+                   </button>
+                ))
+              ) : (
+                  <div className="px-4 py-3 text-[14px] text-text-secondary font-medium text-center">
+                    No places found
+                  </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Apple-style Filter Bottom Sheet */}
