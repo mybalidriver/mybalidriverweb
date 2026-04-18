@@ -1,11 +1,10 @@
 -- scripts/supabase_schema.sql
--- Production-Ready Supabase Schema for Discovering Bali
+-- Production-Ready Supabase Schema for Discovering Bali (Idempotent Version)
 
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- 1. COMPANIES TABLE
--- Manages service partners and rental providers.
 CREATE TABLE IF NOT EXISTS public.companies (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name TEXT NOT NULL,
@@ -22,7 +21,6 @@ CREATE TABLE IF NOT EXISTS public.companies (
 );
 
 -- 2. LISTINGS TABLE
--- Unified table handling Tours, Spa, Scooters, and Transport
 CREATE TABLE IF NOT EXISTS public.listings (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     type TEXT NOT NULL CHECK (type IN ('Tour', 'Spa', 'Scooter', 'Transport')),
@@ -35,13 +33,12 @@ CREATE TABLE IF NOT EXISTS public.listings (
     reviews INTEGER DEFAULT 0,
     status TEXT DEFAULT 'Active' CHECK (status IN ('Active', 'Draft')),
     image TEXT,
-    company_name TEXT, -- Keeping as TEXT to guarantee backward-compatibility with UI state
+    company_name TEXT, 
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- 3. BLOGS / PLACES TABLE
--- Handles the main content stream and SEO-optimized hidden beaches, guides, etc.
 CREATE TABLE IF NOT EXISTS public.blogs (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     title TEXT NOT NULL,
@@ -63,11 +60,15 @@ ALTER TABLE public.listings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.blogs ENABLE ROW LEVEL SECURITY;
 
 -- Access Policies (Public can read active/published items)
+-- Using DROP POLICY IF EXISTS makes the script safe to run multiple times!
+DROP POLICY IF EXISTS "Allow public read access to active listings" ON public.listings;
 CREATE POLICY "Allow public read access to active listings" ON public.listings FOR SELECT USING (status = 'Active');
-CREATE POLICY "Allow public read access to verified companies" ON public.companies FOR SELECT USING (verified = true);
-CREATE POLICY "Allow public read access to published blogs" ON public.blogs FOR SELECT USING (status = 'Published');
 
--- Service role will automatically bypass RLS for data manipulation.
+DROP POLICY IF EXISTS "Allow public read access to verified companies" ON public.companies;
+CREATE POLICY "Allow public read access to verified companies" ON public.companies FOR SELECT USING (verified = true);
+
+DROP POLICY IF EXISTS "Allow public read access to published blogs" ON public.blogs;
+CREATE POLICY "Allow public read access to published blogs" ON public.blogs FOR SELECT USING (status = 'Published');
 
 -- Structured Schema Enhancements (No AI Data)
 
@@ -80,9 +81,14 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
--- Apply triggers
+-- Apply triggers safely
+DROP TRIGGER IF EXISTS update_companies_modtime ON public.companies;
 CREATE TRIGGER update_companies_modtime BEFORE UPDATE ON public.companies FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
+
+DROP TRIGGER IF EXISTS update_listings_modtime ON public.listings;
 CREATE TRIGGER update_listings_modtime BEFORE UPDATE ON public.listings FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
+
+DROP TRIGGER IF EXISTS update_blogs_modtime ON public.blogs;
 CREATE TRIGGER update_blogs_modtime BEFORE UPDATE ON public.blogs FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
 
 -- Indexes for performance
@@ -100,17 +106,17 @@ VALUES ('discovering_bali_images', 'discovering_bali_images', true)
 ON CONFLICT (id) DO NOTHING;
 
 -- Storage Security Policies
--- 1. Allow anyone to read/view images
+DROP POLICY IF EXISTS "Public Image Read" ON storage.objects;
 CREATE POLICY "Public Image Read" 
 ON storage.objects FOR SELECT 
 USING (bucket_id = 'discovering_bali_images');
 
--- 2. Allow authenticated users to upload new images
+DROP POLICY IF EXISTS "Authenticated Image Upload" ON storage.objects;
 CREATE POLICY "Authenticated Image Upload" 
 ON storage.objects FOR INSERT 
 WITH CHECK (bucket_id = 'discovering_bali_images' AND auth.role() = 'authenticated');
 
--- 3. Allow anonymous/public image uploads (Warning: Use cautiously in production!)
+DROP POLICY IF EXISTS "Public Image Upload (Dev Mode)" ON storage.objects;
 CREATE POLICY "Public Image Upload (Dev Mode)" 
 ON storage.objects FOR INSERT 
 WITH CHECK (bucket_id = 'discovering_bali_images');
