@@ -328,8 +328,7 @@ export default function TourDetail({ params }) {
           </div>
           
         </div>
-
-
+      </div>
 
       {/* Floating Bottom Booking Bar (Mobile Only) */}
       <div className="md:hidden fixed bottom-0 left-0 w-full bg-white z-40 px-6 pt-4 pb-[calc(env(safe-area-inset-bottom)+20px)] shadow-[0_-10px_40px_rgba(0,0,0,0.08)] border-t border-border">
