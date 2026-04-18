@@ -12,29 +12,63 @@ export default function SEOPlacesManagement() {
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPlace, setEditingPlace] = useState(null);
-  const [isGenerating, setIsGenerating] = useState(false);
   const [formData, setFormData] = useState({ title: "", location: "", category: "Beach", slug: "", meta: "", status: "Published", image: "", images: [], content: "" });
 
   const initialPlaces = [
-    { id: "PLC-001", title: "10 Hidden Beaches in Uluwatu You Must Visit", location: "Uluwatu, South Kuta", category: "Beach", slug: "/blog/uluwatu-hidden-beaches", views: "1.2K", status: "Published", image: "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?w=400", images: [], content: "Discover the untouched beauty of Uluwatu..." },
-    { id: "PLC-002", title: "Ultimate Guide to Ubud Monkey Forest", location: "Ubud, Gianyar", category: "Nature", slug: "/blog/ubud-monkey-forest-guide", views: "3.4K", status: "Published", image: "https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?w=400", images: [], content: "The Sacred Monkey Forest Sanctuary is a must-visit..." },
-    { id: "PLC-003", title: "Best Sunset Spots in Seminyak 2026", location: "Seminyak, Kuta", category: "Nightlife", slug: "/blog/best-seminyak-sunsets", views: "800", status: "Draft", image: "", images: [], content: "Seminyak is famous for its vibrant nightlife..." },
+    { 
+      id: "PLC-001", 
+      title: "10 Hidden Beaches in Uluwatu You Must Visit", 
+      location: "Uluwatu, South Kuta", 
+      category: "Beach", 
+      slug: "/blog/uluwatu-hidden-beaches", 
+      meta: "Discover the untouched spots in Uluwatu, from Nyang Nyang to Green Bowl, that still offer powdery white sand, turquoise waters, and an escape from the crowds.",
+      views: "1.2K", 
+      status: "Published", 
+      image: "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?w=800", 
+      images: [], 
+      content: "<h2>Discover the Untouched Beauty of Uluwatu</h2><p>Uluwatu is renowned for its sheer limestone cliffs and world-class surfing breaks, but beyond the famous Padang Padang and Suluban lies a treasure trove of hidden beaches waiting to be explored. If you are looking for powdery white sand, crystal-clear turquoise waters, and a quiet escape from the crowds, you are in the right place.</p><h3>1. Nyang Nyang Beach</h3><p>One of Bali's most pristine stretches of sand, Nyang Nyang requires a steep descent down the cliffside, but the reward is a massive, uncrowded beach. The shipwreck remnants serve as the perfect backdrop for photography.</p><h3>2. Thomas Beach</h3><p>Tucked between Padang Padang and Suluban, Thomas Beach is a sandy cove that has managed to stay relatively off the radar. The calm waters make it an excellent spot for swimming and relaxing under a parasol.</p><h3>3. Green Bowl Beach</h3><p>Accessible down hundreds of concrete steps, Green Bowl is famous for its caves and incredible reef breaks. Due to the exertion required to reach it, it remains refreshingly empty most of the day.</p><h3>Essential Tips for Visiting</h3><ul><li><strong>Start Early:</strong> Beat the midday sun, especially for beaches with steep staircases.</li><li><strong>Tides Matter:</strong> Many Uluwatu beaches disappear at high tide, so always check local tide charts.</li><li><strong>Pack Water:</strong> Facilities are limited on these hidden gems.</li></ul><p>Whether you're an avid surfer or just a sun-seeker, Uluwatu's hidden coastline represents the very best of Bali's natural beauty. Leave no trace, and enjoy paradise!</p>" 
+    },
+    { 
+      id: "PLC-002", 
+      title: "Ultimate Guide to Ubud Monkey Forest", 
+      location: "Ubud, Gianyar", 
+      category: "Nature", 
+      slug: "/blog/ubud-monkey-forest-guide", 
+      meta: "A comprehensive guide to the Sacred Monkey Forest Sanctuary in Ubud, featuring essential tips, temple history, and rules for a safe, unforgettable visit.",
+      views: "3.4K", 
+      status: "Published", 
+      image: "https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?w=800", 
+      images: [], 
+      content: "<h2>The Sacred Heart of Ubud</h2><p>The Sacred Monkey Forest Sanctuary isn't just an attraction—it's a spiritual and ecological sanctuary right in the bustling center of Ubud. Home to over 1,000 Balinese long-tailed macaques and three ancient Hindu temples, it's a place where nature, culture, and mythology intertwine perfectly.</p><h3>What to Expect</h3><p>As you walk through the lush, dense nutmeg forest, you'll be greeted by ancient banyan trees draped over moss-covered ravines and intricate stone dragon bridges. The macaques roam freely here, observing humans just as closely as we observe them.</p><h3>The Three Temples</h3><p>Deep within the forest lie three historically significant temples built around the 14th century: <strong>Pura Dalem Agung Padangtegal</strong> (the main temple), <strong>Pura Beji</strong> (the bathing temple), and <strong>Pura Prajapati</strong>. These structures are vital to the local spiritual community.</p><h3>Rules for a Safe Visit</h3><ul><li><strong>No Eye Contact:</strong> Staring is considered aggressive in monkey culture.</li><li><strong>Secure Your Belongings:</strong> The monkeys are incredibly curious. Keep sunglasses, water bottles, and phones packed away securely.</li><li><strong>Do Not Feed Them:</strong> The sanctuary staff provides a strict diet for the macaques. Feeding them outside snacks can lead to aggressive behavior.</li></ul><p>Visiting the Monkey Forest is an unforgettable experience that offers a profound glimpse into Bali's philosophy of <em>Tri Hita Karana</em>—harmony between humans, nature, and the divine.</p>" 
+    },
+    { 
+      id: "PLC-003", 
+      title: "Best Sunset Spots in Seminyak", 
+      location: "Seminyak, Kuta", 
+      category: "Nightlife", 
+      slug: "/blog/best-seminyak-sunsets", 
+      views: "800", 
+      status: "Draft", 
+      image: "", 
+      images: [], 
+      content: "Seminyak is famous for its vibrant nightlife..." 
+    }
   ];
 
   useEffect(() => {
-    const saved = localStorage.getItem("bali_places");
+    const saved = localStorage.getItem("bali_places_v3");
     if (saved) {
       setPlaces(JSON.parse(saved));
     } else {
       setPlaces(initialPlaces);
-      localStorage.setItem("bali_places", JSON.stringify(initialPlaces));
+      localStorage.setItem("bali_places_v3", JSON.stringify(initialPlaces));
     }
     setIsLoaded(true);
   }, []);
 
   const savePlaces = (newData) => {
     setPlaces(newData);
-    localStorage.setItem("bali_places", JSON.stringify(newData));
+    localStorage.setItem("bali_places_v3", JSON.stringify(newData));
   };
 
   const handleStatusChange = (id, newStatus) => {
@@ -73,33 +107,7 @@ export default function SEOPlacesManagement() {
     });
   };
 
-  const handleGenerateAI = async () => {
-    if (!formData.title) {
-       alert("Please enter an Article Title first before generating content.");
-       return;
-    }
-    setIsGenerating(true);
-    
-    // Simulate AI Generation
-    setTimeout(() => {
-      let cat = "Nature";
-      const titleLower = formData.title.toLowerCase();
-      if (titleLower.includes("beach") || titleLower.includes("ocean")) cat = "Beach";
-      if (titleLower.includes("club") || titleLower.includes("bar") || titleLower.includes("night")) cat = "Nightlife";
-      if (titleLower.includes("temple") || titleLower.includes("culture") || titleLower.includes("dance")) cat = "Culture";
-      if (titleLower.includes("food") || titleLower.includes("restaurant") || titleLower.includes("eat")) cat = "Dining";
 
-      setFormData(prev => ({
-        ...prev,
-        location: titleLower.includes("ubud") ? "Ubud, Bali" : (titleLower.includes("seminyak") ? "Seminyak, Bali" : "Bali, Indonesia"),
-        category: cat,
-        slug: `/blog/${formData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
-        meta: `Discover everything you need to know about ${formData.title}. Read our comprehensive guide featuring insider tips, recommended locations, and the best experiences for 2026.`,
-        content: `<h2>Introduction to ${formData.title}</h2>\n\nWelcome to your ultimate guide! Bali is an incredible island, and this topic is one of the most exciting trends right now.\n\n<h3>Why You Should Care</h3>\nExperiencing this firsthand offers an unforgettable perspective. From the beautiful scenery to the vibrant local atmosphere, it is an absolute must-do.\n\n<h3>Top 3 Insider Tips</h3>\n1. **Arrive Early:** Beat the crowds to get the best experience.\n2. **Bring Water:** Stay hydrated in the tropical climate.\n3. **Engage with Locals:** They often provide the best hidden recommendations.\n\nGet out there and enjoy the adventure!`
-      }));
-      setIsGenerating(false);
-    }, 1500);
-  };
 
   const openEditModal = (place) => {
     setEditingPlace(place);
@@ -293,14 +301,6 @@ export default function SEOPlacesManagement() {
                       <div>
                          <div className="flex justify-between items-end mb-1.5">
                             <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Article Title (H1)</label>
-                            <button 
-                               onClick={handleGenerateAI}
-                               disabled={isGenerating}
-                               className="flex items-center gap-1.5 text-xs font-bold bg-[#F4F4F6] hover:bg-[#D9FB41] hover:text-[#1C1C1E] text-gray-500 px-3 py-1.5 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
-                            >
-                               {isGenerating ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} className="text-amber-500" />}
-                               Generate with AI
-                            </button>
                          </div>
                          <input type="text" value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} className="w-full bg-white text-lg font-extrabold text-primary rounded-xl px-4 py-3 border border-gray-200 outline-none focus:border-accent shadow-sm" placeholder="10 Hidden Beaches..." />
                       </div>

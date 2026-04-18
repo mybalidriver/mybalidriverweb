@@ -136,16 +136,40 @@ export default function Home() {
   const [recommendedPlaces, setRecommendedPlaces] = useState([]);
 
   useEffect(() => {
-    const saved = localStorage.getItem("bali_places");
+    const saved = localStorage.getItem("bali_places_v3");
     if (saved) {
       setRecommendedPlaces(JSON.parse(saved).filter(p => p.status === 'Published'));
     } else {
       const initialPlaces = [
-        { id: "PLC-001", title: "10 Hidden Beaches in Uluwatu You Must Visit", location: "Uluwatu, South Kuta", category: "Beach", slug: "/blog/uluwatu-hidden-beaches", views: "1.2K", status: "Published", image: "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?w=400", images: [], content: "Discover the untouched beauty of Uluwatu..." },
-        { id: "PLC-002", title: "Ultimate Guide to Ubud Monkey Forest", location: "Ubud, Gianyar", category: "Nature", slug: "/blog/ubud-monkey-forest-guide", views: "3.4K", status: "Published", image: "https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?w=400", images: [], content: "The Sacred Monkey Forest Sanctuary is a must-visit..." },
+        { 
+          id: "PLC-001", 
+          title: "10 Hidden Beaches in Uluwatu You Must Visit", 
+          location: "Uluwatu, South Kuta", 
+          category: "Beach", 
+          slug: "/blog/uluwatu-hidden-beaches", 
+          meta: "Discover the untouched spots in Uluwatu, from Nyang Nyang to Green Bowl, that still offer powdery white sand, turquoise waters, and an escape from the crowds.",
+          views: "1.2K", 
+          status: "Published", 
+          image: "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?w=400", 
+          images: [], 
+          content: "<h2>Discover the Untouched Beauty of Uluwatu</h2><p>Uluwatu is renowned for its sheer limestone cliffs and world-class surfing breaks, but beyond the famous Padang Padang and Suluban lies a treasure trove of hidden beaches waiting to be explored. If you are looking for powdery white sand, crystal-clear turquoise waters, and a quiet escape from the crowds, you are in the right place.</p><h3>1. Nyang Nyang Beach</h3><p>One of Bali's most pristine stretches of sand, Nyang Nyang requires a steep descent down the cliffside, but the reward is a massive, uncrowded beach. The shipwreck remnants serve as the perfect backdrop for photography.</p><h3>2. Thomas Beach</h3><p>Tucked between Padang Padang and Suluban, Thomas Beach is a sandy cove that has managed to stay relatively off the radar. The calm waters make it an excellent spot for swimming and relaxing under a parasol.</p><h3>3. Green Bowl Beach</h3><p>Accessible down hundreds of concrete steps, Green Bowl is famous for its caves and incredible reef breaks. Due to the exertion required to reach it, it remains refreshingly empty most of the day.</p><h3>Essential Tips for Visiting</h3><ul><li><strong>Start Early:</strong> Beat the midday sun, especially for beaches with steep staircases.</li><li><strong>Tides Matter:</strong> Many Uluwatu beaches disappear at high tide, so always check local tide charts.</li><li><strong>Pack Water:</strong> Facilities are limited on these hidden gems.</li></ul><p>Whether you're an avid surfer or just a sun-seeker, Uluwatu's hidden coastline represents the very best of Bali's natural beauty. Leave no trace, and enjoy paradise!</p>" 
+        },
+        { 
+          id: "PLC-002", 
+          title: "Ultimate Guide to Ubud Monkey Forest", 
+          location: "Ubud, Gianyar", 
+          category: "Nature", 
+          slug: "/blog/ubud-monkey-forest-guide", 
+          meta: "A comprehensive guide to the Sacred Monkey Forest Sanctuary in Ubud, featuring essential tips, temple history, and rules for a safe, unforgettable visit.",
+          views: "3.4K", 
+          status: "Published", 
+          image: "https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?w=400", 
+          images: [], 
+          content: "<h2>The Sacred Heart of Ubud</h2><p>The Sacred Monkey Forest Sanctuary isn't just an attraction—it's a spiritual and ecological sanctuary right in the bustling center of Ubud. Home to over 1,000 Balinese long-tailed macaques and three ancient Hindu temples, it's a place where nature, culture, and mythology intertwine perfectly.</p><h3>What to Expect</h3><p>As you walk through the lush, dense nutmeg forest, you'll be greeted by ancient banyan trees draped over moss-covered ravines and intricate stone dragon bridges. The macaques roam freely here, observing humans just as closely as we observe them.</p><h3>The Three Temples</h3><p>Deep within the forest lie three historically significant temples built around the 14th century: <strong>Pura Dalem Agung Padangtegal</strong> (the main temple), <strong>Pura Beji</strong> (the bathing temple), and <strong>Pura Prajapati</strong>. These structures are vital to the local spiritual community.</p><h3>Rules for a Safe Visit</h3><ul><li><strong>No Eye Contact:</strong> Staring is considered aggressive in monkey culture.</li><li><strong>Secure Your Belongings:</strong> The monkeys are incredibly curious. Keep sunglasses, water bottles, and phones packed away securely.</li><li><strong>Do Not Feed Them:</strong> The sanctuary staff provides a strict diet for the macaques. Feeding them outside snacks can lead to aggressive behavior.</li></ul><p>Visiting the Monkey Forest is an unforgettable experience that offers a profound glimpse into Bali's philosophy of <em>Tri Hita Karana</em>—harmony between humans, nature, and the divine.</p>" 
+        },
       ];
       setRecommendedPlaces(initialPlaces);
-      localStorage.setItem("bali_places", JSON.stringify(initialPlaces));
+      localStorage.setItem("bali_places_v3", JSON.stringify(initialPlaces));
     }
   }, []);
 
@@ -187,8 +211,8 @@ export default function Home() {
   return (
     <div className="w-full bg-background min-h-[100dvh] font-sans pb-32">
 
-      {/* Mobile Top Header Search (Hidden on Desktop) */}
-      <div className="md:hidden pt-4 pb-2 relative z-40 bg-background">
+      {/* Mobile Dark Header Overlay Wrapper */}
+      <div className="md:hidden bg-[#1C1C1E] rounded-b-[40px] pt-[96px] -mt-20 pb-6 mb-8 shadow-2xl relative z-30">
         
         {/* App-like Service Filter (Above Search Bar) */}
         <div className="flex overflow-x-auto no-scrollbar gap-3 px-6 pb-5 hide-scroll" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
@@ -214,18 +238,18 @@ export default function Home() {
                      }, 50);
                   }
                 }}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-full shrink-0 transition-all active:scale-95 outline-none shadow-sm border ${isActive ? 'bg-accent border-accent text-primary' : 'bg-[#F8FAFC] border-[#F8FAFC] text-text-secondary hover:bg-gray-50'}`}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-full shrink-0 transition-all active:scale-95 outline-none border ${isActive ? 'bg-accent border-accent text-primary shadow-[0_0_20px_rgba(217,251,65,0.3)]' : 'bg-white/10 border-white/10 text-white hover:bg-white/20 shadow-sm'}`}
               >
-                <Icon size={18} strokeWidth={isActive ? 2 : 1.5} className={isActive ? 'text-primary' : 'text-text-secondary'}/>
-                <span className={`text-[15px] font-bold ${isActive ? 'text-primary' : 'text-text-secondary'}`}>{s.id}</span>
+                <Icon size={18} strokeWidth={isActive ? 2 : 1.5} className={isActive ? 'text-primary' : 'text-[#8A8E9B]'}/>
+                <span className={`text-[15px] font-bold ${isActive ? 'text-primary' : 'text-white'}`}>{s.id}</span>
               </button>
             )
           })}
         </div>
 
-        <div className="px-6 relative">
-          <div className="flex items-center bg-white border border-border shadow-soft rounded-full pl-4 pr-2 py-2 relative">
-            <Search size={18} className="text-text-secondary shrink-0 mr-2" />
+        <div className="px-6 relative z-40">
+          <div className="flex items-center bg-white/10 backdrop-blur-md border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.4)] rounded-full pl-4 pr-2 py-2 relative">
+            <Search size={18} className="text-[#8A8E9B] shrink-0 mr-2" />
             <input
               type="text"
               value={searchQuery}
@@ -233,7 +257,7 @@ export default function Home() {
               onFocus={() => setIsSearchFocused(true)}
               onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
               placeholder={`Search ${activeService.toLowerCase()}s...`}
-              className="flex-1 min-w-0 outline-none text-[15px] font-medium bg-transparent text-primary placeholder:text-text-secondary pr-2"
+              className="flex-1 min-w-0 outline-none text-[15px] font-medium bg-transparent text-white placeholder:text-[#8A8E9B] pr-2 focus:ring-0"
             />
             
             {/* Filter Modal Toggle */}
@@ -267,8 +291,6 @@ export default function Home() {
             </div>
           )}
         </div>
-      </div>
-
       {/* Apple-style Filter Bottom Sheet */}
       <AnimatePresence>
         {isFilterModalOpen && (
@@ -331,7 +353,7 @@ export default function Home() {
       </AnimatePresence>
 
       {/* Mobile-only Campaign Swipe Carousel */}
-      <section className="md:hidden pt-2 pb-6 relative">
+      <section className="pt-6 pb-2 relative">
         <div 
           className="flex overflow-x-auto no-scrollbar gap-4 px-6 snap-x snap-mandatory"
           onScroll={(e) => {
@@ -364,18 +386,19 @@ export default function Home() {
         </div>
 
         {/* Dot Indicators */}
-        <div className="flex justify-center mt-5 gap-2 items-center">
+        <div className="flex justify-center mt-6 gap-2 items-center">
           {campaigns.map((_, idx) => (
             <button 
               key={idx}
               onClick={() => {
                 setCurrentCampIdx(idx);
               }}
-              className={`h-1.5 rounded-full transition-all duration-300 pointer-events-none ${idx === currentCampIdx ? 'w-5 bg-accent' : 'w-1.5 bg-border'}`}
+              className={`h-1.5 rounded-full transition-all duration-300 pointer-events-none ${idx === currentCampIdx ? 'w-5 bg-accent shadow-[0_0_10px_rgba(217,251,65,0.4)]' : 'w-1.5 bg-white/20'}`}
             />
           ))}
         </div>
       </section>
+      </div> {/* End Mobile Dark Header Overlay Wrapper */}
 
       {/* Desktop/iPad Cinematic Campaign Slider (Card Style) */}
       <section className="hidden md:block px-6 pt-5 mb-12 max-w-[1240px] mx-auto relative">
@@ -438,9 +461,14 @@ export default function Home() {
         <section className="pt-2 mb-8 relative">
           <div className="px-6 flex justify-between items-end mb-4">
             <h2 className="text-[20px] font-bold text-primary flex items-center gap-2">
-              {getPopularTripsTitle()} <MapPin size={20} className="fill-accent text-accent" />
+              {getPopularTripsTitle()}
             </h2>
-            <span className="text-sm font-semibold text-text-secondary">See more</span>
+            <Link 
+              href={activeService === "Tour" ? "/tours" : activeService === "Massage" ? "/spa" : activeService === "Transport" ? "/map" : activeService === "Scooter" ? "/scooter" : "/esim"}
+              className="text-sm font-semibold text-text-secondary hover:text-text-primary cursor-pointer transition-colors"
+            >
+              See more
+            </Link>
           </div>
 
           {/* Horizontal Scroll Area */}

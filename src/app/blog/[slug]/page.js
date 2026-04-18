@@ -2,9 +2,18 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, MapPin, Share2, Calendar, Eye, Sparkles } from 'lucide-react';
+import { ArrowLeft, MapPin, Share2, Calendar, Eye, Sparkles, UserCircle, Send } from 'lucide-react';
 
 export default function BlogDetail() {
+  const formatContent = (htmlOrText) => {
+    if (!htmlOrText) return '<p>No content available for this article yet.</p>';
+    if (/<[a-z][\s\S]*>/i.test(htmlOrText)) {
+      return htmlOrText;
+    }
+    return htmlOrText.split(/\n\s*\n/).map(p => {
+       return `<p>${p.replace(/\n/g, '<br/>')}</p>`;
+    }).join('');
+  };
   const { slug } = useParams();
   const router = useRouter();
   const [post, setPost] = useState(null);
@@ -12,7 +21,7 @@ export default function BlogDetail() {
 
   useEffect(() => {
     // We expect slug to match the database `slug` which was populated as `/blog/some-slug`
-    const saved = localStorage.getItem("bali_places");
+    const saved = localStorage.getItem("bali_places_v3");
     if (saved) {
       const places = JSON.parse(saved);
       const found = places.find(p => p.slug === `/blog/${slug}` || p.slug === `blog/${slug}` || p.slug === slug);
@@ -87,12 +96,18 @@ export default function BlogDetail() {
          </div>
       </div>
 
-      {/* Content Area */}
-      <div className="max-w-4xl mx-auto px-6 md:px-12 pt-8 md:pt-12">
+      {/* Content Area with Newsletter Vibe */}
+      <div className="max-w-3xl mx-auto px-6 md:px-12 pt-10 md:pt-16 pb-12">
+        
+
+
+        {/* Formatted Smart Body */}
         <div 
-           className="prose prose-lg prose-headings:font-black prose-headings:text-primary prose-p:text-text-secondary prose-p:font-medium prose-p:leading-relaxed prose-a:text-accent prose-strong:text-primary max-w-none"
-           dangerouslySetInnerHTML={{ __html: post.content ? post.content.replace(/\n/g, '<br/>') : '<p>No content available for this article yet.</p>' }}
+           className="newsletter-content"
+           dangerouslySetInnerHTML={{ __html: formatContent(post.content) }}
         />
+
+
       </div>
 
       {/* Masonry Gallery */}
