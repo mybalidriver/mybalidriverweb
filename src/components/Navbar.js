@@ -38,42 +38,40 @@ export default function Navbar() {
   // Hide the global Navbar on individual tour detail pages or the map page
   if (pathname.match(/^\/tours\/.+/) || pathname === '/map') return null;
 
-  const isHome = pathname === '/';
-
   return (
-    <header className={`fixed w-full top-0 z-50 transition-all duration-300 ${isScrolled ? (isHome ? "bg-[#1C1C1E]/90 border-white/10 md:bg-white/90 md:border-border" : "bg-white/90 border-border") : (isHome ? "bg-transparent md:bg-background" : "bg-background")} ${isScrolled ? "backdrop-blur-md shadow-sm border-b" : ""} pt-4 pb-4 md:py-5`}>
+    <header className={`fixed w-full top-0 z-50 transition-all duration-300 ${isScrolled ? "bg-white/90 backdrop-blur-md shadow-sm border-b border-border" : "bg-background"} pt-4 pb-4 md:py-5`}>
       
       {/* MOBILE LAYOUT (Inspired by the Reference Image) */}
       <div className="md:hidden px-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
           {session ? (
-            <div className={`w-11 h-11 ${isHome ? 'bg-white/10 border-white/20' : 'bg-gray-200 border-border'} rounded-full overflow-hidden border cursor-pointer shadow-sm`} onClick={() => router.push('/profile')}>
+            <div className="w-11 h-11 bg-gray-200 rounded-full overflow-hidden border border-border cursor-pointer shadow-sm" onClick={() => router.push('/profile')}>
               <img src={session.user.image || "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80"} referrerPolicy="no-referrer" alt="Avatar" className="w-full h-full object-cover" />
             </div>
           ) : (
-            <div className={`w-11 h-11 ${isHome ? 'bg-white/10 border-white/10 hover:bg-white/20' : 'bg-gray-100 border-border hover:bg-gray-200'} rounded-full border flex justify-center items-center cursor-pointer transition-colors shadow-sm`} onClick={() => signIn('google')}>
-               <User size={20} className={isHome ? "text-gray-300" : "text-gray-500"} />
+            <div className="w-11 h-11 bg-gray-100 rounded-full border border-border flex justify-center items-center cursor-pointer hover:bg-gray-200 transition-colors shadow-sm" onClick={() => signIn('google')}>
+               <User size={20} className="text-gray-500" />
             </div>
           )}
           <div className="flex flex-col">
             {session ? (
               <>
-                <span className={`text-xs ${isHome ? 'text-white/80' : 'text-text-secondary'} font-medium`}>Hey, <span className={`${isHome ? 'text-white' : 'text-text-primary'} font-bold`}>{session.user.name?.split(' ')[0]} 👋</span></span>
-                <div className="flex items-center gap-1 text-[10px] text-[#25D366] mt-0.5">
-                  <span className="font-bold">Verified</span>
+                <span className="text-xs text-text-secondary font-medium">Hey, <span className="text-text-primary font-bold">{session.user.name?.split(' ')[0]} 👋</span></span>
+                <div className="flex items-center gap-1 text-[10px] text-text-secondary mt-0.5">
+                  <span className="text-[#25D366] font-bold">Verified</span>
                 </div>
               </>
             ) : (
               <>
-                <span className={`text-[13px] font-extrabold ${isHome ? 'text-white' : 'text-primary'} cursor-pointer hover:opacity-70 transition-opacity`} onClick={() => signIn('google')}>Log In</span>
-                <span className={`text-[10px] ${isHome ? 'text-[#8A8E9B]' : 'text-text-secondary'} mt-0.5 font-medium`}>Sign in to save bookings</span>
+                <span className="text-[13px] font-extrabold text-primary cursor-pointer hover:opacity-70 transition-opacity" onClick={() => signIn('google')}>Log In</span>
+                <span className="text-[10px] text-text-secondary mt-0.5 font-medium">Sign in to save bookings</span>
               </>
             )}
           </div>
         </div>
-        <button className={`w-10 h-10 border ${isHome ? 'border-white/10 bg-white/10 hover:bg-white/20' : 'border-border bg-white hover:bg-gray-50'} rounded-full flex items-center justify-center relative shadow-soft transition-colors`}>
-          <Bell size={18} className={isHome ? 'text-white' : 'text-primary'} />
-          <div className={`absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border ${isHome ? 'border-[#1C1C1E]' : 'border-white'}`}></div>
+        <button className="w-10 h-10 border border-border bg-white rounded-full flex items-center justify-center hover:bg-gray-50 relative shadow-soft">
+          <Bell size={18} className="text-primary" />
+          <div className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border border-white"></div>
         </button>
       </div>
 

@@ -211,8 +211,8 @@ export default function Home() {
   return (
     <div className="w-full bg-background min-h-[100dvh] font-sans pb-32">
 
-      {/* Mobile Dark Header Overlay Wrapper */}
-      <div className="md:hidden bg-[#1C1C1E] rounded-b-[40px] pt-[96px] -mt-20 pb-6 mb-8 shadow-2xl relative z-30">
+      {/* Mobile Top Header Search (Hidden on Desktop) */}
+      <div className="md:hidden pt-4 pb-2 relative z-40 bg-background">
         
         {/* App-like Service Filter (Above Search Bar) */}
         <div className="flex overflow-x-auto no-scrollbar gap-3 px-6 pb-5 hide-scroll" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
@@ -238,18 +238,18 @@ export default function Home() {
                      }, 50);
                   }
                 }}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-full shrink-0 transition-all active:scale-95 outline-none border ${isActive ? 'bg-accent border-accent text-primary shadow-[0_0_20px_rgba(217,251,65,0.3)]' : 'bg-white/10 border-white/10 text-white hover:bg-white/20 shadow-sm'}`}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-full shrink-0 transition-all active:scale-95 outline-none shadow-sm border ${isActive ? 'bg-accent border-accent text-primary' : 'bg-[#F8FAFC] border-[#F8FAFC] text-text-secondary hover:bg-gray-50'}`}
               >
-                <Icon size={18} strokeWidth={isActive ? 2 : 1.5} className={isActive ? 'text-primary' : 'text-[#8A8E9B]'}/>
-                <span className={`text-[15px] font-bold ${isActive ? 'text-primary' : 'text-white'}`}>{s.id}</span>
+                <Icon size={18} strokeWidth={isActive ? 2 : 1.5} className={isActive ? 'text-primary' : 'text-text-secondary'}/>
+                <span className={`text-[15px] font-bold ${isActive ? 'text-primary' : 'text-text-secondary'}`}>{s.id}</span>
               </button>
             )
           })}
         </div>
 
-        <div className="px-6 relative z-40">
-          <div className="flex items-center bg-white/10 backdrop-blur-md border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.4)] rounded-full pl-4 pr-2 py-2 relative">
-            <Search size={18} className="text-[#8A8E9B] shrink-0 mr-2" />
+        <div className="px-6 relative">
+          <div className="flex items-center bg-white border border-border shadow-soft rounded-full pl-4 pr-2 py-2 relative">
+            <Search size={18} className="text-text-secondary shrink-0 mr-2" />
             <input
               type="text"
               value={searchQuery}
@@ -257,7 +257,7 @@ export default function Home() {
               onFocus={() => setIsSearchFocused(true)}
               onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
               placeholder={`Search ${activeService.toLowerCase()}s...`}
-              className="flex-1 min-w-0 outline-none text-[15px] font-medium bg-transparent text-white placeholder:text-[#8A8E9B] pr-2 focus:ring-0"
+              className="flex-1 min-w-0 outline-none text-[15px] font-medium bg-transparent text-primary placeholder:text-text-secondary pr-2"
             />
             
             {/* Filter Modal Toggle */}
@@ -291,6 +291,7 @@ export default function Home() {
             </div>
           )}
         </div>
+      </div>
       {/* Apple-style Filter Bottom Sheet */}
       <AnimatePresence>
         {isFilterModalOpen && (
@@ -353,7 +354,7 @@ export default function Home() {
       </AnimatePresence>
 
       {/* Mobile-only Campaign Swipe Carousel */}
-      <section className="pt-6 pb-2 relative">
+      <section className="md:hidden pt-2 pb-6 relative">
         <div 
           className="flex overflow-x-auto no-scrollbar gap-4 px-6 snap-x snap-mandatory"
           onScroll={(e) => {
@@ -386,19 +387,18 @@ export default function Home() {
         </div>
 
         {/* Dot Indicators */}
-        <div className="flex justify-center mt-6 gap-2 items-center">
+        <div className="flex justify-center mt-5 gap-2 items-center">
           {campaigns.map((_, idx) => (
             <button 
               key={idx}
               onClick={() => {
                 setCurrentCampIdx(idx);
               }}
-              className={`h-1.5 rounded-full transition-all duration-300 pointer-events-none ${idx === currentCampIdx ? 'w-5 bg-accent shadow-[0_0_10px_rgba(217,251,65,0.4)]' : 'w-1.5 bg-white/20'}`}
+              className={`h-1.5 rounded-full transition-all duration-300 pointer-events-none ${idx === currentCampIdx ? 'w-5 bg-accent' : 'w-1.5 bg-border'}`}
             />
           ))}
         </div>
       </section>
-      </div> {/* End Mobile Dark Header Overlay Wrapper */}
 
       {/* Desktop/iPad Cinematic Campaign Slider (Card Style) */}
       <section className="hidden md:block px-6 pt-5 mb-12 max-w-[1240px] mx-auto relative">
