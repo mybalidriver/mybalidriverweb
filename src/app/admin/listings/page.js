@@ -18,33 +18,13 @@ export default function AdminListings() {
   const [reviewingItem, setReviewingItem] = useState(null);
   const [expandedCompanyIds, setExpandedCompanyIds] = useState([]);
 
-  const scooterCompanies = [
-    { id: 'c1', name: 'THE BIKE RENTAL BALI', rating: 4.8, reviews: 1045, location: 'Ubud, Bali', fleetSize: 1, phone: "+6285174119423", joined: "2026", verified: true, image: 'https://images.unsplash.com/photo-1558981420-80aa89ac1250?auto=format&fit=crop&w=400&q=80' },
-    { id: 'c2', name: 'B&G UBUD RENT MOTOR BIKE', rating: 4.9, reviews: 832, location: 'Ubud, Bali', fleetSize: 1, phone: "+6281246889611", joined: "2026", verified: true, image: 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=400&q=80' },
-    { id: 'c3', name: 'BALI DIARY RENTAL', rating: 4.8, reviews: 200, location: 'Amed, Bali', fleetSize: 1, phone: "+6281995373455", joined: "2026", verified: true, image: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=400&q=80' }
-  ];
+  const scooterCompanies = [];
 
-  // Example robust mock data for layout purposes
   const allListings = {
-    Tour: [
-      { id: 1, title: 'Nusa Penida West Island Tour', location: 'Nusa Penida', price: 45, duration: 'Full Day', category: 'Island Tour', rating: 4.9, reviews: 342, status: 'Active', image: 'https://images.unsplash.com/photo-1554481923-a6918bd997bc?auto=format&fit=crop&w=400&q=80' },
-      { id: 2, title: 'Mount Batur Sunrise Trekking', location: 'Kintamani', price: 35, duration: '12 Hours', category: 'Trekking', rating: 4.8, reviews: 215, status: 'Active', image: 'https://images.unsplash.com/photo-1577717903315-1691ae25ab3f?auto=format&fit=crop&w=400&q=80' },
-      { id: 3, title: 'Uluwatu Sunset Temple', location: 'Uluwatu', price: 30, duration: '6 Hours', category: 'Show & Culture', rating: 4.9, reviews: 521, status: 'Draft', image: 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=400&q=80' },
-      { id: 4, title: 'Waterfalls: Tegenungan & Tibumana', location: 'Gianyar', price: 28, duration: '8 Hours', category: 'Nature', rating: 4.6, reviews: 112, status: 'Active', image: 'https://images.unsplash.com/photo-1590504104977-802758117769?auto=format&fit=crop&w=400&q=80' },
-    ],
-    Spa: [
-      { id: 5, title: 'Balinese Traditional Massage', location: 'Ubud', price: 25, duration: '90 Mins', category: 'Massage', rating: 4.9, reviews: 142, status: 'Active', image: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=400&q=80' },
-      { id: 6, title: 'Couples Romance Spa Package', location: 'Seminyak', price: 120, duration: '3 Hours', category: 'Package', rating: 4.7, reviews: 89, status: 'Active', image: 'https://images.unsplash.com/photo-1519823551278-64ac92734fb1?auto=format&fit=crop&w=400&q=80' },
-    ],
-    Scooter: [
-      { id: 7, title: 'Honda Scoopy 2023', company: 'THE BIKE RENTAL BALI', location: 'Kuta', price: 8, duration: 'Per Day', category: 'Standard', rating: 4.5, reviews: 304, status: 'Active', image: 'https://images.unsplash.com/photo-1627885474811-37f2a1eb4010?auto=format&fit=crop&w=400&q=80' },
-      { id: 8, title: 'Yamaha NMAX 155cc', company: 'B&G UBUD RENT MOTOR BIKE', location: 'Canggu', price: 15, duration: 'Per Day', category: 'Premium', rating: 4.8, reviews: 211, status: 'Active', image: 'https://images.unsplash.com/photo-1591637508605-7289ee0f5509?auto=format&fit=crop&w=400&q=80' },
-      { id: 11, title: 'Vespa Sprint 150', company: 'BALI DIARY RENTAL', location: 'Amed', price: 20, duration: 'Per Day', category: 'Premium', rating: 4.9, reviews: 142, status: 'Active', image: 'https://images.unsplash.com/photo-1563216832-6efaba98539e?auto=format&fit=crop&w=400&q=80' },
-    ],
-    Transport: [
-      { id: 9, title: 'Airport Transfer (DPS)', location: 'Bali', price: 20, duration: 'One Way', category: 'Transfer', rating: 4.9, reviews: 832, status: 'Active', image: 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=400&q=80' },
-      { id: 10, title: 'Full Day Private Van & Driver', location: 'Anywhere', price: 55, duration: '10 Hours', category: 'Private Booking', rating: 4.8, reviews: 150, status: 'Active', image: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=400&q=80' },
-    ]
+    Tour: [],
+    Spa: [],
+    Scooter: [],
+    Transport: []
   };
 
   const tabs = ["Tour", "Spa", "Scooter", "Transport"];

@@ -78,31 +78,10 @@ const campaigns = [
   }
 ];
 
-const popularTrips = [
-  { id: "1", service: "Tour", location: "Ubud", title: "Ubud Day Trip: Monkey Forest & Swing", price: 850000, date: "Available today", image: "https://images.unsplash.com/photo-1537956965359-7573183d1f57?auto=format&fit=crop&w=800&q=80", rating: 4.8, reviews: 312, badge: "Popular" },
-  { id: "2", service: "Tour", location: "Nusa Penida", title: "Nusa Penida West & Snorkeling", price: 1250000, date: "Available today", image: "https://images.unsplash.com/photo-1554481923-a6918bd997bc?auto=format&fit=crop&w=800&q=80", rating: 4.9, reviews: 542, badge: "Bestseller" },
-];
+const popularTrips = [];
 
 
-const allListings = [
-  // Tour
-  { id: '1', service: 'Tour', title: 'Ubud Day Trip: Monkey Forest, Jungle Swing & Tegalalang', location: 'Ubud', rating: 4.8, reviews: 312, price: 850000, date: 'Available today', category: 'Nature', image: 'https://images.unsplash.com/photo-1537956965359-7573183d1f57?auto=format&fit=crop&w=800&q=80', badge: 'Popular' },
-  { id: '2', service: 'Tour', title: 'Nusa Penida West Island Tour with Snorkeling', location: 'Nusa Penida', rating: 4.9, reviews: 542, price: 1250000, date: 'Any time', category: 'Water', image: 'https://images.unsplash.com/photo-1554481923-a6918bd997bc?auto=format&fit=crop&w=800&q=80', badge: 'Bestseller' },
-  
-  // Massage
-
-  // Transport
-  { id: 't1', service: 'Transport', title: 'Airport Transfer (DPS) to Seminyak', location: 'Denpasar', rating: 4.8, reviews: 512, price: 300000, date: '24/7 Available', category: 'Airport', image: 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=800&q=80' },
-  { id: 't2', service: 'Transport', title: 'Full Day Private Driver (10 Hours)', location: 'Anywhere in Bali', rating: 4.9, reviews: 840, price: 700000, date: 'Any time', category: 'Daily', image: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=800&q=80', badge: 'Bestseller' },
-
-  // Scooter
-  { id: 's1', service: 'Scooter', title: 'Honda Vario 125cc Rental', location: 'Delivery available', rating: 4.7, reviews: 315, price: 100000, date: 'Per day', category: 'Standard', image: 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=800&q=80' },
-  { id: 's2', service: 'Scooter', title: 'Yamaha NMAX 155cc Rental', location: 'Delivery available', rating: 4.9, reviews: 220, price: 180000, date: 'Per day', category: 'Premium', image: 'https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=800&q=80', badge: 'Popular' },
-
-  // Esim
-  { id: 'e1', service: 'Esim', title: 'Bali Basic Tourist eSIM', location: 'Instant Email', rating: 4.6, reviews: 105, price: 150000, date: '7 Days - 5GB', category: 'Daily', image: 'https://images.unsplash.com/photo-1510515152814-7267104b281f?auto=format&fit=crop&w=800&q=80' },
-  { id: 'e2', service: 'Esim', title: 'Unlimited Data eSIM Pro', location: 'Instant Email', rating: 4.8, reviews: 412, price: 350000, date: '30 Days', category: 'Monthly', image: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=800&q=80', badge: 'Bestseller' },
-];
+const allListings = [];
 
 export default function Home() {
   const router = useRouter();
@@ -140,34 +119,7 @@ export default function Home() {
     if (saved) {
       setRecommendedPlaces(JSON.parse(saved).filter(p => p.status === 'Published'));
     } else {
-      const initialPlaces = [
-        { 
-          id: "PLC-001", 
-          title: "10 Hidden Beaches in Uluwatu You Must Visit", 
-          location: "Uluwatu, South Kuta", 
-          category: "Beach", 
-          slug: "/blog/uluwatu-hidden-beaches", 
-          meta: "Discover the untouched spots in Uluwatu, from Nyang Nyang to Green Bowl, that still offer powdery white sand, turquoise waters, and an escape from the crowds.",
-          views: "1.2K", 
-          status: "Published", 
-          image: "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?w=400", 
-          images: [], 
-          content: "<h2>Discover the Untouched Beauty of Uluwatu</h2><p>Uluwatu is renowned for its sheer limestone cliffs and world-class surfing breaks, but beyond the famous Padang Padang and Suluban lies a treasure trove of hidden beaches waiting to be explored. If you are looking for powdery white sand, crystal-clear turquoise waters, and a quiet escape from the crowds, you are in the right place.</p><h3>1. Nyang Nyang Beach</h3><p>One of Bali's most pristine stretches of sand, Nyang Nyang requires a steep descent down the cliffside, but the reward is a massive, uncrowded beach. The shipwreck remnants serve as the perfect backdrop for photography.</p><h3>2. Thomas Beach</h3><p>Tucked between Padang Padang and Suluban, Thomas Beach is a sandy cove that has managed to stay relatively off the radar. The calm waters make it an excellent spot for swimming and relaxing under a parasol.</p><h3>3. Green Bowl Beach</h3><p>Accessible down hundreds of concrete steps, Green Bowl is famous for its caves and incredible reef breaks. Due to the exertion required to reach it, it remains refreshingly empty most of the day.</p><h3>Essential Tips for Visiting</h3><ul><li><strong>Start Early:</strong> Beat the midday sun, especially for beaches with steep staircases.</li><li><strong>Tides Matter:</strong> Many Uluwatu beaches disappear at high tide, so always check local tide charts.</li><li><strong>Pack Water:</strong> Facilities are limited on these hidden gems.</li></ul><p>Whether you're an avid surfer or just a sun-seeker, Uluwatu's hidden coastline represents the very best of Bali's natural beauty. Leave no trace, and enjoy paradise!</p>" 
-        },
-        { 
-          id: "PLC-002", 
-          title: "Ultimate Guide to Ubud Monkey Forest", 
-          location: "Ubud, Gianyar", 
-          category: "Nature", 
-          slug: "/blog/ubud-monkey-forest-guide", 
-          meta: "A comprehensive guide to the Sacred Monkey Forest Sanctuary in Ubud, featuring essential tips, temple history, and rules for a safe, unforgettable visit.",
-          views: "3.4K", 
-          status: "Published", 
-          image: "https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?w=400", 
-          images: [], 
-          content: "<h2>The Sacred Heart of Ubud</h2><p>The Sacred Monkey Forest Sanctuary isn't just an attraction—it's a spiritual and ecological sanctuary right in the bustling center of Ubud. Home to over 1,000 Balinese long-tailed macaques and three ancient Hindu temples, it's a place where nature, culture, and mythology intertwine perfectly.</p><h3>What to Expect</h3><p>As you walk through the lush, dense nutmeg forest, you'll be greeted by ancient banyan trees draped over moss-covered ravines and intricate stone dragon bridges. The macaques roam freely here, observing humans just as closely as we observe them.</p><h3>The Three Temples</h3><p>Deep within the forest lie three historically significant temples built around the 14th century: <strong>Pura Dalem Agung Padangtegal</strong> (the main temple), <strong>Pura Beji</strong> (the bathing temple), and <strong>Pura Prajapati</strong>. These structures are vital to the local spiritual community.</p><h3>Rules for a Safe Visit</h3><ul><li><strong>No Eye Contact:</strong> Staring is considered aggressive in monkey culture.</li><li><strong>Secure Your Belongings:</strong> The monkeys are incredibly curious. Keep sunglasses, water bottles, and phones packed away securely.</li><li><strong>Do Not Feed Them:</strong> The sanctuary staff provides a strict diet for the macaques. Feeding them outside snacks can lead to aggressive behavior.</li></ul><p>Visiting the Monkey Forest is an unforgettable experience that offers a profound glimpse into Bali's philosophy of <em>Tri Hita Karana</em>—harmony between humans, nature, and the divine.</p>" 
-        },
-      ];
+      const initialPlaces = [];
       setRecommendedPlaces(initialPlaces);
       localStorage.setItem("bali_places_v3", JSON.stringify(initialPlaces));
     }
