@@ -110,6 +110,7 @@ export default function EditListingModal({ item, activeTab, onClose, onSave }) {
       ...formData,
       ...details,
       ...pins,
+      itinerary: itinerary,
     };
     if (activeTab === "Scooter") {
        finalItem.dailyPrice = scooterPrices.daily;

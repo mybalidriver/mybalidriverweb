@@ -3,8 +3,7 @@ import { Heart, Star } from "lucide-react";
 import Link from "next/link";
 
 export default function ListingCard({ item, linkTo }) {
-  const isIdr = item.price >= 1000;
-  const formattedPrice = isIdr ? `IDR ${(item.price).toLocaleString('id-ID')}` : `$${item.price}`;
+  const formattedPrice = `IDR ${Number(item.price).toLocaleString('id-ID')}`;
 
   return (
     <Link href={linkTo} className="flex flex-col w-full bg-white rounded-[28px] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 group transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] block w-full outline-none">

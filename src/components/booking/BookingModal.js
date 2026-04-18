@@ -6,7 +6,7 @@ import WeeklyCalendar from "./WeeklyCalendar";
 import LocationAutocomplete from "./LocationAutocomplete";
 import { APIProvider } from "@vis.gl/react-google-maps";
 
-const formatIDR = (num) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
+const formatIDR = (num) => `IDR ${Number(num).toLocaleString('id-ID')}`;
 
 export default function BookingModal({ isOpen, onClose, serviceData, initialPax = 1, initialDate = "", startStep = 1 }) {
   const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "AIzaSyBvRg3xJ6dSPKSOwTRSmGUmaEfYRQ5WRCQ";

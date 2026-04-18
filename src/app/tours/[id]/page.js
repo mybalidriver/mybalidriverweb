@@ -263,7 +263,7 @@ export default function TourDetail({ params }) {
           <div className="hidden md:block md:w-[35%] lg:w-[32%]">
             <div className="sticky top-[120px] bg-white rounded-2xl border border-gray-200 p-6 shadow-lg z-10 w-full">
                <div className="mb-4 flex items-end gap-1">
-                  <span className="text-[34px] font-extrabold text-primary leading-none">${tourData.price}</span>
+                  <span className="text-[34px] font-extrabold text-primary leading-none">IDR {Number(tourData.price).toLocaleString('id-ID')}</span>
                   <span className="text-text-secondary text-[15px] font-medium pb-1">/ person</span>
                </div>
                
@@ -295,7 +295,7 @@ export default function TourDetail({ params }) {
 
                <div className="flex items-center justify-between mb-6 px-1">
                  <span className="font-bold text-primary text-[16px]">Total</span>
-                 <span className="font-extrabold text-primary text-[24px]">${tourData.price * desktopPax}</span>
+                 <span className="font-extrabold text-primary text-[24px]">IDR {Number(tourData.price * desktopPax).toLocaleString('id-ID')}</span>
                </div>
 
                <button 
@@ -337,7 +337,7 @@ export default function TourDetail({ params }) {
             <div className="flex flex-col">
               <span className="text-[12px] font-bold text-text-secondary uppercase tracking-wider mb-0.5">Price</span>
               <div className="flex items-end leading-none gap-0.5">
-                <span className="text-[26px] font-extrabold text-primary leading-none">${tourData.price}</span>
+                <span className="text-[26px] font-extrabold text-primary leading-none">IDR {Number(tourData.price).toLocaleString('id-ID')}</span>
               </div>
             </div>
           </div>
