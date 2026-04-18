@@ -35,7 +35,8 @@ export default function EditListingModal({ item, activeTab, onClose, onSave }) {
   const [details, setDetails] = useState({
     description: item.description || "",
     highlights: item.highlights || "",
-    included: item.included || ""
+    included: item.included || "",
+    excluded: item.excluded || ""
   });
 
   const categoryOptions = {
@@ -478,13 +479,17 @@ export default function EditListingModal({ item, activeTab, onClose, onSave }) {
               {activeTab === "Tour" && (
                 <>
                   <div className="flex gap-4 sm:flex-row flex-col">
-                     <div className="flex-1">
+                     <div className="flex-[2]">
                        <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5 block">What's Included</label>
                        <textarea rows="3" name="included" value={details.included} onChange={handleDetailChange} className="w-full bg-gray-50 text-sm font-medium text-gray-600 rounded-xl p-4 border border-gray-200 outline-none focus:border-accent" placeholder="Hotel pickup, guide, water..."></textarea>
                      </div>
+                     <div className="flex-[2]">
+                       <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5 block">What's Excluded</label>
+                       <textarea rows="3" name="excluded" value={details.excluded} onChange={handleDetailChange} className="w-full bg-gray-50 text-sm font-medium text-gray-600 rounded-xl p-4 border border-gray-200 outline-none focus:border-accent" placeholder="Personal expenses, meals not listed..."></textarea>
+                     </div>
                      <div className="flex-1">
                        <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5 block">Highlights</label>
-                       <textarea rows="3" name="highlights" value={details.highlights} onChange={handleDetailChange} className="w-full bg-gray-50 text-sm font-medium text-gray-600 rounded-xl p-4 border border-gray-200 outline-none focus:border-accent" placeholder="Swim with mantas, sunrise view..."></textarea>
+                       <textarea rows="3" name="highlights" value={details.highlights} onChange={handleDetailChange} className="w-full bg-gray-50 text-sm font-medium text-gray-600 rounded-xl p-4 border border-gray-200 outline-none focus:border-accent" placeholder="Swim with mantas..."></textarea>
                      </div>
                   </div>
                   <div className="pt-4 border-t border-gray-100">
@@ -568,11 +573,21 @@ export default function EditListingModal({ item, activeTab, onClose, onSave }) {
                        </div>
                      )}
                    </div>
-                   <div className="flex-1">
-                     <p className="text-xs font-semibold text-gray-500 mb-2">Select a photo from your device. Supabase is bypassing this for now using base64 preview.</p>
+                   <div className="flex-1 space-y-3">
+                     <div>
+                       <p className="text-xs font-semibold text-gray-500 mb-1.5">Direct Image URL</p>
+                       <input 
+                         type="text" 
+                         name="image"
+                         value={formData.image} 
+                         onChange={handleChange}
+                         placeholder="https://..." 
+                         className="w-full bg-gray-50 text-sm font-semibold text-primary rounded-xl px-4 py-2 border border-gray-200 focus:border-accent outline-none" 
+                       />
+                     </div>
                      <div className="relative overflow-hidden w-fit">
-                       <button type="button" className="bg-gray-100 hover:bg-gray-200 text-primary text-xs font-bold px-4 py-2.5 rounded-lg transition-colors flex items-center gap-2">
-                         <ImageIcon size={14} /> Upload Device File
+                       <button type="button" className="bg-gray-100 hover:bg-gray-200 text-primary text-xs font-bold px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
+                         <ImageIcon size={14} /> Local Device File Upload
                        </button>
                        <input 
                          type="file" 

@@ -7,33 +7,7 @@ import { motion } from "framer-motion";
 import ListingCard from "@/components/listing/ListingCard";
 import BookingModal from "@/components/booking/BookingModal";
 
-const tourData = {
-  id: "hormuz",
-  title: "Hormuz Island",
-  location: "Hormozgan Province",
-  rating: "4.8",
-  reviews: "1k+",
-  price: 1000,
-  duration: "7 Days",
-  date: "25 - 31 March",
-  description: "A tour of Hormuz Island offers the chance to explore the stunning Rainbow Valley and relax on the unique Red Beach. Visitors can also visit the historic Portuguese Castle and experience the local culture through traditional food and crafts.",
-  images: [
-    "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=800&q=80",
-    "https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?auto=format&fit=crop&w=800&q=80",
-    "https://images.unsplash.com/photo-1552733407-5d5c46c3bb3b?auto=format&fit=crop&w=800&q=80",
-    "https://images.unsplash.com/photo-1523731407965-2430cd12f5e4?auto=format&fit=crop&w=800&q=80",
-  ]
-};
 
-const mockTours = [
-  { id: '1', title: 'Nusa Penida West Island Tour with Snorkeling', location: 'Nusa Penida', rating: 4.9, reviews: 342, price: 45, duration: 'Full Day', category: 'Island Tour', image: 'https://images.unsplash.com/photo-1554481923-a6918bd997bc?auto=format&fit=crop&w=800&q=80', badge: 'Bestseller' },
-  { id: '2', title: 'Mount Batur Sunrise Trekking & Hot Springs', location: 'Kintamani', rating: 4.8, reviews: 215, price: 35, duration: '12 Hours', category: 'Trekking', image: 'https://images.unsplash.com/photo-1577717903315-1691ae25ab3f?auto=format&fit=crop&w=800&q=80' },
-  { id: '3', title: 'Ubud Sacred Monkey Forest & Jungle Swing', location: 'Ubud', rating: 4.7, reviews: 189, price: 25, duration: 'Half Day', category: 'Culture', image: 'https://images.unsplash.com/photo-1537956965359-7573183d1f57?auto=format&fit=crop&w=800&q=80' },
-  { id: '4', title: 'Uluwatu Sunset Temple & Kecak Fire Dance', location: 'Uluwatu', rating: 4.9, reviews: 521, price: 30, duration: '6 Hours', category: 'Show & Culture', image: 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=800&q=80', badge: 'Popular' },
-  { id: '5', title: 'Waterfalls Tour: Tegenungan, Tibumana & Tukad Cepung', location: 'Gianyar', rating: 4.6, reviews: 112, price: 28, duration: '8 Hours', category: 'Nature', image: 'https://images.unsplash.com/photo-1590504104977-802758117769?auto=format&fit=crop&w=800&q=80' },
-  { id: '6', title: 'Lempuyang Temple (Gates of Heaven) & Tirta Gangga', location: 'Karangasem', rating: 4.5, reviews: 98, price: 40, duration: 'Full Day', category: 'Photography', image: 'https://images.unsplash.com/photo-1610486829777-66a96e949cb3?auto=format&fit=crop&w=800&q=80' },
-];
 
 export default function TourDetail({ params }) {
   const router = useRouter();
@@ -43,8 +17,33 @@ export default function TourDetail({ params }) {
   const [desktopPax, setDesktopPax] = useState(1);
   const [desktopDate, setDesktopDate] = useState("");
   const [modalStartStep, setModalStartStep] = useState(1);
+  const [tourData, setTourData] = useState(null);
+
+  React.useEffect(() => {
+    const saved = localStorage.getItem("bali_admin_listings");
+    if (saved) {
+       const parsed = JSON.parse(saved);
+       const combined = [...(parsed.Tour||[]), ...(parsed.Spa||[]), ...(parsed.Scooter||[]), ...(parsed.Transport||[])];
+       const found = combined.find(t => String(t.id) === String(resolvedParams.id));
+       if (found) {
+          found.images = found.image 
+             ? [found.image, found.image, found.image, found.image, found.image] 
+             : ["https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80", "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=800&q=80", "https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?auto=format&fit=crop&w=800&q=80", "https://images.unsplash.com/photo-1552733407-5d5c46c3bb3b?auto=format&fit=crop&w=800&q=80", "https://images.unsplash.com/photo-1523731407965-2430cd12f5e4?auto=format&fit=crop&w=800&q=80"];
+          setTourData(found);
+       }
+    }
+  }, [resolvedParams.id]);
 
   const tabs = ["About this activity", "Experience", "Itinerary", "Important information"];
+
+  if (!tourData) {
+     return (
+       <div className="min-h-screen flex flex-col items-center justify-center bg-background">
+         <div className="w-8 h-8 border-4 border-gray-200 border-t-primary rounded-full animate-spin mb-4"></div>
+         <p className="font-bold text-gray-500">Loading Details...</p>
+       </div>
+     );
+  }
 
   return (
     <div className="-mt-20 md:-mt-24 w-full bg-background min-h-[100dvh] relative pb-[120px] md:pb-0">
@@ -205,13 +204,11 @@ export default function TourDetail({ params }) {
                 <h3 className="font-bold text-[22px] md:text-[24px] text-primary mb-6">Experience</h3>
                 <h4 className="font-bold text-[16px] text-primary mb-3">Highlights</h4>
                 <ul className="list-disc pl-5 text-sm text-text-secondary font-medium mb-8 space-y-2">
-                   <li>Explore the stunning Rainbow Valley</li>
-                   <li>Relax on the unique Red Beach</li>
-                   <li>Visit the historic Portuguese Castle</li>
+                   {tourData.highlights ? tourData.highlights.split('\n').map((h, i) => <li key={i}>{h}</li>) : <li>No highlights defined yet.</li>}
                 </ul>
                 <h4 className="font-bold text-[16px] text-primary mb-3">Full description</h4>
-                <p className="text-sm text-text-secondary leading-relaxed font-medium mb-8">
-                  {tourData.description}
+                <p className="text-sm text-text-secondary leading-relaxed font-medium mb-8 whitespace-pre-wrap">
+                  {tourData.description || "The administrator has not provided a description for this tour yet."}
                 </p>
               </div>
             )}
@@ -221,21 +218,19 @@ export default function TourDetail({ params }) {
               <div className="animate-in fade-in duration-300">
                 <h3 className="font-bold text-[22px] md:text-[24px] text-primary mb-6">Itinerary</h3>
                 <div className="relative border-l-2 border-gray-200 ml-3 space-y-8 mb-8">
-                  <div className="relative pl-6">
-                     <div className="absolute w-[11px] h-[11px] bg-white border-2 border-primary rounded-full -left-[6.5px] top-1.5"></div>
-                     <h4 className="font-bold text-[16px] text-primary">Pickup</h4>
-                     <p className="text-sm font-medium text-text-secondary mt-1.5">Wait at the hotel lobby.</p>
-                  </div>
-                  <div className="relative pl-6">
-                     <div className="absolute w-[11px] h-[11px] bg-white border-2 border-primary rounded-full -left-[6.5px] top-1.5"></div>
-                     <h4 className="font-bold text-[16px] text-primary">Rainbow Valley</h4>
-                     <p className="text-sm font-medium text-text-secondary mt-1.5">Guided tour and photo session (2 hours).</p>
-                  </div>
-                  <div className="relative pl-6">
-                     <div className="absolute w-[11px] h-[11px] bg-white border-2 border-primary rounded-full -left-[6.5px] top-1.5"></div>
-                     <h4 className="font-bold text-[16px] text-primary">Red Beach</h4>
-                     <p className="text-sm font-medium text-text-secondary mt-1.5">Free time and swimming (3 hours).</p>
-                  </div>
+                  {tourData.itinerary && tourData.itinerary.length > 0 ? tourData.itinerary.map((itin, index) => (
+                    <div key={index} className="relative pl-6">
+                       <div className="absolute w-[11px] h-[11px] bg-white border-2 border-primary rounded-full -left-[6.5px] top-1.5"></div>
+                       <h4 className="font-bold text-[16px] text-primary">{itin.title || `Stop ${index + 1}`}</h4>
+                       <p className="text-sm font-medium text-text-secondary mt-1.5">{itin.description}</p>
+                    </div>
+                  )) : (
+                    <div className="relative pl-6">
+                       <div className="absolute w-[11px] h-[11px] bg-white border-2 border-primary rounded-full -left-[6.5px] top-1.5"></div>
+                       <h4 className="font-bold text-[16px] text-primary">Flexible Itinerary</h4>
+                       <p className="text-sm font-medium text-text-secondary mt-1.5">The exact itinerary is flexible and determined on the day of the tour.</p>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -246,21 +241,20 @@ export default function TourDetail({ params }) {
                 <h3 className="font-bold text-[22px] md:text-[24px] text-primary mb-6">Important information</h3>
                 
                 <div className="mb-8">
-                   <h4 className="font-bold text-[16px] text-primary mb-3">What to bring</h4>
+                   <h4 className="font-bold text-[16px] text-primary mb-3">What's Included</h4>
                    <ul className="list-disc pl-5 text-sm text-text-secondary font-medium space-y-2">
-                      <li>Comfortable shoes</li>
-                      <li>Sunglasses</li>
-                      <li>Sun hat</li>
+                      {tourData.included ? tourData.included.split('\n').map((inc, i) => <li key={i}>{inc}</li>) : <li>Standard amenities.</li>}
                    </ul>
                 </div>
 
-                <div className="mb-8">
-                   <h4 className="font-bold text-[16px] text-primary mb-3">Not allowed</h4>
-                   <ul className="list-disc pl-5 text-sm text-text-secondary font-medium space-y-2">
-                      <li>Pets</li>
-                      <li>Smoking in the vehicle</li>
-                   </ul>
-                </div>
+                {tourData.excluded && (
+                  <div className="mb-8">
+                     <h4 className="font-bold text-[16px] text-primary mb-3">What's Excluded</h4>
+                     <ul className="list-disc pl-5 text-sm text-text-secondary font-medium space-y-2">
+                        {tourData.excluded.split('\n').map((exc, i) => <li key={i}>{exc}</li>)}
+                     </ul>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -335,23 +329,7 @@ export default function TourDetail({ params }) {
           
         </div>
 
-        {/* Similar Tours Section */}
-        <div className="max-w-[1240px] mx-auto w-full mt-12 md:mt-20 pt-10 px-6 border-t border-border md:border-none">
-          <h3 className="font-bold text-[24px] text-primary mb-8">Similar experiences</h3>
-          
-          <div className="flex flex-nowrap overflow-x-auto snap-x snap-mandatory gap-5 -mx-6 px-6 pb-8 md:mx-0 md:px-0 md:grid md:grid-cols-3 no-scrollbar" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-            {mockTours
-              .filter(tour => String(tour.id) !== String(resolvedParams?.id || 'hormuz'))
-              .slice(0, 4)
-              .map(tour => (
-                <div key={tour.id} className="flex-none w-[85vw] sm:w-[300px] snap-center md:w-auto md:snap-align-none">
-                  <ListingCard item={tour} linkTo={`/tours/${tour.id}`} />
-                </div>
-            ))}
-          </div>
-        </div>
 
-      </div>
 
       {/* Floating Bottom Booking Bar (Mobile Only) */}
       <div className="md:hidden fixed bottom-0 left-0 w-full bg-white z-40 px-6 pt-4 pb-[calc(env(safe-area-inset-bottom)+20px)] shadow-[0_-10px_40px_rgba(0,0,0,0.08)] border-t border-border">
