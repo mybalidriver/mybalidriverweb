@@ -208,40 +208,42 @@ export default function Home() {
       <div className="md:hidden pt-4 pb-2 relative z-40 bg-background">
         
         {/* App-like Service Filter (Above Search Bar) */}
-        <div className="flex overflow-x-auto no-scrollbar gap-6 px-6 pb-0 pt-2 border-b border-border hide-scroll" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-          {services.map((s) => {
-            const Icon = s.icon;
-            const isActive = activeService === s.id;
-            return (
-              <button
-                key={s.id}
-                onClick={() => {
-                  if (s.id === "Transport") {
-                    router.push("/map?service=Transport");
-                    return;
-                  }
-                  setActiveService(s.id);
-                  setActiveCat("All");
-                  setSearchQuery("");
-                  
-                  if (s.id === "Scooter") {
-                     setTimeout(() => {
-                         const el = document.getElementById("categories-section");
-                         if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                     }, 50);
-                  }
-                }}
-                className={`flex flex-col items-center gap-[6px] min-w-[64px] pb-3 shrink-0 transition-all active:scale-95 touch-manipulation select-none cursor-pointer outline-none border-b-2 -mb-[1px] ${
-                  isActive 
-                    ? "border-primary text-primary opacity-100" 
-                    : "border-transparent text-[#71717A] hover:text-primary hover:border-border opacity-60 hover:opacity-100"
-                }`}
-              >
-                <Icon size={28} strokeWidth={1.5} className={isActive ? 'text-primary' : 'text-[#71717A]'}/>
-                <span className={`text-[13px] whitespace-nowrap ${isActive ? 'font-bold' : 'font-semibold'}`}>{s.id}</span>
-              </button>
-            )
-          })}
+        {/* App-like Service Filter (Above Search Bar) */}
+        <div className="px-6 mb-5 mt-2 relative z-40">
+          <div className="flex items-center overflow-x-auto no-scrollbar gap-0 py-1.5 px-2 border border-border rounded-full shadow-sm bg-white hide-scroll" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+            {services.map((s) => {
+              const isActive = activeService === s.id;
+              return (
+                <button
+                  key={s.id}
+                  onClick={() => {
+                    if (s.id === "Transport") {
+                      router.push("/map?service=Transport");
+                      return;
+                    }
+                    setActiveService(s.id);
+                    setActiveCat("All");
+                    setSearchQuery("");
+                    
+                    if (s.id === "Scooter") {
+                       setTimeout(() => {
+                           const el = document.getElementById("categories-section");
+                           if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                       }, 50);
+                    }
+                  }}
+                  className="relative flex flex-col items-center justify-center px-4 py-2 shrink-0 transition-all active:scale-95 touch-manipulation select-none cursor-pointer outline-none min-w-[70px]"
+                >
+                  <div className="h-1.5 w-full flex justify-center items-center mb-0.5">
+                    {isActive && <div className="w-[5px] h-[5px] rounded-full bg-[#8aa32a]"></div>}
+                  </div>
+                  <span className={`text-[14px] whitespace-nowrap mt-0.5 ${isActive ? 'font-extrabold text-primary tracking-tight' : 'font-semibold text-[#A1A1AA] hover:text-primary transition-colors'}`}>
+                    {s.id}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
         </div>
 
         <div className="px-6 relative">
