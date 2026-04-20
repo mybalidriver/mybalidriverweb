@@ -208,7 +208,7 @@ export default function Home() {
       <div className="md:hidden pt-4 pb-2 relative z-40 bg-background">
         
         {/* App-like Service Filter (Above Search Bar) */}
-        <div className="flex overflow-x-auto no-scrollbar gap-3 px-6 pb-5 hide-scroll" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+        <div className="flex overflow-x-auto no-scrollbar gap-6 px-6 pb-0 pt-2 border-b border-border hide-scroll" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
           {services.map((s) => {
             const Icon = s.icon;
             const isActive = activeService === s.id;
@@ -231,10 +231,14 @@ export default function Home() {
                      }, 50);
                   }
                 }}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-full shrink-0 transition-all active:scale-95 outline-none shadow-sm border ${isActive ? 'bg-accent border-accent text-primary' : 'bg-[#F8FAFC] border-[#F8FAFC] text-text-secondary hover:bg-gray-50'}`}
+                className={`flex flex-col items-center gap-[6px] min-w-[64px] pb-3 shrink-0 transition-all active:scale-95 touch-manipulation select-none cursor-pointer outline-none border-b-2 -mb-[1px] ${
+                  isActive 
+                    ? "border-primary text-primary opacity-100" 
+                    : "border-transparent text-[#71717A] hover:text-primary hover:border-border opacity-60 hover:opacity-100"
+                }`}
               >
-                <Icon size={18} strokeWidth={isActive ? 2 : 1.5} className={isActive ? 'text-primary' : 'text-text-secondary'}/>
-                <span className={`text-[15px] font-bold ${isActive ? 'text-primary' : 'text-text-secondary'}`}>{s.id}</span>
+                <Icon size={28} strokeWidth={1.5} className={isActive ? 'text-primary' : 'text-[#71717A]'}/>
+                <span className={`text-[13px] whitespace-nowrap ${isActive ? 'font-bold' : 'font-semibold'}`}>{s.id}</span>
               </button>
             )
           })}
