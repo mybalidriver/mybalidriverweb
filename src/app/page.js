@@ -506,7 +506,7 @@ export default function Home() {
             <h2 className="text-[20px] font-bold text-primary">Categories</h2>
             <span className="text-sm font-semibold text-text-secondary">See more</span>
           </div>
-          <div className="flex overflow-x-auto no-scrollbar gap-3 pb-2">
+          <div className="flex overflow-x-auto no-scrollbar gap-6 pb-0 pt-2 px-2 border-b border-gray-100">
             {currentCategories.map((c) => {
               const Icon = c.icon;
               const isActive = activeCat === c.id;
@@ -514,11 +514,14 @@ export default function Home() {
                 <button
                   key={c.id}
                   onClick={() => setActiveCat(c.id)}
-                  className={`flex items-center gap-2 px-5 py-2.5 rounded-full shrink-0 transition-all active:scale-95 touch-manipulation select-none cursor-pointer outline-none font-bold shadow-sm border ${isActive ? "bg-accent border-accent text-primary" : "bg-[#F1F5F9] border-[#F1F5F9] text-[#475569] hover:bg-[#E2E8F0]"
-                    }`}
+                  className={`flex flex-col items-center gap-[6px] min-w-[56px] pb-3 shrink-0 transition-all active:scale-95 touch-manipulation select-none cursor-pointer outline-none border-b-2 -mb-[1px] ${
+                    isActive 
+                      ? "border-primary text-primary opacity-100" 
+                      : "border-transparent text-[#71717A] hover:text-primary hover:border-gray-200 opacity-60 hover:opacity-100"
+                  }`}
                 >
-                  {Icon && <Icon size={20} className={isActive ? "text-primary" : "text-[#475569]"} strokeWidth={1.25} />}
-                  <span className="text-[14px] font-bold">{c.id}</span>
+                  {Icon && <Icon size={28} className={isActive ? "text-primary" : "text-[#71717A]"} strokeWidth={1.5} />}
+                  <span className={`text-[12px] whitespace-nowrap ${isActive ? "font-bold" : "font-semibold"}`}>{c.id}</span>
                 </button>
               );
             })}
