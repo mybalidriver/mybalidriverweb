@@ -10,7 +10,7 @@ const Footer = () => {
           
           <div className="flex flex-col gap-4">
             <h2 className="text-2xl font-extrabold tracking-tight flex items-center" style={{ fontFamily: 'var(--font-playfair)', color: 'var(--color-accent)' }}>
-              trove <span className="ml-2 mt-1 text-[14px] tracking-widest text-[#a67c52]">experience</span>
+              TROVE <span className="ml-2 mt-1 text-[14px] tracking-widest text-[#a67c52]">EXPERIENCE</span>
             </h2>
             <p className="text-sm text-text-secondary">
               Your ultimate premium gateway to explore the magical island of Bali. Discover tours, rentals, and hidden gems seamlessly.

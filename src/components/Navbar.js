@@ -80,7 +80,7 @@ export default function Navbar() {
         
         {/* Logo */}
         <Link href="/" className="font-extrabold tracking-tight flex-1 flex items-center" style={{ fontFamily: 'var(--font-playfair)', fontSize: '32px', color: 'var(--color-accent)' }}>
-          trove <span className="ml-2 mt-1 text-[16px] tracking-widest text-[#a67c52]">experience</span>
+          TROVE <span className="ml-2 mt-1 text-[16px] tracking-widest text-[#a67c52]">EXPERIENCE</span>
         </Link>
 
         {/* Center Compressed Search */}
