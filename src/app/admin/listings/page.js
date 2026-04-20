@@ -18,8 +18,6 @@ export default function AdminListings() {
   const [reviewingItem, setReviewingItem] = useState(null);
   const [expandedCompanyIds, setExpandedCompanyIds] = useState([]);
 
-  const scooterCompanies = [];
-
   const allListings = {
     Tour: [],
     Spa: [],
@@ -67,7 +65,19 @@ export default function AdminListings() {
     fetchListings();
   }, []);
 
-  let currentListings = listingsData[activeTab].filter(item => item.title.toLowerCase().includes(searchQuery.toLowerCase()));
+  let currentListings = listingsData[activeTab].filter(item => 
+    item.title?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    (activeTab === "Scooter" && item.company?.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
+  const scooterCompanies = Array.from(new Set(currentListings.filter(i => i.company).map(i => i.company))).map((name, index) => ({
+    id: `comp-${index}`,
+    name: name,
+    location: "Bali, Indonesia", // Placeholder for derived UI data
+    joined: "2024",
+    phone: "+62 812-3456-1111",
+    verified: true,
+  }));
 
   const handleEdit = (item) => {
     setEditingItem(item);
@@ -155,11 +165,6 @@ export default function AdminListings() {
   };
 
   const handleCreateNew = () => {
-    if (activeTab === "Scooter") {
-      alert("Redirecting to Partners Dashboard to create new Scooter Company...");
-      window.location.href = "/admin/partners";
-      return;
-    }
     const newItem = {
       id: crypto.randomUUID(), // Valid UUID for Postgres!
       title: "New " + activeTab,
@@ -258,7 +263,23 @@ export default function AdminListings() {
                     </div>
 
                     <div className="flex items-center gap-2 shrink-0 border-t md:border-0 border-gray-100 pt-4 md:pt-0 mt-2 md:mt-0">
-                       <button className="bg-black text-white text-[11px] font-extrabold uppercase tracking-widest px-4 py-2.5 rounded-full flex items-center gap-1.5 hover:bg-black/90 transition-colors">
+                       <button onClick={() => {
+                         const newItem = {
+                           id: crypto.randomUUID(),
+                           title: "New Scooter",
+                           company: company.name,
+                           location: "Bali, Indonesia",
+                           duration: "Daily",
+                           price: "0",
+                           rating: "5.0",
+                           reviews: "0",
+                           service: "Scooter",
+                           category: "Standard",
+                           status: "Active",
+                           image: ""
+                         };
+                         setEditingItem(newItem);
+                       }} className="bg-black text-white text-[11px] font-extrabold uppercase tracking-widest px-4 py-2.5 rounded-full flex items-center gap-1.5 hover:bg-black/90 transition-colors">
                           <Plus size={14} strokeWidth={3} /> Add Scooter
                        </button>
                        <button onClick={() => alert("Edit company details mode")} className="w-9 h-9 rounded-full bg-gray-50 hover:bg-gray-100 flex items-center justify-center text-primary transition-colors">
@@ -410,7 +431,12 @@ export default function AdminListings() {
           <div className="text-center py-20 bg-white rounded-3xl border border-gray-100 border-dashed">
              <PackageOpen size={48} className="mx-auto text-gray-300 mb-4" />
              <h3 className="text-lg font-bold text-primary mb-1">No listings found</h3>
-             <p className="text-sm font-medium text-gray-500">Try adjusting your search query or create a new listing.</p>
+             <p className="text-sm font-medium text-gray-500 mb-4">Try adjusting your search query or create a new listing.</p>
+             {activeTab === "Scooter" && scooterCompanies.length === 0 && (
+                 <button onClick={handleCreateNew} className="bg-black text-white text-sm font-extrabold uppercase tracking-widest px-6 py-3 rounded-full flex items-center gap-2 hover:bg-black/90 transition-colors mx-auto">
+                    <Plus size={16} strokeWidth={3} /> Create First Scooter & Company
+                 </button>
+             )}
           </div>
         )}
 
