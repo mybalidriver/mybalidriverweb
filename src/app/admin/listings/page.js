@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import EditListingModal from "../../../components/admin/EditListingModal";
+import EditCompanyModal from "../../../components/admin/EditCompanyModal";
 import ReviewModal from "../../../components/admin/ReviewModal";
 
 export default function AdminListings() {
@@ -27,6 +28,8 @@ export default function AdminListings() {
 
   const tabs = ["Tour", "Spa", "Scooter", "Transport"];
   const [listingsData, setListingsData] = useState(allListings);
+  const [companiesList, setCompaniesList] = useState([]);
+  const [editingCompany, setEditingCompany] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   React.useEffect(() => {
@@ -60,6 +63,13 @@ export default function AdminListings() {
          });
          setListingsData(grouped);
        }
+
+       // Fetch companies
+       const { data: compData } = await supabase.from('companies').select('*').order('created_at', { ascending: false });
+       if (compData) {
+         setCompaniesList(compData);
+       }
+
        setIsLoading(false);
     };
     fetchListings();
@@ -67,17 +77,20 @@ export default function AdminListings() {
 
   let currentListings = listingsData[activeTab].filter(item => 
     item.title?.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    (activeTab === "Scooter" && item.company?.toLowerCase().includes(searchQuery.toLowerCase()))
+    ((activeTab === "Scooter" || activeTab === "Spa") && item.company?.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
-  const scooterCompanies = Array.from(new Set(currentListings.filter(i => i.company).map(i => i.company))).map((name, index) => ({
-    id: `comp-${index}`,
-    name: name,
-    location: "Bali, Indonesia", // Placeholder for derived UI data
-    joined: "2024",
-    phone: "+62 812-3456-1111",
-    verified: true,
-  }));
+  const matchedDbCompanies = companiesList.filter(comp => comp.name.toLowerCase().includes(searchQuery.toLowerCase()));
+  const legacyCompanyNames = Array.from(new Set(currentListings.filter(i => i.company).map(i => i.company)));
+  
+  const combinedCompanies = [...matchedDbCompanies];
+  legacyCompanyNames.forEach(lname => {
+     if (!combinedCompanies.find(c => c.name.toLowerCase() === lname.toLowerCase())) {
+        combinedCompanies.push({ id: `legacy-${lname}`, name: lname, location: "Bali, Indonesia", joined_year: "2024", phone: "+62 800-0000-0000", verified: false });
+     }
+  });
+
+  const groupedCompanies = combinedCompanies;
 
   const handleEdit = (item) => {
     setEditingItem(item);
@@ -156,6 +169,32 @@ export default function AdminListings() {
     setEditingItem(null);
   };
 
+  const handleSaveCompany = async (companyData) => {
+    const { supabase } = await import('@/lib/supabase');
+    
+    // Prevent ID collision on purely legacy mocked ones
+    const isLegacy = String(companyData.id).startsWith("legacy-");
+    const payloadToSave = { ...companyData };
+    if (isLegacy || !payloadToSave.id) {
+       payloadToSave.id = crypto.randomUUID();
+    }
+
+    const { error } = await supabase.from('companies').upsert(payloadToSave);
+    if (error) {
+       alert("Error saving company: " + error.message);
+       return;
+    }
+
+    setCompaniesList(prev => {
+       const exists = prev.find(c => c.id === payloadToSave.id);
+       if (exists) {
+          return prev.map(c => c.id === payloadToSave.id ? payloadToSave : c);
+       }
+       return [payloadToSave, ...prev];
+    });
+    setEditingCompany(null);
+  };
+
   const toggleCompany = (companyId) => {
     if (expandedCompanyIds.includes(companyId)) {
       setExpandedCompanyIds(expandedCompanyIds.filter(id => id !== companyId));
@@ -165,6 +204,17 @@ export default function AdminListings() {
   };
 
   const handleCreateNew = () => {
+    if (activeTab === "Scooter" || activeTab === "Spa") {
+       setEditingCompany({
+          name: "",
+          location: "Bali, Indonesia",
+          phone: "",
+          google_link: "",
+          verified: false
+       });
+       return;
+    }
+
     const newItem = {
       id: crypto.randomUUID(), // Valid UUID for Postgres!
       title: "New " + activeTab,
@@ -182,8 +232,8 @@ export default function AdminListings() {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto p-6 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <div className="flex-1 overflow-y-auto p-4 sm:p-6 pb-32 md:p-8 md:pb-12 scroll-smooth">
+      <div className="max-w-7xl mx-auto space-y-8 pb-10">
         
         {/* Header Actions */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -192,14 +242,14 @@ export default function AdminListings() {
                {activeTab === "Scooter" ? "Scooter Inventory" : "Product Inventory"}
             </h1>
             <p className="text-sm text-gray-500 font-medium mt-1">
-               {activeTab === "Scooter" 
-                 ? `${scooterCompanies.length} partner companies • ${allListings.Scooter.length} total listings` 
+               {(activeTab === "Scooter" || activeTab === "Spa")
+                 ? `${groupedCompanies.length} partner companies • ${listingsData[activeTab].length} total listings` 
                  : "Add, edit, or remove your products."}
             </p>
           </div>
-          <button onClick={handleCreateNew} className={`flex items-center justify-center gap-2 px-5 py-2.5 rounded-md font-semibold text-sm shadow-sm transition-all text-white ${activeTab === "Scooter" ? 'bg-gray-800 hover:bg-gray-900' : 'bg-[#FF5533] hover:bg-[#E64A2E]'}`}>
+          <button onClick={handleCreateNew} className={`flex items-center justify-center gap-2 px-5 py-2.5 rounded-md font-semibold text-sm shadow-sm transition-all text-white ${(activeTab === "Scooter" || activeTab === "Spa") ? 'bg-gray-800 hover:bg-gray-900' : 'bg-[#FF5533] hover:bg-[#E64A2E]'}`}>
             <Plus size={18} strokeWidth={2.5} />
-            {activeTab === "Scooter" ? "Add Company" : "Create Product"}
+            {(activeTab === "Scooter" || activeTab === "Spa") ? "Add Company" : "Create Product"}
           </button>
         </div>
 
@@ -229,7 +279,7 @@ export default function AdminListings() {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
             <input 
               type="text" 
-              placeholder={activeTab === "Scooter" ? "Search companies or scooter models..." : `Search ${activeTab.toLowerCase()}s...`}
+              placeholder={(activeTab === "Scooter" || activeTab === "Spa") ? `Search companies or ${activeTab.toLowerCase()}s...` : `Search ${activeTab.toLowerCase()}s...`}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full h-full bg-transparent border-none focus:ring-0 text-sm font-medium text-primary pl-11 pr-4 py-3 md:py-2 outline-none placeholder:text-gray-400"
@@ -237,96 +287,103 @@ export default function AdminListings() {
           </div>
         </div>
 
-        {activeTab === "Scooter" ? (
+        {(activeTab === "Scooter" || activeTab === "Spa") ? (
           <div className="space-y-4">
-            {scooterCompanies.map(company => {
+            {groupedCompanies.map(company => {
               const isExpanded = expandedCompanyIds.includes(company.id);
-              const companyScooters = allListings.Scooter.filter(s => s.company === company.name);
+              const companyItems = currentListings.filter(s => s.company === company.name);
               return (
-                <div key={company.id} className="bg-white rounded-[24px] border border-gray-100 shadow-sm overflow-hidden">
-                  <div className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="flex-1">
-                       <div className="flex items-center gap-3 mb-2">
-                         <h3 className="font-extrabold text-[16px] text-primary uppercase tracking-tight">{company.name}</h3>
+                <div key={company.id} className="bg-white rounded-3xl border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] transition-shadow overflow-hidden">
+                  <div className="p-4 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-5 relative z-10 bg-white">
+                    <div className="flex-1 space-y-3">
+                       <div className="flex flex-wrap items-center gap-3">
+                         <h3 className="font-extrabold text-[18px] sm:text-[20px] text-gray-900 uppercase tracking-tight">{company.name}</h3>
                          {company.verified && (
-                           <span className="bg-gray-100 text-[10px] font-bold text-gray-600 px-2.5 py-1 rounded-full uppercase tracking-widest">VERIFIED</span>
+                           <span className="bg-blue-50 text-[10px] font-extrabold text-blue-600 px-3 py-1 rounded-full uppercase tracking-widest">VERIFIED</span>
                          )}
                        </div>
-                       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[13px] font-semibold text-gray-500">
-                         <div className="flex items-center gap-1.5"><MapPin size={14} /> {company.location}</div>
-                         <div className="flex items-center gap-1.5"><Link2 size={14} /> Joined {company.joined}</div>
-                         <div className="font-bold text-primary">{companyScooters.length} Scooter</div>
-                         <div className="flex items-center gap-1.5 bg-[#E8F8EE] text-[#1EB652] px-3 py-1.5 rounded-full font-bold">
-                           <MessageCircle size={14} className="fill-[#1EB652] text-white" /> {company.phone}
+                       <div className="flex flex-wrap items-center gap-x-5 gap-y-3 text-[13px] font-medium text-gray-500">
+                         <div className="flex items-center gap-1.5"><MapPin size={15} className="text-gray-400" /> {company.location}</div>
+                         <div className="flex items-center gap-1.5"><Link2 size={15} className="text-gray-400" /> Joined {company.joined_year || company.joined || "2024"}</div>
+                         <div className="font-bold text-gray-800 bg-gray-50 px-3 py-1.5 rounded-xl border border-gray-100">{companyItems.length} {activeTab}s</div>
+                         <div className="flex items-center gap-1.5 bg-[#E8F8EE] text-[#1EB652] px-3 py-1.5 rounded-xl font-bold">
+                           <MessageCircle size={15} className="fill-[#1EB652] text-white" /> {company.phone}
                          </div>
                        </div>
                     </div>
 
-                    <div className="flex items-center gap-2 shrink-0 border-t md:border-0 border-gray-100 pt-4 md:pt-0 mt-2 md:mt-0">
+                    <div className="flex flex-wrap items-center gap-2 shrink-0 border-t md:border-t-0 border-gray-50 pt-5 md:pt-0 w-full md:w-auto mt-2 md:mt-0">
                        <button onClick={() => {
                          const newItem = {
                            id: crypto.randomUUID(),
-                           title: "New Scooter",
+                           title: `New ${activeTab}`,
                            company: company.name,
                            location: "Bali, Indonesia",
-                           duration: "Daily",
+                           duration: activeTab === "Scooter" ? "Daily" : "60 Mins",
                            price: "0",
                            rating: "5.0",
                            reviews: "0",
-                           service: "Scooter",
-                           category: "Standard",
+                           service: activeTab,
+                           category: activeTab === "Scooter" ? "Standard" : "Massage",
                            status: "Active",
                            image: ""
                          };
                          setEditingItem(newItem);
-                       }} className="bg-black text-white text-[11px] font-extrabold uppercase tracking-widest px-4 py-2.5 rounded-full flex items-center gap-1.5 hover:bg-black/90 transition-colors">
-                          <Plus size={14} strokeWidth={3} /> Add Scooter
+                       }} className="flex-1 md:flex-none justify-center bg-black text-white text-[12px] font-extrabold uppercase tracking-widest px-5 py-3.5 rounded-2xl sm:rounded-full flex items-center gap-2 hover:bg-black/80 transition-all shadow-md hover:shadow-lg">
+                          <Plus size={16} strokeWidth={3} /> Add {activeTab}
                        </button>
-                       <button onClick={() => alert("Edit company details mode")} className="w-9 h-9 rounded-full bg-gray-50 hover:bg-gray-100 flex items-center justify-center text-primary transition-colors">
-                          <Edit2 size={14} />
-                       </button>
-                       <button onClick={() => {if(confirm("Are you sure you want to remove this partner company?")) alert("Company Removed!")}} className="w-9 h-9 rounded-full bg-red-50 hover:bg-red-100 flex items-center justify-center text-red-500 transition-colors">
-                          <Trash2 size={14} />
-                       </button>
-                       <button onClick={() => toggleCompany(company.id)} className="w-9 h-9 rounded-full bg-gray-50 hover:bg-gray-100 flex items-center justify-center text-primary transition-colors ml-1">
-                          {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                       </button>
+                       <div className="flex items-center gap-2 ml-auto md:ml-0">
+                         <button onClick={() => setEditingCompany(company)} className="w-12 h-12 rounded-2xl sm:rounded-full bg-gray-50 hover:bg-gray-100 flex items-center justify-center text-gray-600 transition-colors">
+                            <Edit2 size={16} />
+                         </button>
+                         <button onClick={() => {if(confirm("Are you sure you want to remove this partner company?")) alert("Company Removed!")}} className="w-12 h-12 rounded-2xl sm:rounded-full bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-100 transition-colors">
+                            <Trash2 size={16} />
+                         </button>
+                         <button onClick={() => toggleCompany(company.id)} className={`w-12 h-12 rounded-2xl sm:rounded-full flex items-center justify-center text-gray-900 transition-colors ml-1 ${isExpanded ? 'bg-gray-200' : 'bg-gray-100 hover:bg-gray-200'}`}>
+                            {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                         </button>
+                       </div>
                     </div>
                   </div>
                   
                   {/* Expanded Sub-List */}
                   {isExpanded && (
-                    <div className="border-t border-gray-50 bg-gray-50/50 p-5 pl-8 space-y-3">
-                       {companyScooters.length > 0 ? companyScooters.map(scooter => (
-                          <div key={scooter.id} className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex items-center justify-between">
+                    <div className="bg-gray-50/50 p-3 sm:p-5 sm:pl-8 space-y-3 rounded-b-3xl border-t border-gray-100">
+                       {companyItems.length > 0 ? companyItems.map(item => (
+                          <div key={item.id} className="bg-white p-4 rounded-[20px] border border-gray-100 shadow-sm hover:shadow-md transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                              <div className="flex items-center gap-4">
-                                <img src={scooter.image} alt={scooter.title} className="w-12 h-12 rounded-lg object-cover" />
+                                <img src={item.image} alt={item.title} className="w-14 h-14 sm:w-16 sm:h-16 rounded-[14px] object-cover border border-gray-100 bg-gray-50" />
                                 <div>
-                                   <div className="flex items-center gap-2 mb-1">
-                                     <h4 className="font-bold text-[14px] text-primary">{scooter.title}</h4>
-                                     <span className="bg-primary/5 text-[10px] font-extrabold text-primary px-2 py-0.5 rounded-md uppercase tracking-wider">{scooter.category}</span>
+                                   <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                                     <h4 className="font-extrabold text-[15px] sm:text-[16px] text-gray-900">{item.title}</h4>
+                                     <span className="bg-gray-100 text-[10px] font-extrabold text-gray-600 px-2.5 py-1 rounded-lg uppercase tracking-wider">{item.category}</span>
                                    </div>
-                                   <div className="text-[12px] font-semibold text-gray-500">Rp {scooter.price} / {scooter.duration}</div>
+                                   <div className="text-[13px] font-semibold text-gray-500">Rp {item.price} {item.duration ? `/ ${item.duration}` : ''}</div>
                                 </div>
                              </div>
-                             <div className="flex items-center gap-3">
-                                <div className={`text-[10px] font-bold px-2 py-1 rounded-md uppercase ${scooter.status==='Active'?'bg-green-100 text-green-700':'bg-amber-100 text-amber-700'}`}>{scooter.status}</div>
-                                 <button onClick={() => setReviewingItem(scooter)} className="w-8 h-8 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center hover:bg-blue-100">
-                                    <MessageSquare size={12} />
-                                 </button>
-                                 <button onClick={() => handlePreview(scooter)} className="w-8 h-8 rounded-full bg-gray-50 text-gray-500 flex items-center justify-center hover:bg-gray-200">
-                                    <ExternalLink size={12} />
-                                 </button>
-                                 <button onClick={() => handleToggleStatus(scooter)} className="w-8 h-8 rounded-full bg-gray-50 text-gray-500 flex items-center justify-center hover:bg-gray-200">
-                                    <EyeOff size={12} />
-                                 </button>
-                                 <button onClick={() => handleDelete(scooter)} className="w-8 h-8 rounded-full bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-100">
-                                    <Trash2 size={12} />
-                                 </button>
+                             <div className="flex flex-wrap items-center justify-between sm:justify-end gap-3 sm:gap-4 w-full sm:w-auto border-t sm:border-t-0 border-gray-50 pt-4 sm:pt-0 mt-1 sm:mt-0">
+                                <div className={`text-[11px] font-bold px-3 py-1.5 rounded-lg uppercase tracking-wider ${item.status==='Active'?'bg-[#E8F8EE] text-[#1EB652]':'bg-amber-100 text-amber-700'}`}>{item.status}</div>
+                                 <div className="flex items-center gap-1.5">
+                                   <button onClick={() => setReviewingItem(item)} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-100 transition-colors">
+                                      <MessageSquare size={14} />
+                                   </button>
+                                   <button onClick={() => handlePreview(item)} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gray-50 text-gray-600 flex items-center justify-center hover:bg-gray-200 transition-colors">
+                                      <ExternalLink size={14} />
+                                   </button>
+                                   <button onClick={() => handleToggleStatus(item)} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gray-50 text-gray-600 flex items-center justify-center hover:bg-gray-200 transition-colors">
+                                      <EyeOff size={14} />
+                                   </button>
+                                   <button onClick={() => handleEdit(item)} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gray-50 text-gray-600 flex items-center justify-center hover:bg-gray-200 transition-colors">
+                                      <Edit2 size={14} />
+                                   </button>
+                                   <button onClick={() => handleDelete(item)} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-100 transition-colors">
+                                      <Trash2 size={14} />
+                                   </button>
+                                 </div>
                               </div>
                           </div>
                        )) : (
-                          <p className="text-sm font-medium text-gray-400">No scooters listed yet.</p>
+                          <p className="text-sm font-medium text-gray-400 text-center py-6">No {activeTab.toLowerCase()}s listed under this provider yet.</p>
                        )}
                     </div>
                   )}
@@ -383,8 +440,8 @@ export default function AdminListings() {
                   </div>
                 )}
                 
-                <div className="mt-auto flex items-end justify-between border-t border-gray-50 pt-4">
-                  <div>
+                <div className="mt-auto flex flex-col sm:flex-row items-start sm:items-end justify-between border-t border-gray-50 pt-4 gap-3 sm:gap-0">
+                  <div className="w-full sm:w-auto">
                     <div className="font-black text-[18px] text-primary mb-0.5 tracking-tight">
                        {item.price > 1000 ? `IDR ${Number(item.price).toLocaleString('id-ID')}` : `IDR ${(item.price * 15000).toLocaleString('id-ID')}`}
                     </div>
@@ -393,7 +450,7 @@ export default function AdminListings() {
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-1">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-1 w-full sm:w-auto justify-end">
                     <button 
                       onClick={() => setReviewingItem(item)}
                       className="w-8 h-8 rounded-full flex items-center justify-center text-blue-500 hover:bg-blue-50 hover:shadow-sm transition-all focus:outline-none" title="Messages">
@@ -432,9 +489,9 @@ export default function AdminListings() {
              <PackageOpen size={48} className="mx-auto text-gray-300 mb-4" />
              <h3 className="text-lg font-bold text-primary mb-1">No listings found</h3>
              <p className="text-sm font-medium text-gray-500 mb-4">Try adjusting your search query or create a new listing.</p>
-             {activeTab === "Scooter" && scooterCompanies.length === 0 && (
+             {(activeTab === "Scooter" || activeTab === "Spa") && groupedCompanies.length === 0 && (
                  <button onClick={handleCreateNew} className="bg-black text-white text-sm font-extrabold uppercase tracking-widest px-6 py-3 rounded-full flex items-center gap-2 hover:bg-black/90 transition-colors mx-auto">
-                    <Plus size={16} strokeWidth={3} /> Create First Scooter & Company
+                    <Plus size={16} strokeWidth={3} /> Create First {activeTab} & Company
                  </button>
              )}
           </div>
@@ -449,6 +506,14 @@ export default function AdminListings() {
            activeTab={activeTab}
            onClose={() => setEditingItem(null)} 
            onSave={handleSaveItem}
+        />
+      )}
+      {/* Edit Company Modal Render */}
+      {editingCompany && (
+        <EditCompanyModal 
+           item={editingCompany} 
+           onClose={() => setEditingCompany(null)} 
+           onSave={handleSaveCompany}
         />
       )}
       {/* Review Modal Render */}

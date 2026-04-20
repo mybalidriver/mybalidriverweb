@@ -370,30 +370,25 @@ export default function EditListingModal({ item, activeTab, onClose, onSave }) {
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-4 bg-gray-50 p-3 rounded-xl border border-gray-200 overflow-hidden">
-                  <Clock size={18} className="text-accent shrink-0" />
-                  <div className="flex-1 flex flex-col sm:flex-row sm:items-center gap-2">
-                     <p className="text-xs font-bold text-primary w-32 shrink-0">Duration Setup</p>
-                     {activeTab === "Spa" ? (
-                       <select name="duration" value={formData.duration} onChange={handleChange} className="flex-1 bg-white text-sm font-bold text-primary rounded-lg px-3 py-1.5 border border-gray-200 focus:border-accent outline-none w-full">
-                         <option value="">Select Duration</option>
-                         <option value="60 Mins">60 Mins</option>
-                         <option value="90 Mins">90 Mins</option>
-                         <option value="120 Mins">120 Mins</option>
-                       </select>
-                     ) : activeTab === "Scooter" ? (
-                       <select name="duration" value={formData.duration} onChange={handleChange} className="flex-1 bg-white text-sm font-bold text-primary rounded-lg px-3 py-1.5 border border-gray-200 focus:border-accent outline-none w-full">
-                         <option value="">Select Duration</option>
-                         <option value="Daily">Daily</option>
-                         <option value="Weekly">Weekly</option>
-                         <option value="Monthly">Monthly</option>
-                         <option value="Daily / Weekly / Monthly">Daily / Weekly / Monthly</option>
-                       </select>
-                     ) : (
-                       <input type="text" name="duration" value={formData.duration} onChange={handleChange} className="flex-1 bg-white text-sm font-bold text-primary rounded-lg px-3 py-1.5 border border-gray-200 focus:border-accent outline-none w-full" placeholder={activeTab === "Transport" ? "e.g. 10 Hours" : "e.g. Full Day"} />
-                     )}
+                {activeTab !== "Spa" && (
+                  <div className="flex items-center gap-4 bg-gray-50 p-3 rounded-xl border border-gray-200 overflow-hidden">
+                    <Clock size={18} className="text-accent shrink-0" />
+                    <div className="flex-1 flex flex-col sm:flex-row sm:items-center gap-2">
+                       <p className="text-xs font-bold text-primary w-32 shrink-0">Duration Setup</p>
+                       {activeTab === "Scooter" ? (
+                         <select name="duration" value={formData.duration} onChange={handleChange} className="flex-1 bg-white text-sm font-bold text-primary rounded-lg px-3 py-1.5 border border-gray-200 focus:border-accent outline-none w-full">
+                           <option value="">Select Duration</option>
+                           <option value="Daily">Daily</option>
+                           <option value="Weekly">Weekly</option>
+                           <option value="Monthly">Monthly</option>
+                           <option value="Daily / Weekly / Monthly">Daily / Weekly / Monthly</option>
+                         </select>
+                       ) : (
+                         <input type="text" name="duration" value={formData.duration} onChange={handleChange} className="flex-1 bg-white text-sm font-bold text-primary rounded-lg px-3 py-1.5 border border-gray-200 focus:border-accent outline-none w-full" placeholder={activeTab === "Transport" ? "e.g. 10 Hours" : "e.g. Full Day"} />
+                       )}
+                    </div>
                   </div>
-                </div>
+                )}
                 
                 {activeTab === "Tour" && (
                   <>
@@ -527,10 +522,12 @@ export default function EditListingModal({ item, activeTab, onClose, onSave }) {
 
             {/* Rich Details & dynamic sections based on category */}
             <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm space-y-4">
-              <div>
-                <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5 block">Full Description</label>
-                <textarea rows="4" name="description" value={details.description} onChange={handleDetailChange} className="w-full bg-gray-50 text-sm font-medium text-gray-600 rounded-xl p-4 border border-gray-200 outline-none focus:border-accent" placeholder="Write the main description..."></textarea>
-              </div>
+              {activeTab !== "Spa" && (
+                <div>
+                  <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5 block">Full Description</label>
+                  <textarea rows="4" name="description" value={details.description} onChange={handleDetailChange} className="w-full bg-gray-50 text-sm font-medium text-gray-600 rounded-xl p-4 border border-gray-200 outline-none focus:border-accent" placeholder="Write the main description..."></textarea>
+                </div>
+              )}
 
               {activeTab === "Tour" && (
                 <>
@@ -578,12 +575,12 @@ export default function EditListingModal({ item, activeTab, onClose, onSave }) {
               {activeTab === "Spa" && (
                 <div className="flex gap-4 sm:flex-row flex-col">
                    <div className="flex-1">
-                     <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5 block">Facilities & Amenities</label>
-                     <textarea rows="3" name="included" value={details.included} onChange={handleDetailChange} className="w-full bg-gray-50 text-sm font-medium text-gray-600 rounded-xl p-4 border border-gray-200 outline-none focus:border-accent" placeholder="Private shower, welcoming tea..."></textarea>
+                     <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5 block">Treatment Description</label>
+                     <textarea rows="5" name="description" value={details.description} onChange={handleDetailChange} className="w-full bg-gray-50 text-sm font-medium text-gray-600 rounded-xl p-4 border border-gray-200 outline-none focus:border-accent" placeholder="Describe the massage or spa package in detail..."></textarea>
                    </div>
                    <div className="flex-1">
                      <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5 block">Therapeutic Benefits</label>
-                     <textarea rows="3" name="highlights" value={details.highlights} onChange={handleDetailChange} className="w-full bg-gray-50 text-sm font-medium text-gray-600 rounded-xl p-4 border border-gray-200 outline-none focus:border-accent" placeholder="Muscle relaxation, skin deep cleanse..."></textarea>
+                     <textarea rows="5" name="highlights" value={details.highlights} onChange={handleDetailChange} className="w-full bg-gray-50 text-sm font-medium text-gray-600 rounded-xl p-4 border border-gray-200 outline-none focus:border-accent" placeholder="Muscle relaxation, deep skin cleanse, stress relief..."></textarea>
                    </div>
                 </div>
               )}
@@ -615,83 +612,82 @@ export default function EditListingModal({ item, activeTab, onClose, onSave }) {
               )}
             </div>
 
-            {/* Final State & Image */}
-            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden flex flex-col sm:flex-row">
-               <div className="p-4 flex-1 border-b sm:border-b-0 sm:border-r border-gray-100 flex flex-col justify-center">
-                 <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Cover Image Upload</label>
-                 <div className="flex items-center gap-4">
-                   <div className="w-16 h-16 rounded-xl overflow-hidden bg-gray-50 border border-gray-200 shrink-0">
-                     {formData.image ? (
-                       <img src={formData.image} alt="Preview" className="w-full h-full object-cover" />
-                     ) : (
-                       <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
-                         <Camera size={18} />
-                       </div>
-                     )}
-                   </div>
-                   <div className="flex-1 space-y-3">
-                     <div>
-                       <p className="text-xs font-semibold text-gray-500 mb-1.5 break-words">Main Cover Image URL</p>
-                       <input 
-                         type="text" 
-                         name="image"
-                         value={formData.image} 
-                         onChange={handleChange}
-                         placeholder="https://images.unsplash.com/..." 
-                         className="w-full bg-gray-50 text-sm font-semibold text-primary rounded-xl px-4 py-2 border border-gray-200 focus:border-accent outline-none truncate" 
-                       />
-                     </div>
-                     <div className="relative overflow-hidden w-fit">
-                       <button type="button" disabled={isUploading} className={`${isUploading ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-gray-100 hover:bg-gray-200 text-primary'} text-xs font-bold px-4 py-2 rounded-lg transition-colors flex items-center gap-2`}>
-                         <ImageIcon size={14} /> {isUploading ? 'Uploading...' : 'Upload Storage File'}
-                       </button>
-                       <input 
-                         type="file" 
-                         accept="image/*"
-                         onChange={handleImageUpload} 
-                         disabled={isUploading}
-                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
-                       />
-                     </div>
-
-                     <div className="pt-3 mt-3 border-t border-gray-200">
-                        <div className="flex justify-between items-center mb-2">
-                           <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block">Gallery Image URLs (Optional)</label>
-                           
-                           {/* Brand new Quick Gallery Uploader (multi file) */}
-                           <div className="relative overflow-hidden">
-                             <button type="button" disabled={isUploading} className="text-[10px] font-bold bg-[#F4F4F6] px-2 py-1 rounded-md text-primary hover:bg-[#EAEAEA] transition-colors">{isUploading ? 'WAIT...' : 'UPLOAD BATCH'}</button>
-                             <input type="file" multiple accept="image/*" onChange={handleGalleryUpload} disabled={isUploading} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-                           </div>
-                        </div>
-
-                        <div className="space-y-2">
-                           {gallery.map((url, i) => (
-                              <input 
-                                key={i}
-                                type="text" 
-                                value={url} 
-                                onChange={(e) => {
-                                  const newG = [...gallery]; newG[i] = e.target.value; setGallery(newG);
-                                }}
-                                placeholder={`Gallery Image ${i + 1} URL`} 
-                                className="w-full bg-gray-50 text-xs font-semibold text-primary rounded-lg px-3 py-1.5 border border-gray-200 focus:border-accent outline-none truncate" 
-                              />
-                           ))}
-                           {gallery.length < 5 && (
-                             <button onClick={() => setGallery([...gallery, ""])} className="text-xs font-bold text-accent hover:underline flex items-center gap-1">+ Add another photo</button>
-                           )}
-                        </div>
-                     </div>
-                   </div>
-                 </div>
+            {/* Advanced Image Loader (GyG Style) */}
+            <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm">
+               <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-100">
+                  <div>
+                    <h3 className="font-extrabold text-primary text-sm uppercase tracking-widest flex items-center gap-2"><ImageIcon size={18} className="text-accent" /> Media Management</h3>
+                    <p className="text-[11px] font-semibold text-gray-500 mt-0.5">Upload a striking cover image and up to 5 gallery shots.</p>
+                  </div>
+                  <div className="relative overflow-hidden">
+                     <button type="button" disabled={isUploading} className={`${isUploading ? 'bg-gray-100 text-gray-400' : 'bg-primary text-white hover:bg-primary/95'} px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition-colors`}>
+                        <Plus size={16} /> {isUploading ? 'Uploading...' : 'Add Gallery Shots'}
+                     </button>
+                     <input 
+                       type="file" 
+                       multiple 
+                       accept="image/*"
+                       onChange={handleGalleryUpload} 
+                       disabled={isUploading}
+                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
+                     />
+                  </div>
                </div>
-               <div className="p-4 w-full sm:w-48 bg-gray-50 shrink-0">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Status</label>
-                  <select name="status" value={formData.status} onChange={handleChange} className="w-full bg-white text-sm font-bold text-primary rounded-lg px-3 py-1.5 border border-gray-200 outline-none focus:border-accent appearance-none">
-                     <option value="Active">Active / Public</option>
-                     <option value="Draft">Draft / Hidden</option>
-                  </select>
+
+               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                  {/* Cover Image Block */}
+                  <div className="col-span-2 sm:col-span-2 md:col-span-2 row-span-2 relative group overflow-hidden bg-gray-50 rounded-xl border-2 border-accent border-dashed aspect-[4/3] flex flex-col items-center justify-center">
+                     {formData.image ? (
+                        <>
+                          <img src={formData.image} alt="Cover Preview" className="w-full h-full object-cover rounded-lg" />
+                          <div className="absolute top-3 left-3 bg-accent text-white text-[10px] font-extrabold px-2.5 py-1 rounded-md uppercase tracking-wider shadow-md">Main Cover</div>
+                          
+                          <div className="absolute right-3 top-3 flex items-center gap-2">
+                             <div className="relative overflow-hidden w-8 h-8 bg-white/90 backdrop-blur rounded-full flex items-center justify-center shadow-md cursor-pointer hover:bg-white text-gray-600">
+                               <Camera size={14} />
+                               <input type="file" accept="image/*" onChange={handleImageUpload} disabled={isUploading} className="absolute inset-0 opacity-0 cursor-pointer" />
+                             </div>
+                             <button onClick={() => setFormData({...formData, image: ""})} className="w-8 h-8 bg-white/90 backdrop-blur rounded-full flex items-center justify-center shadow-md cursor-pointer hover:bg-red-50 hover:text-red-500 text-gray-600 transition-colors">
+                               <Trash2 size={14} />
+                             </button>
+                          </div>
+                        </>
+                     ) : (
+                        <div className="relative w-full h-full flex flex-col items-center justify-center text-center p-6 text-gray-400 hover:text-accent transition-colors hover:bg-gray-100/50">
+                           <Camera size={32} className="mb-2 opacity-50" />
+                           <p className="text-xs font-bold text-gray-600">Upload Cover Image</p>
+                           <p className="text-[10px] font-medium mt-1">16:9 ratio recommended for best display</p>
+                           <input type="file" accept="image/*" onChange={handleImageUpload} disabled={isUploading} className="absolute inset-0 opacity-0 cursor-pointer" />
+                        </div>
+                     )}
+                  </div>
+
+                  {/* Gallery Blocks */}
+                  {gallery.map((url, index) => {
+                     // Filter out empty links just for display mapping initially, but the state has empty strings, 
+                     // so we only render filled blocks or placeholders up to 5.
+                     return url ? (
+                       <div key={index} className="relative group overflow-hidden bg-gray-100 rounded-xl border border-gray-200 aspect-[4/3]">
+                          <img src={url} alt={`Gallery ${index}`} className="w-full h-full object-cover" />
+                          <button onClick={() => {
+                             const newG = [...gallery];
+                             newG[index] = "";
+                             setGallery(newG);
+                          }} className="absolute top-2 right-2 w-7 h-7 bg-white/90 backdrop-blur rounded-full flex items-center justify-center shadow-sm cursor-pointer hover:bg-red-50 hover:text-red-500 text-gray-600 opacity-0 group-hover:opacity-100 transition-all scale-90 group-hover:scale-100">
+                             <Trash2 size={12} />
+                          </button>
+                       </div>
+                     ) : null;
+                  })}
+                  
+                  {/* Empty Slots */}
+                  {Array.from({ length: 5 - gallery.filter(Boolean).length }).map((_, emptyIndex) => (
+                      <div key={`empty-${emptyIndex}`} className="relative group overflow-hidden bg-white rounded-xl border border-gray-200 border-dashed aspect-[4/3] flex flex-col items-center justify-center text-gray-300 hover:text-primary transition-colors hover:bg-gray-50">
+                         <Plus size={20} className="mb-1" />
+                         <span className="text-[10px] font-bold uppercase tracking-widest">Gallery {gallery.filter(Boolean).length + emptyIndex + 1}</span>
+                         <input type="file" multiple accept="image/*" onChange={handleGalleryUpload} disabled={isUploading} className="absolute inset-0 opacity-0 cursor-pointer" />
+                      </div>
+                  ))}
                </div>
             </div>
 

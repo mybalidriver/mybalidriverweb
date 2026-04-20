@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS public.companies (
     phone TEXT,
     joined_year TEXT,
     verified BOOLEAN DEFAULT false,
+    google_link TEXT,
     image TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
