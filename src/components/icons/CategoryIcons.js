@@ -207,3 +207,52 @@ export const LotusIcon = ({ size = 24, className, strokeWidth = 1.25 }) => (
     <path d="M12 21s10-8 10-13a3.5 3.5 0 0 0-7 0" />
   </svg>
 );
+
+// --- CREATTIE STYLED ICONS ---
+export const CreattieTourIcon = ({ size = 28, className, strokeWidth = 2 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    <circle cx="16" cy="8" r="4" fill="var(--color-accent)" />
+    <path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3V6z" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M9 3v15" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M15 6v15" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
+export const CreattieSpaIcon = ({ size = 28, className, strokeWidth = 2 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    <path d="M12 3C12 3 15 5 15 8C15 11 12 12 12 12C12 12 9 11 9 8C9 5 12 3 12 3Z" fill="var(--color-accent)" />
+    <path d="M12 21c-5-2-8-6-8-10 0-4 3-6 3-6s2.5 3.5 5 6c2.5-2.5 5-6 5-6s3 2 3 6c0 4-3 8-8 10z" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M12 21v-9" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
+export const CreattieScooterIcon = ({ size = 28, className, strokeWidth = 2 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    <circle cx="18" cy="17" r="3" fill="var(--color-accent)" />
+    <circle cx="6" cy="17" r="3" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <circle cx="18" cy="17" r="3" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M8.5 17h6" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M18 14L15 6h-3" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M6 14c0-3 2-4 5-4h4" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
+export const CreattieTransportIcon = ({ size = 28, className, strokeWidth = 2 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    <path d="M7 11h9V8H9L7 11z" fill="var(--color-accent)" />
+    <path d="M3 16h18v-3c0-1.5-1-2-2-2h-3l-2.5-4H8.5L6 11H4c-1 0-1 1-1 2v3z" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <circle cx="7" cy="16" r="2.5" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <circle cx="17" cy="16" r="2.5" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
+export const CreattieEsimIcon = ({ size = 28, className, strokeWidth = 2 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    <circle cx="15" cy="10" r="1.5" fill="var(--color-accent)" />
+    <circle cx="9" cy="14" r="1.5" fill="var(--color-accent)" />
+    <circle cx="15" cy="14" r="1.5" fill="var(--color-accent)" />
+    <path d="M18 20H6a2 2 0 01-2-2V6a2 2 0 012-2h8l4 4v10a2 2 0 01-2 2z" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M8 10h1" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M8 14h1" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);

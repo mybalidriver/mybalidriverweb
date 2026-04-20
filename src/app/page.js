@@ -1,19 +1,19 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { TreePine, Umbrella, Mountain, Droplets, Search, Plane, Building, Building2, Train, Bus, BriefcaseBusiness, Heart, HeartOff, MapPin, Map, Car, Bike, Wifi, Navigation, Sparkles, Landmark, Camera, Waves, Compass, ChevronDown, ChevronLeft, ChevronRight, Settings2, Star, Zap } from "lucide-react";
-import { TourIcon, SpaIcon, TransportIcon, ScooterIcon, ThinSparklesIcon, TowelsIcon, LotusIcon } from "@/components/icons/CategoryIcons";
+import { TreePine, Umbrella, Mountain, Droplets, Search, Plane, Building, Building2, Train, Bus, BriefcaseBusiness, Heart, HeartOff, MapPin, Map, Car, Bike, Wifi, Navigation, Sparkles, Landmark, Camera, Waves, Compass, ChevronDown, ChevronLeft, ChevronRight, Settings2, Star, Zap, Home as HomeIcon, Flower2 } from "lucide-react";
+import { TourIcon, SpaIcon, TransportIcon, ScooterIcon, ThinSparklesIcon, TowelsIcon, LotusIcon, CreattieTourIcon, CreattieSpaIcon, CreattieScooterIcon, CreattieTransportIcon, CreattieEsimIcon } from "@/components/icons/CategoryIcons";
 import ListingCard from "@/components/listing/ListingCard";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 
 const services = [
-  { id: "Tour", icon: TourIcon },
-  { id: "Massage", icon: SpaIcon },
-  { id: "Scooter", icon: ScooterIcon },
-  { id: "Esim", icon: Wifi },
-  { id: "Transport", icon: TransportIcon },
+  { id: "Tour", icon: CreattieTourIcon },
+  { id: "Massage", icon: CreattieSpaIcon },
+  { id: "Scooter", icon: CreattieScooterIcon },
+  { id: "Esim", icon: CreattieEsimIcon },
+  { id: "Transport", icon: CreattieTransportIcon },
 ];
 
 const getCategoriesForService = (service) => {
@@ -28,9 +28,9 @@ const getCategoriesForService = (service) => {
     ];
   } else if (service === "Massage") {
     return [
-      { id: "All", icon: ThinSparklesIcon },
-      { id: "In-Villa Spa", icon: TowelsIcon },
-      { id: "Day Spa", icon: LotusIcon }
+      { id: "All" },
+      { id: "In-Villa Spa" },
+      { id: "Day Spa" }
     ];
   } else if (service === "Transport") {
     return [
@@ -517,7 +517,7 @@ export default function Home() {
                   className={`flex items-center gap-2 px-5 py-2.5 rounded-full shrink-0 transition-all active:scale-95 touch-manipulation select-none cursor-pointer outline-none font-bold shadow-sm border ${isActive ? "bg-accent border-accent text-primary" : "bg-[#F1F5F9] border-[#F1F5F9] text-[#475569] hover:bg-[#E2E8F0]"
                     }`}
                 >
-                  <Icon size={20} className={isActive ? "text-primary" : "text-[#475569]"} strokeWidth={1.25} />
+                  {Icon && <Icon size={20} className={isActive ? "text-primary" : "text-[#475569]"} strokeWidth={1.25} />}
                   <span className="text-[14px] font-bold">{c.id}</span>
                 </button>
               );
