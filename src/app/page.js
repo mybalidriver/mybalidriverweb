@@ -2,18 +2,18 @@
 
 import React, { useState, useEffect } from "react";
 import { TreePine, Umbrella, Mountain, Droplets, Search, Plane, Building, Building2, Train, Bus, BriefcaseBusiness, Heart, HeartOff, MapPin, Map, Car, Bike, Wifi, Navigation, Sparkles, Landmark, Camera, Waves, Compass, ChevronDown, ChevronLeft, ChevronRight, Settings2, Star, Zap, Home as HomeIcon, Flower2 } from "lucide-react";
-import { TourIcon, SpaIcon, TransportIcon, ScooterIcon, ThinSparklesIcon, TowelsIcon, LotusIcon, CreattieTourIcon, CreattieSpaIcon, CreattieScooterIcon, CreattieTransportIcon, CreattieEsimIcon } from "@/components/icons/CategoryIcons";
+import { TourIcon, SpaIcon, TransportIcon, ScooterIcon, ThinSparklesIcon, TowelsIcon, LotusIcon, CreattieTourIcon, CreattieSpaIcon, CreattieScooterIcon, CreattieTransportIcon, CreattieEsimIcon, AirbnbTourIcon, AirbnbSpaIcon, AirbnbScooterIcon, AirbnbTransportIcon, AirbnbEsimIcon } from "@/components/icons/CategoryIcons";
 import ListingCard from "@/components/listing/ListingCard";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 
 const services = [
-  { id: "Tour", icon: CreattieTourIcon },
-  { id: "Massage", icon: CreattieSpaIcon },
-  { id: "Scooter", icon: CreattieScooterIcon },
-  { id: "Esim", icon: CreattieEsimIcon },
-  { id: "Transport", icon: CreattieTransportIcon },
+  { id: "Tour", icon: AirbnbTourIcon },
+  { id: "Massage", icon: AirbnbSpaIcon },
+  { id: "Scooter", icon: AirbnbScooterIcon },
+  { id: "Esim", icon: AirbnbEsimIcon },
+  { id: "Transport", icon: AirbnbTransportIcon },
 ];
 
 const getCategoriesForService = (service) => {
