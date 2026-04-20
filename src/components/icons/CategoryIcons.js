@@ -260,45 +260,71 @@ export const CreattieEsimIcon = ({ size = 28, className, strokeWidth = 2 }) => (
 // --- AIRBNB STYLED ICONS ---
 export const AirbnbTourIcon = ({ size = 28, className, strokeWidth = 1.6 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    <path d="M9 20l-5-2V4l5 2m0 14l6-2m-6 2V6m6 12l5 2V6l-5-2m0 14V4" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <circle cx="9" cy="8" r="2" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M15 11l-2 3h4l-2-3z" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M15 8l-2 3h4l-2-3z" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M15 14v4" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M4 20h14" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M5 20l4.5-9 4.5 9" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M9.5 11l3 8" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 );
 
 export const AirbnbSpaIcon = ({ size = 28, className, strokeWidth = 1.6 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    <path d="M12 22v-9" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M12 22C7 20 4 16 4 12c0-4 3-6 3-6s3 4 5 7c2-3 5-7 5-7s3 2 3 6c0 4-3 8-8 10z" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M12 3C12 3 15 5 15 8C15 11 12 12 12 12C12 12 9 11 9 8C9 5 12 3 12 3Z" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M16 18h4v-3h-4v3z" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M16 15v-1c0-.5.5-1 1-1h2c.5 0 1 .5 1 1v1" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <circle cx="18" cy="11" r="1.5" stroke="currentColor" strokeWidth={strokeWidth}/>
+    <path d="M18 12.5V13" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M17.5 16.5h1" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M4 18h11v-3H4v3z" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M4 18v2M15 18v2M16 18v2M20 18v2" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M9 15v-1a2 2 0 00-2-2H5a1 1 0 00-1 1v2" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M5 13.5v-1a1 1 0 011-1h1" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 );
 
 export const AirbnbScooterIcon = ({ size = 28, className, strokeWidth = 1.6 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    <circle cx="6" cy="17" r="3" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
-    <circle cx="18" cy="17" r="3" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M8.5 17h6" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M18 14L15 5h-3" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M6 14c0-3 2-4 5-4h4" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M15 5l2-2" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <circle cx="7" cy="18" r="3" stroke="currentColor" strokeWidth={strokeWidth} fill="none"/>
+    <circle cx="7" cy="18" r="0.5" fill="currentColor" stroke="currentColor" strokeWidth="0.5"/>
+    <circle cx="17" cy="18" r="3" stroke="currentColor" strokeWidth={strokeWidth} fill="none"/>
+    <circle cx="17" cy="18" r="0.5" fill="currentColor" stroke="currentColor" strokeWidth="0.5"/>
+    <path d="M10 18h4" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M7 15c0-4 3-5 5-5h3l2.5-4" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M15 10c0-1.5-1-1.5-1-1.5h-4" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M16 8h2.5" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M16.5 15l-1.5 3" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <circle cx="19.5" cy="8" r="1" stroke="currentColor" strokeWidth={strokeWidth}/>
   </svg>
 );
 
 export const AirbnbTransportIcon = ({ size = 28, className, strokeWidth = 1.6 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    <path d="M5 20h14a2 2 0 002-2v-4l-2.5-5H7.5L5 14v4a2 2 0 000 4z" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M3 14h18" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
-    <circle cx="7.5" cy="17.5" r="1.5" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
-    <circle cx="16.5" cy="17.5" r="1.5" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M3 21c1.5 0 1.5-1 3-1s1.5 1 3 1 1.5-1 3-1 1.5 1 3 1 1.5-1 3-1 1.5 1 3 1" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M3 18c1.5 0 1.5-1 3-1s1.5 1 3 1 1.5-1 3-1 1.5 1 3 1 1.5-1 3-1 1.5 1 3 1" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M17 15v-6" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M17 9c2-2 4 0 4 0s-1 3-4 0z" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M17 9c-2-2-4 0-4 0s1 3 4 0z" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M17 9c0-3-2-4-2-4s2 1 2 4z" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M17 9c0-3 2-4 2-4s-2 1-2 4z" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M5 15h10v-4c0-1-1-2-2-2H7L5 12v3z" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <circle cx="7" cy="15" r="1.5" stroke="currentColor" strokeWidth={strokeWidth}/>
+    <circle cx="13" cy="15" r="1.5" stroke="currentColor" strokeWidth={strokeWidth}/>
+    <path d="M8 9h3v3H8V9z" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 );
 
 export const AirbnbEsimIcon = ({ size = 28, className, strokeWidth = 1.6 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    <path d="M18 20H6a2 2 0 01-2-2V6a2 2 0 012-2h8l4 4v10a2 2 0 01-2 2z" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M8 10h2" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M8 14h2" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M14 10h2" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M14 14h2" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M11 10v4" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <rect x="8" y="7" width="8" height="12" rx="2" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M11 10h2" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <circle cx="12" cy="16" r="1" stroke="currentColor" strokeWidth="1" fill="none"/>
+    <path d="M18 10a4 4 0 010 6" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M21 7a8 8 0 010 12" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M6 10a4 4 0 000 6" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M3 7a8 8 0 000 12" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M12 2v2" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M10 3l-1-1M14 3l1-1" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 );
