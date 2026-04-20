@@ -9,8 +9,8 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
           
           <div className="flex flex-col gap-4">
-            <h2 className="text-2xl font-extrabold tracking-tight flex items-center" style={{ fontFamily: 'var(--font-playfair)', color: 'var(--color-accent)' }}>
-              TROVE <span className="ml-2 mt-1 text-[14px] tracking-widest text-[#a67c52]">EXPERIENCE</span>
+            <h2 className="text-2xl font-extrabold tracking-tight flex items-center text-black" style={{ fontFamily: 'var(--font-playfair)' }}>
+              TROVE EXPERIENCE
             </h2>
             <p className="text-sm text-text-secondary">
               Your ultimate premium gateway to explore the magical island of Bali. Discover tours, rentals, and hidden gems seamlessly.

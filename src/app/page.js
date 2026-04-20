@@ -481,7 +481,7 @@ export default function Home() {
                   <div className="flex justify-between items-end mt-1">
                     <div className="flex items-center gap-1.5 shrink-0">
                       <Star size={12} strokeWidth={2.5} className="fill-[#F59E0B] text-[#F59E0B]" />
-                      <span className="text-[12px] font-bold text-primary">{trip.rating}</span>
+                      <span className="text-[12px] font-bold text-primary">5.0</span>
                     </div>
                     <div className="flex flex-col items-end shrink-0">
                       <span className="font-extrabold text-[15px] text-primary tracking-tight pr-1">

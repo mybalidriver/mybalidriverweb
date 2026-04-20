@@ -4,9 +4,9 @@
   --color-primary: #1C1C1E; /* Deep dark grey/black used in the reference UI */
   --color-primary-inverse: #ffffff;
   
-  /* Trove Logo Brand Accent */
-  --color-accent: #E6B995;
-  --color-accent-hover: #D4A580;
+  /* Redesign Signature Lime Accent */
+  --color-accent: #D9FB41;
+  --color-accent-hover: #C5E838;
   
   --color-background: #F8F9FA; /* Slightly off-white for contrast with white cards */
   --color-surface: #FFFFFF;

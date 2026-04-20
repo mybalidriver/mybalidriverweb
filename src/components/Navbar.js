@@ -79,8 +79,8 @@ export default function Navbar() {
       <div className="hidden md:flex container mx-auto px-6 lg:max-w-[1400px] items-center justify-between">
         
         {/* Logo */}
-        <Link href="/" className="font-extrabold tracking-tight flex-1 flex items-center" style={{ fontFamily: 'var(--font-playfair)', fontSize: '32px', color: 'var(--color-accent)' }}>
-          TROVE <span className="ml-2 mt-1 text-[16px] tracking-widest text-[#a67c52]">EXPERIENCE</span>
+        <Link href="/" className="font-extrabold tracking-tight flex-1 flex items-center text-black" style={{ fontFamily: 'var(--font-playfair)', fontSize: '28px' }}>
+          TROVE EXPERIENCE
         </Link>
 
         {/* Center Compressed Search */}
