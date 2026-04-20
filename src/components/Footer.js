@@ -9,7 +9,9 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
           
           <div className="flex flex-col gap-4">
-            <h2 className="text-xl font-bold tracking-tight text-primary">DISCOVERING BALI</h2>
+            <h2 className="text-2xl font-extrabold tracking-tight flex items-center" style={{ fontFamily: 'var(--font-playfair)', color: 'var(--color-accent)' }}>
+              trove <span className="ml-2 mt-1 text-[14px] tracking-widest text-[#a67c52]">experience</span>
+            </h2>
             <p className="text-sm text-text-secondary">
               Your ultimate premium gateway to explore the magical island of Bali. Discover tours, rentals, and hidden gems seamlessly.
             </p>
@@ -35,7 +37,7 @@ const Footer = () => {
             <h3 className="text-sm font-semibold uppercase tracking-wider text-text-secondary">Helpful Links</h3>
             <div className="flex flex-col gap-3">
               <Link href="/about" className="text-sm font-medium hover:translate-x-1 hover:text-accent transition-all inline-block w-max">About Us</Link>
-              <Link href="/blog" className="text-sm font-medium hover:translate-x-1 hover:text-accent transition-all inline-block w-max">Discover Bali Blog</Link>
+              <Link href="/blog" className="text-sm font-medium hover:translate-x-1 hover:text-accent transition-all inline-block w-max">Trove Experience Blog</Link>
               <Link href="/contact" className="text-sm font-medium hover:translate-x-1 hover:text-accent transition-all inline-block w-max">Contact & Support</Link>
             </div>
           </div>
@@ -53,7 +55,7 @@ const Footer = () => {
               </div>
               <div className="flex items-center gap-3 text-text-secondary">
                 <Mail size={18} />
-                <span className="text-sm">hello@discoveringbali.com</span>
+                <span className="text-sm">hello@troveexperience.com</span>
               </div>
             </div>
           </div>
@@ -61,7 +63,7 @@ const Footer = () => {
 
         <div className="pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-text-secondary">
-            &copy; {new Date().getFullYear()} Discovering Bali. All rights reserved.
+            &copy; {new Date().getFullYear()} Trove Experience. All rights reserved.
           </p>
           <div className="flex items-center gap-4 text-sm text-text-secondary">
             <span>Powered by Premium Travel Engine</span>

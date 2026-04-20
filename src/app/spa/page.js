@@ -2,7 +2,7 @@ import React from "react";
 import ListingCard from "@/components/listing/ListingCard";
 
 export const metadata = {
-  title: "Spa & Wellness | Discovering Bali",
+  title: "Spa & Wellness | Trove Experience",
 };
 
 const mockSpas = [

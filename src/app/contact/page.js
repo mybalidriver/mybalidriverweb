@@ -2,7 +2,7 @@ import React from "react";
 import { Mail, MapPin, Phone } from "lucide-react";
 
 export const metadata = {
-  title: "Contact Us | Discovering Bali",
+  title: "Contact Us | Trove Experience",
 };
 
 export default function Contact() {

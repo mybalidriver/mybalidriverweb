@@ -62,7 +62,7 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
     const sTitle = serviceData?.title?.toUpperCase() || "UNKNOWN";
     const divider = "━━━━━━━━━━━━━━━━━━━━━━";
     
-    let messageDetails = `*DISCOVERING BALI BOOKING*\n${divider}\n*BOOKING ID:* #${bookingId}\n*SERVICE:* ${sType}\n*TITLE:* ${sTitle}\n${divider}\n*NAME:* ${formData.name}\n*WHATSAPP:* ${formData.phone}\n*DATE:* ${formData.date}`;
+    let messageDetails = `*TROVE EXPERIENCE BOOKING*\n${divider}\n*BOOKING ID:* #${bookingId}\n*SERVICE:* ${sType}\n*TITLE:* ${sTitle}\n${divider}\n*NAME:* ${formData.name}\n*WHATSAPP:* ${formData.phone}\n*DATE:* ${formData.date}`;
     
     if (serviceData?.type === "tour") {
       messageDetails += `\n*GUESTS:* ${formData.guests} Pax\n*PICKUP:* ${formData.pickupLocation.name}`;

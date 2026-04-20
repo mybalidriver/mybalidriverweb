@@ -3,7 +3,7 @@ import ListingCard from "@/components/listing/ListingCard";
 import { ShieldCheck, Truck, Clock } from "lucide-react";
 
 export const metadata = {
-  title: "Premium Scooter Rentals | Discovering Bali",
+  title: "Premium Scooter Rentals | Trove Experience",
 };
 
 const mockScooters = [

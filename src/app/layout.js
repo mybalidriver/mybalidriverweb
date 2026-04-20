@@ -1,10 +1,11 @@
-import { Inter } from "next/font/google";
+import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import BottomNav from "@/components/navigation/BottomNav";
 import AuthProvider from "@/components/providers/AuthProvider";
 const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600", "700", "800"] });
+const playfair = Playfair_Display({ subsets: ["latin"], weight: ["400", "500", "600", "700", "800"], variable: '--font-playfair' });
 
 export const viewport = {
   width: "device-width",
@@ -15,14 +16,14 @@ export const viewport = {
 };
 
 export const metadata = {
-  title: "Discover Your Journey",
+  title: "Trove Experience",
   description: "Modern travel experience platform.",
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} min-h-screen flex flex-col bg-background selection:bg-accent selection:text-primary pb-24 md:pb-0`}>
+      <body className={`${inter.className} ${playfair.variable} min-h-screen flex flex-col bg-background selection:bg-accent selection:text-primary pb-24 md:pb-0`}>
         <AuthProvider>
           {/* Navbar handles its own desktop/mobile responsive states now */}
           <Navbar />

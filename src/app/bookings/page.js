@@ -147,7 +147,7 @@ export default function BookingsPage() {
                   {activeTab === "upcoming" && (
                     <div className="mt-5 pt-4 border-t border-gray-100 flex gap-3">
                       <a 
-                        href={`https://wa.me/6285174119423?text=${encodeURIComponent(`Hello Discovering Bali, regarding my booking:\n\n*DISCOVERING BALI BOOKING*\n\n*ID:* #${b.bookingId}\n*TITLE:* ${b.title.toUpperCase()}\n*DATE:* ${b.date} at ${b.time}\n*GUESTS:* ${b.guests} Pax\n*LOCATION:* ${b.hotel}\n*PRICE:* Rp ${b.price.toLocaleString('id-ID')}\n\nPlease assist me to confirm.`)}`} 
+                        href={`https://wa.me/6285174119423?text=${encodeURIComponent(`Hello Trove Experience, regarding my booking:\n\n*TROVE EXPERIENCE BOOKING*\n\n*ID:* #${b.bookingId}\n*TITLE:* ${b.title.toUpperCase()}\n*DATE:* ${b.date} at ${b.time}\n*GUESTS:* ${b.guests} Pax\n*LOCATION:* ${b.hotel}\n*PRICE:* Rp ${b.price.toLocaleString('id-ID')}\n\nPlease assist me to confirm.`)}`} 
                         target="_blank" 
                         rel="noreferrer" 
                         className="flex-1 bg-gray-100 text-primary text-[14px] font-bold py-3.5 rounded-xl hover:bg-gray-200 transition-colors text-center"
