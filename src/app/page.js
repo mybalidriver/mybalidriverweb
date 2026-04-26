@@ -44,23 +44,11 @@ const getCategoriesForService = (service) => {
       { id: "Culture", icon: Landmark },
       { id: "Instagram", icon: Camera }
     ];
-  } else if (service === "Spa") {
-    return [
-      { id: "All" },
-      { id: "In-Villa Spa" },
-      { id: "Day Spa" }
-    ];
   } else if (service === "Transport") {
     return [
       { id: "All", icon: Compass },
       { id: "Airport", icon: Plane },
       { id: "Daily", icon: Car }
-    ];
-  } else if (service === "Scooter") {
-    return [
-       { id: "All", icon: Bike },
-       { id: "Automatic", icon: Zap },
-       { id: "Manual", icon: Settings2 }
     ];
   } else if (service === "Esim") {
     return [
@@ -328,8 +316,8 @@ export default function Home() {
       .slice(0, 5);
 
   const getPopularTripsTitle = () => {
-    if (activeService === "Tour") return "Unforgettable Journeys";
-    if (activeService === "Spa") return "Curated Wellness";
+    if (activeService === "Tour") return "Featured Tours";
+    if (activeService === "Transport") return "Premium Fleet";
     return `Top Picks for ${activeService}`;
   };
 
@@ -770,7 +758,7 @@ export default function Home() {
               {getPopularTripsTitle()}
             </h2>
             <Link 
-              href={activeService === "Tour" ? "/tours" : activeService === "Spa" ? "/spa" : activeService === "Transport" ? "/map" : activeService === "Scooter" ? "/scooter" : "/esim"}
+              href={activeService === "Tour" ? "/tours" : activeService === "Transport" ? "/map" : "/esim"}
               className="text-sm font-semibold text-text-secondary hover:text-text-primary cursor-pointer transition-colors"
             >
               See more
