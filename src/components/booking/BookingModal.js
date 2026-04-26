@@ -97,7 +97,7 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
             let applicableTier = [...serviceData.allInclusiveTiers].reverse().find(t => pax >= t.minPax);
             if (applicableTier) basePrice = Number(applicableTier.price);
          } else if (serviceData.allInclusiveSurcharge) {
-            basePrice += Number(serviceData.allInclusiveSurcharge);
+            basePrice = Number(serviceData.allInclusiveSurcharge);
          }
       } else if (serviceData.tourTiers && serviceData.tourTiers.length > 0) {
          let applicableTier = [...serviceData.tourTiers].reverse().find(t => pax >= t.minPax);
@@ -154,7 +154,13 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
               </div>
               <div className="flex-1 overflow-hidden">
                 <p className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">{serviceData.type}</p>
-                <h3 className="font-exrabold text-[15px] text-primary truncate leading-tight">{serviceData.title}</h3>
+                <h3 
+                   onClick={onClose}
+                   className="font-extrabold text-[15px] text-primary truncate leading-tight cursor-pointer hover:text-accent hover:underline decoration-accent underline-offset-2 transition-all"
+                   title="Click to view full details"
+                >
+                   {localPackage === 'All Inclusive' && serviceData.inclusiveTitle ? serviceData.inclusiveTitle : serviceData.baseTitle || serviceData.title}
+                </h3>
               </div>
             </div>
           )}
@@ -164,9 +170,26 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
             {/* STEP 1: PARTICIPANTS & OPTIONS */}
             {step === 1 && (
               <>
+                <div className="flex flex-col gap-5">
+                  <div className="w-full flex-shrink-0">
+                     <WeeklyCalendar value={formData.date} onChange={(dateStr) => handleInputChange({ target: { name: 'date', value: dateStr }})} />
+                  </div>
+
+                  {/* Time (for Spa, Transport) */}
+                  {(serviceData?.type === "spa" || serviceData?.type === "transport") && (
+                    <div className="flex-1 flex flex-col gap-2 relative">
+                       <label className="text-[13px] font-bold text-primary ml-1">Preferred Time</label>
+                       <div className="relative flex items-center">
+                         <Clock className="absolute left-4 text-gray-400" size={18} />
+                         <input required type="time" name="time" value={formData.time} onChange={handleInputChange} className="w-full bg-[#F4F4F6] rounded-2xl py-3.5 pl-12 pr-4 text-[15px] font-medium text-primary outline-none focus:ring-2 focus:ring-primary/20 transition-all appearance-none" style={{ colorScheme: 'light' }} />
+                       </div>
+                    </div>
+                  )}
+                </div>
+
                 {/* Package Selector (Tour/Activities) */}
                 {(serviceData?.type === "tour" || serviceData?.type === "activities") && (serviceData?.hasAllInclusive || serviceData?.allInclusiveSurcharge) && (
-                  <div className="flex flex-col gap-3">
+                  <div className="flex flex-col gap-3 mt-1">
                     <span className="font-bold text-primary text-[14px] ml-1">Select your experience</span>
                     <div className="flex flex-col gap-2">
                       <div 
@@ -192,8 +215,6 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
                                 if (serviceData.allInclusiveTiers && serviceData.allInclusiveTiers.length > 0) {
                                   let applicableTier = [...serviceData.allInclusiveTiers].reverse().find(t => pax >= t.minPax);
                                   if (applicableTier) price = Number(applicableTier.price);
-                                } else if (serviceData.allInclusiveSurcharge && serviceData.price) {
-                                  price = Number(serviceData.price) + Number(serviceData.allInclusiveSurcharge);
                                 }
                                 return `Rp ${price.toLocaleString('id-ID')}/pax`;
                               })()}
@@ -204,23 +225,6 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
                     </div>
                   </div>
                 )}
-
-                <div className="flex flex-col gap-5 mt-1">
-                  <div className="w-full flex-shrink-0">
-                     <WeeklyCalendar value={formData.date} onChange={(dateStr) => handleInputChange({ target: { name: 'date', value: dateStr }})} />
-                  </div>
-
-                  {/* Time (for Spa, Transport) */}
-                  {(serviceData?.type === "spa" || serviceData?.type === "transport") && (
-                    <div className="flex-1 flex flex-col gap-2 relative">
-                       <label className="text-[13px] font-bold text-primary ml-1">Preferred Time</label>
-                       <div className="relative flex items-center">
-                         <Clock className="absolute left-4 text-gray-400" size={18} />
-                         <input required type="time" name="time" value={formData.time} onChange={handleInputChange} className="w-full bg-[#F4F4F6] rounded-2xl py-3.5 pl-12 pr-4 text-[15px] font-medium text-primary outline-none focus:ring-2 focus:ring-primary/20 transition-all appearance-none" style={{ colorScheme: 'light' }} />
-                       </div>
-                    </div>
-                  )}
-                </div>
 
                 {/* Guests / Pax */}
                 {(["tour", "spa", "transport"].includes(serviceData?.type)) && (
@@ -350,7 +354,7 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
                           let applicableTier = [...serviceData.allInclusiveTiers].reverse().find(t => pax >= t.minPax);
                           if (applicableTier) basePrice = Number(applicableTier.price);
                        } else if (serviceData.allInclusiveSurcharge) {
-                          basePrice += Number(serviceData.allInclusiveSurcharge);
+                          basePrice = Number(serviceData.allInclusiveSurcharge);
                        }
                     } else if (serviceData.tourTiers && serviceData.tourTiers.length > 0) {
                        let applicableTier = [...serviceData.tourTiers].reverse().find(t => pax >= t.minPax);
