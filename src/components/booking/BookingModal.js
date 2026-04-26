@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X, Calendar, MapPin, Users, Phone, User, Clock, ArrowRight, ChevronLeft, Minus, Plus } from "lucide-react";
+import { X, Calendar, MapPin, Users, Phone, User, Clock, ArrowRight, ChevronLeft, Minus, Plus, Check } from "lucide-react";
 import WeeklyCalendar from "./WeeklyCalendar";
 import LocationAutocomplete from "./LocationAutocomplete";
 import { APIProvider } from "@vis.gl/react-google-maps";
@@ -12,6 +12,7 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
   const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "AIzaSyBvRg3xJ6dSPKSOwTRSmGUmaEfYRQ5WRCQ";
   const [mounted, setMounted] = useState(false);
   const [step, setStep] = useState(1);
+  const [localPackage, setLocalPackage] = useState("Standard");
   
   // Form State
   const [formData, setFormData] = useState({
@@ -33,8 +34,9 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
         guests: String(initialPax),
         date: initialDate || prev.date
       }));
+      setLocalPackage(serviceData?.selectedPackage || "Standard");
     }
-  }, [isOpen, initialPax, initialDate, startStep]);
+  }, [isOpen, initialPax, initialDate, startStep, serviceData]);
 
   useEffect(() => {
     setMounted(true);
@@ -63,6 +65,10 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
     const divider = "━━━━━━━━━━━━━━━━━━━━━━";
     
     let messageDetails = `*TROVE EXPERIENCE BOOKING*\n${divider}\n*BOOKING ID:* #${bookingId}\n*SERVICE:* ${sType}\n*TITLE:* ${sTitle}\n${divider}\n*NAME:* ${formData.name}\n*WHATSAPP:* ${formData.phone}\n*DATE:* ${formData.date}`;
+    
+    if (serviceData?.type === "tour" || serviceData?.type === "activities") {
+      messageDetails += `\n*PACKAGE:* ${localPackage}`;
+    }
     
     if (serviceData?.type === "tour") {
       messageDetails += `\n*GUESTS:* ${formData.guests} Pax\n*PICKUP:* ${formData.pickupLocation.name}`;
@@ -160,6 +166,37 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
                     </div>
                   )}
                 </div>
+
+                {/* Package Selector (Tour/Activities) */}
+                {(serviceData?.type === "tour" || serviceData?.type === "activities") && (serviceData?.hasAllInclusive || serviceData?.allInclusiveSurcharge) && (
+                  <div className="flex flex-col gap-3 mt-1">
+                    <span className="font-bold text-primary text-[14px] ml-1">Select Package</span>
+                    <div className="flex flex-col gap-2">
+                      <div 
+                         onClick={() => setLocalPackage('Standard')}
+                         className={`p-3.5 rounded-2xl border-2 cursor-pointer transition-all ${localPackage === 'Standard' ? 'border-[#cce823] bg-[#cce823]/10' : 'border-[#F4F4F6] bg-[#F4F4F6] hover:border-gray-200'}`}
+                      >
+                         <div className="flex justify-between items-center mb-1">
+                            <span className="font-bold text-primary text-[14px]">Standard Package</span>
+                            {localPackage === 'Standard' && <div className="w-5 h-5 rounded-full bg-[#cce823] flex items-center justify-center shadow-sm"><Check size={12} strokeWidth={3} className="text-[#1C1C1E]" /></div>}
+                         </div>
+                         <p className="text-[12px] text-gray-500 font-medium leading-snug">Driver and guide only. Entrance fees not included.</p>
+                      </div>
+                      <div 
+                         onClick={() => setLocalPackage('All Inclusive')}
+                         className={`p-3.5 rounded-2xl border-2 cursor-pointer transition-all ${localPackage === 'All Inclusive' ? 'border-[#cce823] bg-[#cce823]/10' : 'border-[#F4F4F6] bg-[#F4F4F6] hover:border-gray-200'}`}
+                      >
+                         <div className="flex justify-between items-center mb-1">
+                            <span className="font-bold text-primary text-[14px]">Exclusive All-Inclusive</span>
+                            <span className="text-[11px] font-extrabold text-[#1C1C1E] bg-[#cce823] px-2 py-0.5 rounded-md shadow-sm">
+                              +{serviceData.allInclusiveSurcharge ? formatIDR(serviceData.allInclusiveSurcharge) : 'Custom'}/pax
+                            </span>
+                         </div>
+                         <p className="text-[12px] text-gray-500 font-medium leading-snug">All entrance fees covered. Hassle-free experience.</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Guests / Pax */}
                 {(["tour", "spa", "transport"].includes(serviceData?.type)) && (
@@ -279,9 +316,30 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
              <div className="flex justify-between items-center mb-4 px-1">
                <span className="text-[14px] font-bold text-gray-500">Expected Total</span>
                <span className="text-[22px] font-extrabold text-primary">
-                 {serviceData.type === 'scooter' ? formatIDR(serviceData.price * (parseInt(formData.duration) || 1)) : 
-                  ["tour", "spa", "transport"].includes(serviceData?.type) ? formatIDR(serviceData.price * (serviceData?.pricingType === "Per Group" ? 1 : (parseInt(formData.guests) || 1))) : 
-                  formatIDR(serviceData.price)}
+                 {(() => {
+                    let pax = parseInt(formData.guests) || 1;
+                    let basePrice = serviceData.price;
+                    
+                    // Handle All Inclusive Surcharge if selected
+                    if (localPackage === 'All Inclusive') {
+                       if (serviceData.allInclusiveTiers && serviceData.allInclusiveTiers.length > 0) {
+                          let applicableTier = [...serviceData.allInclusiveTiers].reverse().find(t => pax >= t.minPax);
+                          if (applicableTier) basePrice = applicableTier.price;
+                       } else if (serviceData.allInclusiveSurcharge) {
+                          basePrice += serviceData.allInclusiveSurcharge;
+                       }
+                    } else if (serviceData.tourTiers && serviceData.tourTiers.length > 0) {
+                       let applicableTier = [...serviceData.tourTiers].reverse().find(t => pax >= t.minPax);
+                       if (applicableTier) basePrice = applicableTier.price;
+                    }
+                    
+                    if (serviceData.type === 'scooter') {
+                       return formatIDR(basePrice * (parseInt(formData.duration) || 1));
+                    } else if (["tour", "spa", "transport"].includes(serviceData?.type)) {
+                       return formatIDR(basePrice * (serviceData?.pricingType === "Per Group" ? 1 : pax));
+                    }
+                    return formatIDR(basePrice);
+                 })()}
                </span>
              </div>
            )}
