@@ -551,7 +551,6 @@ export default function Home() {
                 <img src={camp.image} alt={camp.badge} className="absolute inset-0 w-full h-full object-cover" />
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-[#1C1C1E] via-[#1C1C1E]/40 to-transparent z-0" />
-              <div className="absolute inset-0 bg-gradient-to-tr from-accent/40 via-transparent to-transparent opacity-60 mix-blend-color-dodge animate-pulse z-0" />
               
               <div className="absolute top-4 left-4 z-20 flex flex-col gap-2">
                 {!camp.isHeroSlide && camp.badge && (
