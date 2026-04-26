@@ -37,7 +37,6 @@ export default function AdminLayout({ children }) {
     { name: "Manage Bookings", href: "/admin/bookings", icon: Calendar },
     { name: "Products & Tours", href: "/admin/listings", icon: MapPin },
     { name: "Content & SEO", href: "/admin/places", icon: Newspaper },
-    { name: "Customers", href: "/admin/customers", icon: Users },
     { name: "Partner Network", href: "/admin/partners", icon: Briefcase }
   ];
 

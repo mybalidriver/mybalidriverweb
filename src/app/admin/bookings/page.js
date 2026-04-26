@@ -2,77 +2,84 @@
 
 import React, { useState, useEffect } from "react";
 import { Search, Calendar, PackageOpen, MoreVertical, CheckCircle, Clock, XCircle, Trash2, X, Users } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 export default function BookingsManagement() {
   const [activeTab, setActiveTab] = useState("Tour");
   const [searchQuery, setSearchQuery] = useState("");
-  const [bookings, setBookings] = useState({ Tour: [], Spa: [], Scooter: [], Transport: [] });
+  const [bookings, setBookings] = useState({ Tour: [], Activities: [], Transport: [] });
   const [isLoaded, setIsLoaded] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null);
-  const [selectedBooking, setSelectedBooking] = useState(null); // Tap-to-expand modal state
-
-  const initialBookings = {
-    Tour: [
-      { id: "BK-4291", user: "Emma Thompson", contact: "+62812345678", tour: "Mount Batur Sunrise", amount: "Rp 650.000", status: "Confirmed", date: "Today, 9:24 AM", details: { passengers: "2 Pax", booking_date: "2026-05-15", hotel_pickup: "W Bali Seminyak" } },
-      { id: "BK-4290", user: "Michael Chen", contact: "mike@mail.com", tour: "Nusa Penida West Tour", amount: "Rp 850.000", status: "Pending", date: "Today, 8:15 AM", details: { passengers: "4 Pax", booking_date: "2026-05-18", hotel_pickup: "Four Seasons Sayan" } },
-      { id: "BK-4289", user: "Sarah Johnson", contact: "sarah@mail.com", tour: "Uluwatu Sunset Temple", amount: "Rp 400.000", status: "Completed", date: "Yesterday, 4:30 PM", details: { passengers: "1 Pax", booking_date: "2026-05-12", hotel_pickup: "Self-arrival" } },
-      { id: "BK-4288", user: "David Smith", contact: "+614123456", tour: "Ubud Monkey Forest", amount: "Rp 350.000", status: "Confirmed", date: "Yesterday, 1:12 PM", details: { passengers: "2 Pax", booking_date: "2026-05-10", hotel_pickup: "Alila Ubud" } },
-    ],
-    Spa: [
-      { id: "SP-1092", user: "Jessica Jung", contact: "jess@mail.com", tour: "Balinese Traditional Massage", amount: "Rp 250.000", status: "Confirmed", date: "Today, 10:00 AM", details: { booking_date: "2026-05-16", preferred_time: "14:00", guests: "1 Pax", hotel_pickup: "Mandapa Ubud" } },
-      { id: "SP-1091", user: "Lukas Müller", contact: "lukas@mail.com", tour: "Couples Romance Spa", amount: "Rp 1.500.000", status: "Pending", date: "Yesterday, 3:20 PM", details: { booking_date: "2026-05-20", preferred_time: "16:00", guests: "2 Pax", hotel_pickup: "Ayana Resort" } },
-    ],
-    Scooter: [
-      { id: "SC-8401", user: "Tom Hacker", contact: "+4478123456", tour: "Honda Scoopy 2023", amount: "Rp 150.000", status: "Confirmed", date: "Today, 8:00 AM", details: { booking_date: "2026-05-10", duration: "3 Days", delivery_location: "Ngurah Rai Airport" } },
-      { id: "SC-8400", user: "Elena Rostova", contact: "elena@mail.com", tour: "Yamaha NMAX", amount: "Rp 250.000", status: "Completed", date: "Yesterday, 9:00 AM", details: { booking_date: "2026-05-02", duration: "1 Day", delivery_location: "W Bali Seminyak" } },
-      { id: "SC-8399", user: "Chris Davis", contact: "+121255512", tour: "Vespa Sprint", amount: "Rp 400.000", status: "Confirmed", date: "Yesterday, 6:15 PM", details: { booking_date: "2026-05-22", duration: "7 Days", delivery_location: "Canggu Echo Beach" } },
-    ],
-    Transport: [
-      { id: "TR-5502", user: "Amanda Lee", contact: "amanda@mail.com", tour: "Airport Transfer - DPS", amount: "Rp 300.000", status: "Pending", date: "Today, 1:45 PM", details: { booking_date: "2026-06-05", preferred_time: "13:45", passengers: "3 Pax", pickup_location: "DPS Airport", dropoff_location: "Ubud Center" } },
-      { id: "TR-5501", user: "Mark Wilson", contact: "+614223344", tour: "Full Day Private Van", amount: "Rp 800.000", status: "Confirmed", date: "Today, 7:30 AM", details: { booking_date: "2026-06-08", preferred_time: "08:00", passengers: "8 Pax", pickup_location: "Nusa Dua Resort", dropoff_location: "Multiple Stops - 10 Hours" } },
-    ]
-  };
+  const [selectedBooking, setSelectedBooking] = useState(null);
 
   useEffect(() => {
-    // Force reset to apply new dynamic details payload
-    setBookings(initialBookings);
-    localStorage.setItem("bali_bookings", JSON.stringify(initialBookings));
-    setIsLoaded(true);
+    fetchBookings();
   }, []);
 
-  const saveBookings = (newBookings) => {
-    setBookings(newBookings);
-    localStorage.setItem("bali_bookings", JSON.stringify(newBookings));
+  const fetchBookings = async () => {
+    const { data, error } = await supabase.from('bookings').select('*').order('created_at', { ascending: false });
+    
+    if (!error && data) {
+      const grouped = { Tour: [], Activities: [], Transport: [] };
+      data.forEach(b => {
+         const mapped = {
+            id: b.id,
+            user: b.customer_name,
+            contact: b.contact_info,
+            tour: b.service_name,
+            date: b.booking_date,
+            amount: b.amount,
+            status: b.status,
+            details: b.details,
+            category: b.category
+         };
+         if (grouped[b.category]) {
+            grouped[b.category].push(mapped);
+         } else {
+            grouped[b.category] = [mapped];
+         }
+      });
+      setBookings(grouped);
+    }
+    setIsLoaded(true);
   };
 
-  const handleStatusChange = (bookingId, newStatus) => {
+  const handleStatusChange = async (bookingId, newStatus) => {
     const updated = {
       ...bookings,
       [activeTab]: bookings[activeTab].map(b => b.id === bookingId ? { ...b, status: newStatus } : b)
     };
-    saveBookings(updated);
+    setBookings(updated);
     setOpenDropdown(null);
     if(selectedBooking) {
         setSelectedBooking({...selectedBooking, status: newStatus});
     }
+    
+    await supabase.from('bookings').update({ status: newStatus }).eq('id', bookingId);
   };
 
-  const handleDelete = (bookingId) => {
+  const handleDelete = async (bookingId) => {
     if (confirm("Permanently delete this booking?")) {
       const updated = {
         ...bookings,
         [activeTab]: bookings[activeTab].filter(b => b.id !== bookingId)
       };
-      saveBookings(updated);
+      setBookings(updated);
       setSelectedBooking(null);
+      setOpenDropdown(null);
+      
+      await supabase.from('bookings').delete().eq('id', bookingId);
     }
-    setOpenDropdown(null);
   };
 
   if (!isLoaded) return null;
 
-  const tabs = ["Tour", "Spa", "Scooter", "Transport"];
-  const currentItems = bookings[activeTab].filter(b => b.id.toLowerCase().includes(searchQuery.toLowerCase()) || b.user.toLowerCase().includes(searchQuery.toLowerCase()) || b.tour.toLowerCase().includes(searchQuery.toLowerCase()));
+  const tabs = ["Tour", "Activities", "Transport"];
+  const currentItems = (bookings[activeTab] || []).filter(b => 
+    b.id.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    b.user.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    b.tour.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const toggleDropdown = (e, id) => {
     e.stopPropagation(); // prevent modal from opening when clicking dropdown
@@ -238,7 +245,7 @@ export default function BookingsManagement() {
                      {Object.entries(selectedBooking.details).map(([key, value]) => (
                        <div key={key}>
                          <div className="text-[10px] font-bold text-gray-500 uppercase leading-tight mb-0.5">{key.replace(/_/g, ' ')}</div>
-                         <div className="text-[14px] font-extrabold text-[#1C1C1E] leading-tight">{value}</div>
+                         <div className="text-[14px] font-extrabold text-[#1C1C1E] leading-tight">{typeof value === 'object' ? JSON.stringify(value) : value}</div>
                        </div>
                      ))}
                    </div>

@@ -15,18 +15,10 @@ const popularDestinations = [
   { id: 'uluwatu', name: 'Uluwatu', lat: -8.8267, lng: 115.0938 }
 ];
 
-const toursData = [
-  { id: 1, locationId: 'nusa-penida', price: 450000, name: 'Nusa Penida Day Trip', image: 'https://images.unsplash.com/photo-1577717903315-1691ae25ab3f?auto=format&fit=crop&w=400&q=80' },
-  { id: 2, locationId: 'batur', price: 350000, name: 'Mount Batur Sunrise Trek', image: 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=400&q=80' },
-  { id: 3, locationId: 'ubud', price: 250000, name: 'Ubud Highlights & Monkey Forest', image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=400&q=80' },
-  { id: 4, locationId: 'ubud', price: 400000, name: 'Ubud Jungle Swing & Rice Terrace', image: 'https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?auto=format&fit=crop&w=400&q=80' },
-  { id: 5, locationId: 'uluwatu', price: 300000, name: 'Uluwatu Sunset Temple Tour', image: 'https://images.unsplash.com/photo-1518002054494-3a6f94352e9d?auto=format&fit=crop&w=400&q=80' },
-];
-
-const CATEGORIES = ["Tour", "Spa", "Transport", "Scooter"];
+const CATEGORIES = ["Tour", "Transport", "Activities"];
 
 // Inner component for routing logic
-function DirectionsEngine({ routeInfo, setPriceData }) {
+function DirectionsEngine({ routeInfo, setRouteStats }) {
   const map = useMap();
   const routesLib = useMapsLibrary("routes");
   const [directionsService, setDirectionsService] = useState(null);
@@ -58,19 +50,14 @@ function DirectionsEngine({ routeInfo, setPriceData }) {
           const leg = response.routes[0].legs[0];
           const distKm = typeof leg.distance?.value === "number" ? leg.distance.value / 1000 : 0;
           
-          // IDR Grab-style logic: Base Rp 15.000 + Rp 6.500/km
-          const basePrice = 15000;
-          const pricePerKm = 6500;
-          const calculatedPrice = basePrice + (distKm * pricePerKm);
-          
-          setPriceData({
+          setRouteStats({
+            distKm,
             distanceText: leg.distance?.text || "",
-            durationText: leg.duration?.text || "",
-            price: formatIDR(calculatedPrice)
+            durationText: leg.duration?.text || ""
           });
         } else {
           console.error("Directions request failed due to " + status);
-          setPriceData(null);
+          setRouteStats(null);
         }
       }
     );
@@ -128,7 +115,10 @@ function PlaceAutocompleteInput({ placeholder, onPlaceSelect, value, onChange, i
 function MapInterface() {
   const router = useRouter();
   const [mapLoaded, setMapLoaded] = useState(false);
-  const [priceData, setPriceData] = useState(null);
+  const [routeStats, setRouteStats] = useState(null);
+  const [transportsData, setTransportsData] = useState([]);
+  const [dbTours, setDbTours] = useState([]);
+  const [selectedTransport, setSelectedTransport] = useState(null);
   
   // States migrated from MapPage
   const [activeMode, setActiveMode] = useState("Tour");
@@ -139,7 +129,53 @@ function MapInterface() {
     if (serviceParam && CATEGORIES.includes(serviceParam)) {
       setActiveMode(serviceParam);
     }
+
+    const fetchListings = async () => {
+      try {
+        const { supabase } = await import('@/lib/supabase');
+        
+        // Fetch All Active Listings
+        const { data, error } = await supabase.from('listings').select('*').eq('status', 'Active');
+        if (error) throw error;
+        
+        if (data) {
+           // Parse Transport
+           const trans = data.filter(d => d.type === 'Transport');
+           setTransportsData(trans.map(d => ({
+              id: d.id,
+              title: d.title,
+              image: d.image,
+              year: d.duration || d.data?.duration || "",
+              pricePerKm: d.pricePerKm || d.data?.pricePerKm || 6500
+           })));
+
+           // Parse Tours with Smart Logic Mapping
+           const tours = data.filter(d => d.type === 'Tour' || d.type === 'Activities');
+           setDbTours(tours.map(t => {
+              const loc = (t.location || "").toLowerCase();
+              let locationId = 'ubud'; // Default fallback
+              
+              if (loc.includes('penida')) locationId = 'nusa-penida';
+              else if (loc.includes('batur') || loc.includes('kintamani')) locationId = 'batur';
+              else if (loc.includes('uluwatu') || loc.includes('jimbaran') || loc.includes('nusa dua') || loc.includes('pecatu')) locationId = 'uluwatu';
+              else if (loc.includes('ubud') || loc.includes('gianyar') || loc.includes('tegalalang')) locationId = 'ubud';
+
+              return {
+                 id: t.id,
+                 locationId: locationId,
+                 price: t.price,
+                 name: t.title,
+                 image: t.image || 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=400&q=80'
+              };
+           }));
+        }
+      } catch (err) {
+        console.error("Failed to fetch listings", err);
+      }
+    };
+    fetchListings();
   }, []);
+
   const [pickup, setPickup] = useState("");
   const [dropoff, setDropoff] = useState("");
   const [activeRouteInfo, setActiveRouteInfo] = useState(null);
@@ -157,8 +193,8 @@ function MapInterface() {
   const showTours = activeMode !== "Transport";
 
   const displayedTours = selectedRegion 
-    ? toursData.filter(t => t.locationId === selectedRegion) 
-    : toursData;
+    ? dbTours.filter(t => t.locationId === selectedRegion) 
+    : dbTours;
 
   return (
     <>
@@ -169,6 +205,7 @@ function MapInterface() {
         disableDefaultUI={true}
         gestureHandling="greedy"
         onTilesLoaded={() => setMapLoaded(true)}
+        style={{ width: '100%', height: '100%' }}
       >
         {showTours && popularDestinations.map((dest) => (
           <AdvancedMarker 
@@ -186,7 +223,7 @@ function MapInterface() {
         ))}
 
         {/* Dynamic Directions Render */}
-        {activeRouteInfo && <DirectionsEngine routeInfo={activeRouteInfo} setPriceData={setPriceData} />}
+        {activeRouteInfo && <DirectionsEngine routeInfo={activeRouteInfo} setRouteStats={setRouteStats} />}
       </Map>
 
       {!mapLoaded && <div className="absolute inset-0 bg-[#E8EAED] animate-pulse flex items-center justify-center -z-10"></div>}
@@ -289,23 +326,41 @@ function MapInterface() {
         )}
       </div>
 
-      {/* Grab-like Pricing Overlay Box */}
-      {activeMode === "Transport" && priceData && (
-        <div className="absolute bottom-[96px] left-6 right-6 z-20 animate-in slide-in-from-bottom-10 fade-in duration-300">
-          <div className="bg-white rounded-3xl p-5 shadow-2xl border border-border pointer-events-auto">
-            <div className="flex justify-between items-start mb-3">
-               <div>
-                 <h3 className="font-bold tracking-tight text-[18px] text-primary">Discover Ride</h3>
-                 <p className="text-[13px] text-text-secondary font-semibold">{priceData.distanceText} • {priceData.durationText} arrival</p>
-               </div>
-               <div className="text-right">
-                 <div className="text-[18px] font-extrabold text-primary">{priceData.price}</div>
-                 <p className="text-[11px] text-text-secondary uppercase tracking-wider font-bold">Standard</p>
-               </div>
-            </div>
-            <button className="w-full bg-accent text-primary font-bold py-3.5 rounded-xl shadow-md active:scale-[0.98] transition-transform flex justify-center items-center gap-2">
-              Confirm Ride
-            </button>
+      {/* Transport Selection Overlay */}
+      {activeMode === "Transport" && routeStats && transportsData.length > 0 && (
+        <div className="absolute bottom-[96px] left-0 right-0 z-20 animate-in slide-in-from-bottom-10 fade-in duration-300 pointer-events-none">
+          <div className="flex overflow-x-auto snap-x snap-mandatory no-scrollbar px-6 gap-4 pb-4 pointer-events-auto">
+             {transportsData.map(car => {
+                const finalPrice = routeStats.distKm * car.pricePerKm;
+                const isSelected = selectedTransport === car.id;
+                return (
+                  <div 
+                    key={car.id} 
+                    onClick={() => setSelectedTransport(car.id)} 
+                    className={`snap-center shrink-0 w-[calc(100vw-64px)] max-w-[320px] bg-white/95 backdrop-blur-md rounded-3xl p-4 shadow-xl flex flex-col gap-3 cursor-pointer transition-all active:scale-[0.98] ${isSelected ? 'border-2 border-primary' : 'border border-white/50'}`}
+                  >
+                     <div className="flex items-center gap-4">
+                       <img src={car.image || 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=400&q=80'} alt={car.title} className="w-20 h-20 rounded-2xl object-cover shrink-0 shadow-sm" />
+                       <div className="flex-1 flex flex-col justify-center overflow-hidden">
+                         <h3 className="font-bold text-[15px] leading-tight text-primary mb-1 truncate">{car.title}</h3>
+                         <p className="text-[13px] text-text-secondary font-semibold">{car.year ? `Year ${car.year}` : 'Standard Vehicle'}</p>
+                         <div className="text-[11px] text-gray-400 font-bold mt-1">Rp {car.pricePerKm}/km</div>
+                       </div>
+                     </div>
+                     <div className="flex justify-between items-end border-t border-gray-100 pt-3">
+                        <div>
+                          <p className="text-[11px] text-text-secondary uppercase tracking-wider font-bold">{routeStats.distanceText} • {routeStats.durationText}</p>
+                        </div>
+                        <div className="text-[18px] font-extrabold text-primary">{formatIDR(finalPrice)}</div>
+                     </div>
+                     {isSelected && (
+                       <button className="w-full bg-accent text-primary font-bold py-3 mt-1 rounded-xl shadow-md active:scale-[0.98] transition-transform flex justify-center items-center gap-2">
+                          Confirm Ride
+                       </button>
+                     )}
+                  </div>
+                );
+             })}
           </div>
         </div>
       )}

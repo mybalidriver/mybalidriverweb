@@ -114,3 +114,25 @@ DROP POLICY IF EXISTS "Public Image Upload (Dev Mode)" ON storage.objects;
 CREATE POLICY "Public Image Upload (Dev Mode)" 
 ON storage.objects FOR INSERT 
 WITH CHECK (bucket_id = 'discovering_bali_images');
+
+-- 4. BOOKINGS TABLE
+CREATE TABLE IF NOT EXISTS public.bookings (
+    id TEXT PRIMARY KEY,
+    user_id UUID REFERENCES auth.users(id),
+    customer_name TEXT NOT NULL,
+    contact_info TEXT NOT NULL,
+    service_name TEXT NOT NULL,
+    booking_date TEXT NOT NULL,
+    amount TEXT,
+    status TEXT DEFAULT 'Pending' CHECK (status IN ('Pending', 'Confirmed', 'Completed', 'Cancelled')),
+    category TEXT CHECK (category IN ('Tour', 'Activities', 'Transport', 'Spa', 'Scooter')),
+    details JSONB DEFAULT '{}'::JSONB,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+ALTER TABLE public.bookings DISABLE ROW LEVEL SECURITY;
+
+DROP TRIGGER IF EXISTS update_bookings_modtime ON public.bookings;
+CREATE TRIGGER update_bookings_modtime BEFORE UPDATE ON public.bookings FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
+

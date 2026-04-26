@@ -1,19 +1,37 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { TreePine, Umbrella, Mountain, Droplets, Search, Plane, Building, Building2, Train, Bus, BriefcaseBusiness, Heart, HeartOff, MapPin, Map, Car, Bike, Wifi, Navigation, Sparkles, Landmark, Camera, Waves, Compass, ChevronDown, ChevronLeft, ChevronRight, Settings2, Star, Zap, Home as HomeIcon, Flower2 } from "lucide-react";
+import { TreePine, Umbrella, Mountain, Droplets, Search, Plane, Building, Building2, Train, Bus, BriefcaseBusiness, Heart, HeartOff, MapPin, Map, Car, Bike, Wifi, Navigation, Sparkles, Landmark, Camera, Waves, Compass, ChevronDown, ChevronLeft, ChevronRight, Settings2, Star, Zap, Home as HomeIcon, Flower2, Globe, ArrowUpRight, Play, Pause } from "lucide-react";
 import { TourIcon, SpaIcon, TransportIcon, ScooterIcon, ThinSparklesIcon, TowelsIcon, LotusIcon, CreattieTourIcon, CreattieSpaIcon, CreattieScooterIcon, CreattieTransportIcon, CreattieEsimIcon, AirbnbTourIcon, AirbnbSpaIcon, AirbnbScooterIcon, AirbnbTransportIcon, AirbnbEsimIcon } from "@/components/icons/CategoryIcons";
 import ListingCard from "@/components/listing/ListingCard";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 
+const BaliGateIcon = ({ className, isActive }) => (
+  <svg 
+    width="22" 
+    height="22" 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+  >
+    <path d="M5 22V10L9 6L9 22H5Z" fill={isActive ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+    <path d="M19 22V10L15 6L15 22H19Z" fill={isActive ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+    <path d="M4 14H9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+    <path d="M15 14H20" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+    <path d="M3 18H9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+    <path d="M15 18H21" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+    <circle cx="7" cy="4" r="1" fill="currentColor"/>
+    <circle cx="17" cy="4" r="1" fill="currentColor"/>
+  </svg>
+);
+
 const services = [
-  { id: "Tour", icon: AirbnbTourIcon },
-  { id: "Massage", icon: AirbnbSpaIcon },
-  { id: "Scooter", icon: AirbnbScooterIcon },
-  { id: "Esim", icon: AirbnbEsimIcon },
-  { id: "Transport", icon: AirbnbTransportIcon },
+  { id: "Tour", icon: Map },
+  { id: "Transport", icon: Bus },
+  { id: "Activities", icon: Sparkles },
 ];
 
 const getCategoriesForService = (service) => {
@@ -26,7 +44,7 @@ const getCategoriesForService = (service) => {
       { id: "Culture", icon: Landmark },
       { id: "Instagram", icon: Camera }
     ];
-  } else if (service === "Massage") {
+  } else if (service === "Spa") {
     return [
       { id: "All" },
       { id: "In-Villa Spa" },
@@ -54,13 +72,23 @@ const getCategoriesForService = (service) => {
   return [{ id: "All", icon: Compass }];
 };
 
+const getYoutubeEmbedUrl = (url) => {
+  if (!url) return null;
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const match = url.match(regExp);
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
+  return (match && match[2].length === 11)
+    ? `https://www.youtube.com/embed/${match[2]}?autoplay=1&mute=0&loop=1&playlist=${match[2]}&controls=0&showinfo=0&rel=0&modestbranding=1&enablejsapi=1&playsinline=1&origin=${encodeURIComponent(origin)}`
+    : null;
+};
+
 const campaigns = [
   {
     id: 1,
     title: "Ubud Heritage",
     subtitle: "Experience the lush green beauty of Tegalalang.",
     badge: "Exclusive",
-    image: "https://images.unsplash.com/photo-1536152470836-b943b246224c?auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1536152470836-b943b246224c?auto=format&fit=crop&w=800&q=80"
   },
   {
     id: 2,
@@ -110,8 +138,65 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [isServiceDropdownOpen, setIsServiceDropdownOpen] = useState(false);
   const [priceFilter, setPriceFilter] = useState([0, 5000000]);
   const [recommendedPlaces, setRecommendedPlaces] = useState([]);
+  const [heroSettings, setHeroSettings] = useState(null);
+  const [isDesktop, setIsDesktop] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [activeMobileLabelIdx, setActiveMobileLabelIdx] = useState(0);
+  const heroMediaRef = React.useRef(null);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveMobileLabelIdx(prev => prev + 1);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const togglePlayPause = () => {
+    const nextState = !isPlaying;
+    setIsPlaying(nextState);
+    if (heroMediaRef.current) {
+      if (heroMediaRef.current.tagName === 'IFRAME') {
+        heroMediaRef.current.contentWindow.postMessage(JSON.stringify({
+          event: 'command',
+          func: nextState ? 'playVideo' : 'pauseVideo',
+          args: []
+        }), '*');
+      } else if (heroMediaRef.current.tagName === 'VIDEO') {
+        if (nextState) {
+          heroMediaRef.current.play();
+        } else {
+          heroMediaRef.current.pause();
+        }
+      }
+    }
+  };
+
+  useEffect(() => {
+    const handleResize = () => {
+      const desktop = window.innerWidth >= 768;
+      setIsDesktop(desktop);
+      if (!desktop) {
+        setIsPlaying(false); // Mobile always starts paused due to browser autoplay policies
+      }
+    };
+    handleResize(); // Set initial value
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const fetchHeroSettings = () => {
+    const saved = localStorage.getItem("homepage_hero_settings");
+    if (saved) setHeroSettings(JSON.parse(saved));
+  };
+
+  useEffect(() => {
+    fetchHeroSettings();
+    window.addEventListener("homepage_hero_settings_changed", fetchHeroSettings);
+    return () => window.removeEventListener("homepage_hero_settings_changed", fetchHeroSettings);
+  }, []);
 
   // Dynamic Data from Admin
   const [allListings, setAllListings] = useState([]);
@@ -160,7 +245,11 @@ export default function Home() {
 
   let filteredTours = activeCat === "All" 
     ? allListings.filter(t => t.service === activeService) 
-    : allListings.filter(t => t.service === activeService && t.category === activeCat);
+    : allListings.filter(t => t.service === activeService && (
+        t.category === activeCat || 
+        t.spaSetting === activeCat || 
+        (activeCat === "Day Spa" && t.spaSetting === "Real Spa")
+      ));
 
   // Apply Text Search Filter
   if (searchQuery) {
@@ -176,12 +265,39 @@ export default function Home() {
   const pinnedCampaigns = allListings.filter(t => t.isCampaignPinned).map((t, idx) => ({
     id: t.id || idx,
     title: t.campaignTitle || t.title,
-    subtitle: t.campaignDescription || t.location,
-    badge: "Featured Deal",
+    subtitle: t.campaignDescription, // Description
+    location: t.location, // Explicitly pass location
+    badge: t.campaignLabel !== undefined ? t.campaignLabel : "Featured Deal",
     image: t.image || "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80",
-    targetId: t.id
+    targetId: t.id,
+    campaignVideo: t.campaignVideo,
+    campaignYoutubeLink: t.campaignYoutubeLink,
+    campaignRecommendation: t.campaignRecommendation,
+    campaignIgLink: t.campaignIgLink
   }));
-  const displayCampaigns = pinnedCampaigns.length > 0 ? pinnedCampaigns : campaigns;
+
+  const defaultHero = {
+    id: 'hero-fallback',
+    isHeroSlide: true,
+    campaignYoutubeLink: "https://www.youtube.com/watch?v=uN1A72bE0l4",
+    campaignRecommendation: "Highly Recommended by Zondela",
+    campaignIgLink: "https://instagram.com/zondela",
+    image: "https://images.unsplash.com/photo-1536152470836-b943b246224c?auto=format&fit=crop&w=1200&q=80"
+  };
+
+  const actualHero = heroSettings ? {
+    ...defaultHero,
+    id: 'hero-custom',
+    campaignVideo: heroSettings.campaignVideo || "",
+    campaignYoutubeLink: heroSettings.campaignYoutubeLink || "",
+    campaignRecommendation: heroSettings.campaignRecommendation || "",
+    campaignIgLink: heroSettings.campaignIgLink || "",
+    campaignRecommendation2: heroSettings.campaignRecommendation2 || "",
+    campaignIgLink2: heroSettings.campaignIgLink2 || "",
+  } : defaultHero;
+
+  const tourCampaigns = pinnedCampaigns.length > 0 ? pinnedCampaigns : campaigns;
+  const displayCampaigns = [actualHero, ...tourCampaigns];
 
   const bestTrips = allListings.filter(t => t.isBestTripPinned && t.service === activeService);
   const displayPopularTrips = bestTrips.length > 0 ? bestTrips : popularTrips;
@@ -197,57 +313,57 @@ export default function Home() {
 
   const getPopularTripsTitle = () => {
     if (activeService === "Tour") return "Unforgettable Journeys";
-    if (activeService === "Massage") return "Curated Wellness";
+    if (activeService === "Spa") return "Curated Wellness";
     return `Top Picks for ${activeService}`;
   };
 
   return (
     <div className="w-full bg-background min-h-[100dvh] font-sans pb-32">
 
-      {/* Mobile Top Header Search (Hidden on Desktop) */}
-      <div className="md:hidden pt-4 pb-2 relative z-40 bg-background">
-        
-        {/* App-like Service Filter (Above Search Bar) */}
-        {/* App-like Service Filter (Above Search Bar) */}
-        <div className="px-6 mb-5 mt-2 relative z-40">
-          <div className="flex items-center overflow-x-auto no-scrollbar gap-0 py-1.5 px-2 border border-border rounded-full shadow-sm bg-white hide-scroll" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-            {services.map((s) => {
-              const isActive = activeService === s.id;
-              return (
-                <button
-                  key={s.id}
-                  onClick={() => {
-                    if (s.id === "Transport") {
-                      router.push("/map?service=Transport");
-                      return;
-                    }
-                    setActiveService(s.id);
-                    setActiveCat("All");
-                    setSearchQuery("");
+      <div className="w-full pt-[28px] md:pt-[100px] pb-4">
+        {/* Mobile Top Header Search (Hidden on Desktop) */}
+        <div className="md:hidden relative z-40 px-5">
+          
+          {/* Location Filter (Modern Tab Style) */}
+          <div className="bg-white rounded-[32px] p-1.5 shadow-[0_4px_24px_rgb(0,0,0,0.04)] border border-gray-100 mb-4">
+            <div className="flex items-center overflow-x-auto no-scrollbar hide-scroll" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+              {["All Bali", "Ubud", "Canggu", "Seminyak", "Nusa Penida", "Uluwatu"].map((loc) => {
+                const isActive = (searchQuery.toLowerCase() === loc.toLowerCase()) || (searchQuery === "" && loc === "All Bali");
+                return (
+                  <button 
+                    key={loc}
+                    onClick={() => setSearchQuery(loc === "All Bali" ? "" : loc)}
+                    className="relative flex flex-col items-center justify-center px-5 py-3 active:scale-95 transition-all outline-none shrink-0"
+                  >
+                    {/* Active Dot Indicator */}
+                    <div className={`w-[5px] h-[5px] rounded-full mb-1 transition-all duration-300 absolute top-2 ${isActive ? 'bg-[#cce823] opacity-100 scale-100' : 'bg-transparent opacity-0 scale-50'}`} />
                     
-                    if (s.id === "Scooter") {
-                       setTimeout(() => {
-                           const el = document.getElementById("categories-section");
-                           if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                       }, 50);
-                    }
-                  }}
-                  className="relative flex flex-col items-center justify-center px-4 py-2 shrink-0 transition-all active:scale-95 touch-manipulation select-none cursor-pointer outline-none min-w-[70px]"
-                >
-                  <div className="h-1.5 w-full flex justify-center items-center mb-0.5">
-                    {isActive && <div className="w-[5px] h-[5px] rounded-full bg-[#8aa32a]"></div>}
-                  </div>
-                  <span className={`text-[14px] whitespace-nowrap mt-0.5 ${isActive ? 'font-extrabold text-primary tracking-tight' : 'font-semibold text-[#A1A1AA] hover:text-primary transition-colors'}`}>
-                    {s.id}
-                  </span>
-                </button>
-              )
-            })}
+                    {/* Text Label or Icon */}
+                    {loc === "All Bali" ? (
+                      <BaliGateIcon isActive={isActive} className={`transition-colors duration-300 mt-1.5 ${isActive ? 'text-[#1C1C1E]' : 'text-gray-400 hover:text-gray-600'}`} />
+                    ) : (
+                      <span className={`text-[15px] tracking-tight whitespace-nowrap transition-colors duration-300 mt-1.5 ${isActive ? 'text-[#1C1C1E] font-black' : 'text-gray-400 font-bold hover:text-gray-600'}`}>
+                        {loc}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </div>
 
-        <div className="px-6 relative">
-          <div className="flex items-center bg-white border border-border shadow-soft rounded-full pl-4 pr-2 py-2 relative">
+          <div className="flex items-center bg-white border border-border shadow-soft rounded-full pl-2 pr-2 py-2 relative mb-6">
+            
+            {/* Mobile Service Dropdown Trigger inside Search Bar */}
+            <button 
+              onClick={() => setIsServiceDropdownOpen(!isServiceDropdownOpen)} 
+              className="flex items-center gap-1.5 pl-3 pr-2 py-1.5 rounded-full hover:bg-gray-50 text-primary active:scale-95 transition-all outline-none"
+            >
+              <span className="font-extrabold text-[14px] tracking-tight">{activeService}</span>
+              <ChevronDown size={14} className={`text-text-secondary transition-transform duration-300 ${isServiceDropdownOpen ? 'rotate-180' : ''}`} />
+            </button>
+            <div className="h-5 w-[1px] bg-border/80 mx-1 shrink-0"></div>
+
             <Search size={18} className="text-text-secondary shrink-0 mr-2" />
             <input
               type="text"
@@ -255,7 +371,7 @@ export default function Home() {
               onChange={(e) => setSearchQuery(e.target.value)}
               onFocus={() => setIsSearchFocused(true)}
               onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
-              placeholder={`Search ${activeService.toLowerCase()}s...`}
+              placeholder={`Search...`}
               className="flex-1 min-w-0 outline-none text-[15px] font-medium bg-transparent text-primary placeholder:text-text-secondary pr-2"
             />
             
@@ -266,6 +382,41 @@ export default function Home() {
             >
                <Settings2 size={16} strokeWidth={2.5} />
             </button>
+
+            {/* Mobile Service Dropdown */}
+            {isServiceDropdownOpen && (
+              <div className="absolute top-[60px] left-0 bg-white rounded-2xl p-2 shadow-2xl flex flex-col min-w-[160px] border border-border animate-in fade-in zoom-in-95 duration-200 z-[70]">
+                {services.map((s) => {
+                  const Icon = s.icon;
+                  return (
+                    <button 
+                      key={s.id} 
+                      onClick={() => { 
+                        if (s.id === "Transport" || s.id === "Car Rental") {
+                          router.push(`/map?service=${s.id === "Car Rental" ? "CarRental" : "Transport"}`);
+                          return;
+                        }
+                        setActiveService(s.id); 
+                        setIsServiceDropdownOpen(false); 
+                        setActiveCat("All");
+                        setSearchQuery("");
+                        
+                        if (s.id === "Scooter") {
+                           setTimeout(() => {
+                               const el = document.getElementById("categories-section");
+                               if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                           }, 50);
+                        }
+                      }} 
+                      className={`flex items-center gap-3 px-4 py-2.5 rounded-xl font-bold text-[13px] text-left transition-colors ${activeService === s.id ? 'bg-primary text-accent' : 'bg-transparent text-text-secondary hover:bg-gray-50 hover:text-primary'} outline-none`}
+                    >
+                      {Icon && <Icon size={16} className={activeService === s.id ? 'text-accent' : 'text-text-secondary'} strokeWidth={2} />}
+                      {s.id}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           {/* Search Autocomplete Dropdown */}
@@ -290,7 +441,6 @@ export default function Home() {
             </div>
           )}
         </div>
-      </div>
       {/* Apple-style Filter Bottom Sheet */}
       <AnimatePresence>
         {isFilterModalOpen && (
@@ -353,7 +503,7 @@ export default function Home() {
       </AnimatePresence>
 
       {/* Mobile-only Campaign Swipe Carousel */}
-      <section className="md:hidden pt-2 pb-6 relative">
+      <section className="md:hidden pt-4 pb-6 relative z-10">
         <div 
           className="flex overflow-x-auto no-scrollbar gap-4 px-6 snap-x snap-mandatory"
           onScroll={(e) => {
@@ -363,24 +513,85 @@ export default function Home() {
         >
           {displayCampaigns.map((camp, idx) => (
             <div key={camp.id} className="relative w-full shrink-0 snap-center aspect-[4/3] rounded-[28px] overflow-hidden shadow-soft border border-border bg-black select-none">
-              <img src={camp.image} alt={camp.badge} className="absolute inset-0 w-full h-full object-cover" />
+              {camp.campaignYoutubeLink && idx === 0 && !isDesktop ? (
+                <iframe ref={camp.isHeroSlide ? heroMediaRef : null} src={getYoutubeEmbedUrl(camp.campaignYoutubeLink)} className="absolute inset-0 w-full h-[200%] -top-[50%] scale-150 pointer-events-none" frameBorder="0" allow="autoplay; fullscreen" />
+              ) : camp.campaignVideo && idx === 0 && !isDesktop ? (
+                <video ref={camp.isHeroSlide ? heroMediaRef : null} src={camp.campaignVideo} autoPlay loop playsInline className="absolute inset-0 w-full h-full object-cover pointer-events-none" />
+              ) : (
+                <img src={camp.image} alt={camp.badge} className="absolute inset-0 w-full h-full object-cover" />
+              )}
               <div className="absolute inset-0 bg-gradient-to-t from-[#1C1C1E] via-[#1C1C1E]/40 to-transparent z-0" />
               <div className="absolute inset-0 bg-gradient-to-tr from-accent/40 via-transparent to-transparent opacity-60 mix-blend-color-dodge animate-pulse z-0" />
               
-              {/* Badge positioned perfectly inside bounds */}
-              <div className="absolute top-4 left-4 z-20">
-                <span className="inline-block px-3 py-1.5 bg-accent text-primary text-[10px] sm:text-[11px] font-extrabold uppercase tracking-widest shadow-sm rounded-[8px]">{camp.badge}</span>
+              <div className="absolute top-4 left-4 z-20 flex flex-col gap-2">
+                {!camp.isHeroSlide && camp.badge && (
+                  <span className="inline-block px-3 py-1.5 w-max bg-accent text-primary text-[10px] sm:text-[11px] font-extrabold uppercase tracking-widest shadow-sm rounded-[8px]">{camp.badge}</span>
+                )}
               </div>
               
+              {/* Mobile Hero Recommendation Labels (Animated Swap) */}
+              {camp.isHeroSlide && (
+                <div className="absolute bottom-6 left-5 z-20">
+                  <AnimatePresence mode="wait">
+                    {(() => {
+                      const labels = [];
+                      if (camp.campaignRecommendation) labels.push({ text: camp.campaignRecommendation, link: camp.campaignIgLink, type: 'primary' });
+                      if (camp.campaignRecommendation2) labels.push({ text: camp.campaignRecommendation2, link: camp.campaignIgLink2, type: 'secondary' });
+                      
+                      if (labels.length === 0) return null;
+                      const activeLabel = labels[activeMobileLabelIdx % labels.length];
+
+                      return (
+                        <motion.a 
+                           key={activeLabel.type}
+                           initial={{ y: 15, opacity: 0 }}
+                           animate={{ y: 0, opacity: 1 }}
+                           exit={{ y: -15, opacity: 0 }}
+                           transition={{ duration: 0.4 }}
+                           href={activeLabel.link || "#"} 
+                           target="_blank" rel="noopener noreferrer" 
+                           className="inline-flex items-center gap-2.5 bg-black/50 backdrop-blur-xl border border-white/20 text-white px-4 py-2.5 rounded-full text-[10px] sm:text-[11px] font-bold uppercase tracking-widest shadow-lg hover:bg-white/10 transition-colors pointer-events-auto w-max"
+                        >
+                           {activeLabel.type === 'primary' ? (
+                             <div className="w-6 h-6 rounded-full bg-[#cce823]/20 flex items-center justify-center">
+                               <Star size={12} className="text-[#cce823] fill-[#cce823]" />
+                             </div>
+                           ) : (
+                             <div className="w-6 h-6 rounded-full bg-purple-500/20 flex items-center justify-center">
+                               <Star size={12} className="text-purple-400 fill-purple-400" />
+                             </div>
+                           )}
+                           <span className="mt-0.5">{activeLabel.text}</span>
+                        </motion.a>
+                      );
+                    })()}
+                  </AnimatePresence>
+                </div>
+              )}
+
+              {/* Mobile Center Play/Pause */}
+              {camp.isHeroSlide && (camp.campaignYoutubeLink || camp.campaignVideo) && (
+                <div className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none">
+                  <button 
+                    onClick={togglePlayPause} 
+                    className={`w-16 h-16 rounded-full bg-black/40 backdrop-blur-md border border-white/20 text-white flex items-center justify-center transition-all pointer-events-auto active:scale-95 shadow-2xl ${isPlaying ? 'opacity-30 hover:opacity-100' : 'opacity-100'}`}
+                  >
+                    {isPlaying ? <Pause size={24} className="fill-current" /> : <Play size={24} className="fill-current ml-1" />}
+                  </button>
+                </div>
+              )}
+              
               {/* Text and button positioned perfectly inside bounds */}
-              <div className="absolute inset-x-0 bottom-0 z-10 p-5 flex flex-col justify-end items-start pointer-events-none">
-                <h3 className="text-[26px] sm:text-[32px] font-extrabold text-white leading-[1.05] mb-2 font-sans tracking-tight whitespace-pre-line drop-shadow-lg">{camp.title}</h3>
-                <p className="text-white/90 text-[13px] sm:text-[15px] font-medium mb-4 leading-snug drop-shadow-md">{camp.subtitle}</p>
-                
-                <Link href={camp.targetId ? `/tours/${camp.targetId}` : "#"} className="bg-white text-primary px-6 py-3 rounded-full font-bold text-[14px] shadow-xl active:scale-95 transition-transform flex items-center justify-center pointer-events-auto">
-                  View Detail
-                </Link>
-              </div>
+              {!camp.isHeroSlide && (
+                <div className="absolute inset-x-0 bottom-0 z-10 p-5 flex flex-col justify-end items-start pointer-events-none">
+                  <h3 className="text-[26px] sm:text-[32px] font-extrabold text-white leading-[1.05] mb-2 font-sans tracking-tight whitespace-pre-line drop-shadow-lg">{camp.title}</h3>
+                  <p className="text-white/90 text-[13px] sm:text-[15px] font-medium mb-4 leading-snug drop-shadow-md">{camp.subtitle}</p>
+                  
+                  <Link href={camp.targetId ? `/tours/${camp.targetId}` : "#"} className="bg-white text-primary px-6 py-3 rounded-full font-bold text-[14px] shadow-xl active:scale-95 transition-transform flex items-center justify-center pointer-events-auto">
+                    View Detail
+                  </Link>
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -399,62 +610,142 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Desktop/iPad Cinematic Campaign Slider (Card Style) */}
-      <section className="hidden md:block px-6 pt-5 mb-12 max-w-[1240px] mx-auto relative">
-        <div className="relative w-full aspect-[2.5/1] rounded-[32px] overflow-hidden bg-black group shadow-medium border border-border">
-          {displayCampaigns.map((camp, idx) => (
+      {/* Desktop/iPad Full-Screen Cinematic Hero */}
+      <section className="hidden md:block absolute top-0 left-0 w-full h-[100vh] min-h-[700px] overflow-hidden bg-black group">
+         {displayCampaigns.map((camp, idx) => (
             <div 
               key={camp.id} 
               className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${idx === currentCampIdx ? 'opacity-100 pointer-events-auto z-10' : 'opacity-0 pointer-events-none z-0'}`}
             >
-              <img src={camp.image} alt={camp.badge} className={`absolute inset-0 w-full h-full object-cover transition-transform duration-[20s] ease-linear ${idx === currentCampIdx ? 'scale-110' : 'scale-100'}`} />
-              <div className="absolute inset-0 bg-gradient-to-r from-[#1C1C1E]/90 via-[#1C1C1E]/50 to-transparent z-0" />
-              <div className="absolute inset-0 bg-gradient-to-tl from-accent/30 via-transparent to-transparent opacity-50 mix-blend-color-dodge animate-pulse z-0" />
+              {camp.campaignYoutubeLink && idx === 0 && isDesktop ? (
+                 <iframe ref={camp.isHeroSlide ? heroMediaRef : null} src={getYoutubeEmbedUrl(camp.campaignYoutubeLink)} className="absolute inset-0 w-[150vw] h-[150vh] -top-[25vh] -left-[25vw] scale-110 pointer-events-none" frameBorder="0" allow="autoplay; fullscreen" />
+              ) : camp.campaignVideo && idx === 0 && isDesktop ? (
+                 <video ref={camp.isHeroSlide ? heroMediaRef : null} src={camp.campaignVideo} autoPlay loop playsInline className={`absolute inset-0 w-full h-full object-cover transition-transform duration-[20s] ease-linear ${idx === currentCampIdx ? 'scale-110' : 'scale-100'} pointer-events-none`} />
+              ) : (
+                 <img src={camp.image} alt={camp.badge} className={`absolute inset-0 w-full h-full object-cover transition-transform duration-[20s] ease-linear ${idx === currentCampIdx ? 'scale-110' : 'scale-100'}`} />
+              )}
               
-              <div className="absolute top-0 left-12">
-                <span className="inline-block px-5 py-2.5 bg-accent text-primary text-[12px] font-extrabold uppercase tracking-widest shadow-sm rounded-b-[12px]">{camp.badge}</span>
-              </div>
+              {/* Gradient Overlays */}
+              <div className="absolute inset-0 bg-black/20 z-0" />
+              {!camp.isHeroSlide && (
+                <>
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent z-0" />
+                  <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-background via-background/80 to-transparent z-0" />
+                </>
+              )}
               
-              <div className="relative z-10 p-12 pr-6 flex flex-col h-full justify-center w-[60%] items-start">
-                <h3 className="text-[44px] lg:text-[54px] font-extrabold text-white leading-[1.05] mb-4 font-sans tracking-tight whitespace-pre-line drop-shadow-xl">{camp.title}</h3>
-                <p className="text-white/90 text-[16px] lg:text-[18px] font-medium mb-8 leading-normal max-w-sm drop-shadow-md">{camp.subtitle}</p>
-                
-                <Link href={camp.targetId ? `/tours/${camp.targetId}` : "#"} className="bg-white text-primary px-10 py-4 rounded-full font-bold text-[15px] shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center hover:bg-gray-50 hover:shadow-2xl">
-                  View Detail
-                </Link>
-              </div>
+              {/* Left Recommendation Label */}
+              {camp.isHeroSlide && camp.campaignRecommendation && (
+                <div className="absolute bottom-[20%] left-[6%] xl:left-[8%] z-20 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-300">
+                   <a href={camp.campaignIgLink || "#"} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3.5 bg-black/40 backdrop-blur-2xl border border-white/10 text-white pl-2 pr-6 py-2 rounded-full text-[13px] font-bold uppercase tracking-[0.15em] shadow-[0_8px_32px_rgba(0,0,0,0.4)] hover:bg-white/10 hover:border-white/30 transition-all duration-300 pointer-events-auto hover:scale-105 group w-max">
+                      <div className="w-10 h-10 rounded-full bg-[#cce823]/10 flex items-center justify-center group-hover:bg-[#cce823]/20 transition-colors border border-[#cce823]/20">
+                        <Star size={16} className="text-[#cce823] fill-[#cce823] drop-shadow-[0_0_8px_rgba(204,232,35,0.8)]" />
+                      </div>
+                      <span className="mt-0.5 drop-shadow-md">{camp.campaignRecommendation}</span>
+                   </a>
+                </div>
+              )}
+
+              {/* Right Recommendation Label (Above Numbers) */}
+              {camp.isHeroSlide && camp.campaignRecommendation2 && (
+                <div className="absolute bottom-[18%] right-[4%] z-20 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-500">
+                   <a href={camp.campaignIgLink2 || "#"} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3.5 bg-black/40 backdrop-blur-2xl border border-white/10 text-white pl-2 pr-6 py-2 rounded-full text-[13px] font-bold uppercase tracking-[0.15em] shadow-[0_8px_32px_rgba(0,0,0,0.4)] hover:bg-white/10 hover:border-white/30 transition-all duration-300 pointer-events-auto hover:scale-105 group w-max">
+                      <div className="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center group-hover:bg-purple-500/20 transition-colors border border-purple-500/20">
+                        <Star size={16} className="text-purple-400 fill-purple-400 drop-shadow-[0_0_8px_rgba(168,85,247,0.8)]" />
+                      </div>
+                      <span className="mt-0.5 drop-shadow-md">{camp.campaignRecommendation2}</span>
+                   </a>
+                </div>
+              )}
+
+              {/* Desktop Center Play/Pause Toggle */}
+              {camp.isHeroSlide && (camp.campaignYoutubeLink || camp.campaignVideo) && (
+                <div className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none">
+                  <button 
+                    onClick={togglePlayPause} 
+                    className={`w-24 h-24 rounded-full bg-black/40 backdrop-blur-md border border-white/20 text-white flex items-center justify-center hover:bg-black/60 hover:scale-105 transition-all pointer-events-auto active:scale-95 shadow-[0_8px_32px_rgba(0,0,0,0.5)] group ${isPlaying ? 'opacity-0 hover:opacity-100' : 'opacity-100'}`}
+                    title={isPlaying ? "Pause Video" : "Play Video"}
+                  >
+                    {isPlaying ? <Pause size={36} className="fill-current" /> : <Play size={36} className="fill-current ml-2" />}
+                  </button>
+                </div>
+              )}
+              
+              {/* Left Typography */}
+              {!camp.isHeroSlide && (
+                <div className="absolute bottom-[22%] left-[6%] xl:left-[8%] z-10 w-full max-w-[800px] flex flex-col items-start">
+                  <h2 
+                    className={`font-black uppercase tracking-tighter text-white mb-4 drop-shadow-2xl whitespace-pre-line ${
+                      camp.title?.length > 20 ? 'text-[50px] lg:text-[70px] xl:text-[90px] leading-[0.9]' :
+                      camp.title?.length > 12 ? 'text-[60px] lg:text-[90px] xl:text-[120px] leading-[0.85]' :
+                      'text-[80px] lg:text-[110px] xl:text-[140px] leading-[0.85]'
+                    }`}
+                  >
+                     {camp.title}
+                  </h2>
+                  
+                  <span className="block text-white/90 font-bold text-[14px] lg:text-[16px] tracking-[0.3em] uppercase mb-8 drop-shadow-md mt-2">
+                     {camp.location || "BALI, INDONESIA"}
+                  </span>
+                  
+                  <Link href={camp.targetId ? `/tours/${camp.targetId}` : "#"} className="inline-flex items-center gap-3 px-8 py-4 rounded-[32px] border border-white/30 bg-black/40 backdrop-blur-md text-white font-bold text-[13px] tracking-[0.1em] uppercase hover:bg-white/20 transition-all hover:scale-105 active:scale-95 shadow-xl">
+                    Explore Experience <ArrowUpRight size={18} strokeWidth={2.5} />
+                  </Link>
+                </div>
+              )}
+
+              {/* Right Typography */}
+              {!camp.isHeroSlide && (
+                <div className="absolute bottom-[22%] right-[6%] xl:right-[8%] z-10 w-full max-w-[400px] flex flex-col items-end text-right">
+                  {camp.badge && (
+                    <span className="inline-block mb-4 px-3 py-1.5 bg-accent text-primary text-[11px] font-extrabold uppercase tracking-widest shadow-sm rounded-[8px]">
+                      {camp.badge}
+                    </span>
+                  )}
+                  {camp.subtitle && (
+                    <p className="text-white/90 text-[16px] lg:text-[18px] font-medium leading-snug drop-shadow-md">
+                      {camp.subtitle}
+                    </p>
+                  )}
+                </div>
+              )}
+
             </div>
-          ))}
+         ))}
 
-          {/* Slider Controls */}
-          <div className="absolute bottom-10 right-10 z-20 flex gap-3">
-            <button 
-              onClick={prevCamp}
-              className="w-12 h-12 rounded-full bg-black/20 hover:bg-black/40 backdrop-blur-md border border-white/20 text-white flex items-center justify-center transition-all active:scale-95"
-            >
-              <ChevronLeft size={24} />
-            </button>
-            <button 
-              onClick={nextCamp}
-              className="w-12 h-12 rounded-full bg-black/20 hover:bg-black/40 backdrop-blur-md border border-white/20 text-white flex items-center justify-center transition-all active:scale-95"
-            >
-              <ChevronRight size={24} />
-            </button>
-          </div>
 
-          <div className="absolute bottom-12 left-12 z-20 flex gap-2 items-center">
-            {displayCampaigns.map((_, idx) => (
-              <button 
-                key={idx}
-                onClick={() => setCurrentCampIdx(idx)}
-                className={`h-1.5 rounded-full transition-all duration-500 ${idx === currentCampIdx ? 'w-8 bg-accent' : 'w-2 bg-white/40 hover:bg-white/60'}`}
-              />
-            ))}
-          </div>
-        </div>
+
+         {/* Bottom Controls */}
+         <div className="absolute bottom-[8%] left-[6%] xl:left-[8%] z-20 flex items-center gap-6 xl:gap-8">
+            <div className="flex gap-3">
+               <button onClick={prevCamp} className="w-12 h-12 rounded-full border border-white/20 bg-black/20 hover:bg-white/10 backdrop-blur-md text-white flex items-center justify-center transition-all active:scale-95">
+                 <ChevronLeft size={20} strokeWidth={2.5} className="mr-0.5" />
+               </button>
+               <button onClick={nextCamp} className="w-12 h-12 rounded-full border border-white/20 bg-black/20 hover:bg-white/10 backdrop-blur-md text-white flex items-center justify-center transition-all active:scale-95">
+                 <ChevronRight size={20} strokeWidth={2.5} className="ml-0.5" />
+               </button>
+            </div>
+            
+            <div className="w-[150px] xl:w-[250px] h-[2px] bg-white/20 relative rounded-full overflow-hidden">
+               <div 
+                 className="absolute top-0 left-0 h-full bg-white transition-all duration-500 ease-out" 
+                 style={{ width: `${((currentCampIdx + 1) / displayCampaigns.length) * 100}%` }} 
+               />
+            </div>
+         </div>
+
+         {/* Fractional Indicator */}
+         <div className="absolute bottom-[6%] right-[4%] z-20 text-white flex items-baseline gap-1 shadow-black drop-shadow-2xl">
+            <span className="font-black text-[46px] leading-none tracking-tighter">{(currentCampIdx + 1).toString().padStart(2, '0')}</span>
+            <span className="font-bold text-[18px] opacity-60">/ {displayCampaigns.length.toString().padStart(2, '0')}</span>
+         </div>
       </section>
 
-      <div className="max-w-[1400px] mx-auto">
+      {/* Invisible spacer to push content down below the absolute hero */}
+      <div className="hidden md:block w-full h-[100vh]" />
+      </div>
+
+      <div className="max-w-[1400px] mx-auto min-h-screen">
 
         {/* Popular Trips */}
         <section className="pt-2 mb-8 relative">
@@ -463,7 +754,7 @@ export default function Home() {
               {getPopularTripsTitle()}
             </h2>
             <Link 
-              href={activeService === "Tour" ? "/tours" : activeService === "Massage" ? "/spa" : activeService === "Transport" ? "/map" : activeService === "Scooter" ? "/scooter" : "/esim"}
+              href={activeService === "Tour" ? "/tours" : activeService === "Spa" ? "/spa" : activeService === "Transport" ? "/map" : activeService === "Scooter" ? "/scooter" : "/esim"}
               className="text-sm font-semibold text-text-secondary hover:text-text-primary cursor-pointer transition-colors"
             >
               See more
@@ -491,7 +782,7 @@ export default function Home() {
                     </div>
                     <div className="flex flex-col items-end shrink-0">
                       <span className="font-extrabold text-[15px] text-primary tracking-tight pr-1">
-                        IDR {Number(trip.price).toLocaleString('id-ID')}
+                        IDR {Number(trip.price > 1000 ? trip.price : trip.price * 1000).toLocaleString('id-ID')}
                       </span>
                     </div>
                   </div>

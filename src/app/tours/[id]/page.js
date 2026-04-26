@@ -18,6 +18,67 @@ export default function TourDetail({ params }) {
   const [desktopDate, setDesktopDate] = useState("");
   const [modalStartStep, setModalStartStep] = useState(1);
   const [tourData, setTourData] = useState(null);
+  const [spaDuration, setSpaDuration] = useState('min60');
+  const [scooterDuration, setScooterDuration] = useState('daily');
+  const [selectedPackage, setSelectedPackage] = useState('Standard');
+
+  const getMultiplierPrice = (rawPrice) => {
+    const p = Number(rawPrice);
+    if (!p) return 0;
+    return Math.floor(p > 1000 ? p : p * 1000);
+  };
+
+  const getUnitDynamicPrice = () => {
+    if (!tourData) return 0;
+    if (tourData.service === "Spa") {
+        return getMultiplierPrice(tourData[spaDuration] || tourData.price);
+    }
+    if (tourData.service === "Scooter") {
+        const keyMap = { daily: 'dailyPrice', weekly: 'weeklyPrice', monthly: 'monthlyPrice' };
+        return getMultiplierPrice(tourData[keyMap[scooterDuration]] || tourData.price);
+    }
+    
+    let basePrice = getMultiplierPrice(tourData.price);
+    if (tourData.pricingType === "Per Person" && tourData.tourTiers) {
+       const tier = tourData.tourTiers.find(t => Number(t.pax) === desktopPax);
+       if (tier) basePrice = getMultiplierPrice(tier.price);
+    }
+    return basePrice;
+  };
+
+  const getAllInclusivePriceForPax = (pax) => {
+      if (!tourData) return 0;
+      let aiPrice = getMultiplierPrice(tourData.allInclusiveSurcharge);
+      if (tourData.allInclusiveTiers && tourData.allInclusiveTiers.length > 0) {
+          const aiTier = tourData.allInclusiveTiers.find(t => Number(t.pax) === pax);
+          if (aiTier) aiPrice = getMultiplierPrice(aiTier.price);
+      }
+      return aiPrice;
+  };
+
+  const getTotalPrice = () => {
+     if (!tourData) return 0;
+     let total = 0;
+     if (tourData.service === "Spa" || tourData.service === "Scooter") {
+        total = getUnitDynamicPrice() * desktopPax;
+     } else {
+        let baseUnit = getUnitDynamicPrice();
+        if (selectedPackage === "All Inclusive" && (tourData.hasAllInclusive || tourData.allInclusiveSurcharge)) {
+           baseUnit = getAllInclusivePriceForPax(desktopPax);
+        }
+
+        if (tourData.pricingType === "Per Group") {
+           if (selectedPackage === "All Inclusive" && (tourData.hasAllInclusive || tourData.allInclusiveSurcharge)) {
+              total = baseUnit * desktopPax; // All Inclusive is always per person
+           } else {
+              total = baseUnit;
+           }
+        } else {
+           total = baseUnit * desktopPax;
+        }
+     }
+     return total;
+  };
 
   React.useEffect(() => {
     const fetchDetail = async () => {
@@ -44,10 +105,17 @@ export default function TourDetail({ params }) {
           const coverImg = frontendObj.image || defaultImg;
           const validGallery = (frontendObj.gallery || []).filter(img => img && img.trim() !== "");
           
+          const fallbackGallery = [
+             "https://images.unsplash.com/photo-1537956965359-7573183d1f57?auto=format&fit=crop&w=800&q=80", // Ubud Monkey Forest
+             "https://images.unsplash.com/photo-1577717903315-1691ae25ab3f?auto=format&fit=crop&w=800&q=80", // Mount Batur
+             "https://images.unsplash.com/photo-1554481923-a6918bd997bc?auto=format&fit=crop&w=800&q=80", // Nusa Penida
+             "https://images.unsplash.com/photo-1610486829777-66a96e949cb3?auto=format&fit=crop&w=800&q=80"  // Gates of Heaven
+          ];
+
           frontendObj.images = [
              coverImg, 
              ...validGallery, 
-             coverImg, coverImg, coverImg, coverImg, coverImg
+             ...fallbackGallery
           ].slice(0, 5); // Take max 5 for grid stability
           
           setTourData(frontendObj);
@@ -132,7 +200,7 @@ export default function TourDetail({ params }) {
       </div>
 
       {/* Main Content Area - Get Your Guide Dual Column Layout */}
-      <div className="relative z-30 bg-white rounded-t-[32px] md:rounded-none -mt-6 md:mt-0 pt-8 md:pt-6 pb-12 w-full mx-auto">
+      <div className={`relative z-30 rounded-t-[32px] md:rounded-none -mt-6 md:mt-0 pt-8 md:pt-6 pb-12 w-full mx-auto ${tourData.service === "Spa" ? "bg-[#fdfbf7]" : "bg-white"}`}>
         <div className="max-w-[1240px] mx-auto px-6 flex flex-col md:flex-row gap-12 lg:gap-16">
           
           {/* Left Column: Details */}
@@ -140,16 +208,16 @@ export default function TourDetail({ params }) {
             
             {/* Title Section */}
             <div className="mb-8 flex flex-col">
-              <h1 className="text-[28px] md:text-[36px] leading-[1.2] font-extrabold text-primary mb-3 text-balance">{tourData.title}</h1>
+              <h1 className={`leading-[1.2] mb-3 text-balance ${tourData.service === "Spa" ? "text-[32px] md:text-[42px] font-serif tracking-tight text-[#3d3730]" : "text-[28px] md:text-[36px] font-extrabold text-primary"}`}>{selectedPackage === "All Inclusive" && tourData.inclusiveTitle ? tourData.inclusiveTitle : tourData.title}</h1>
               
               <div className="flex flex-wrap items-center gap-4 mt-1">
                 <div className="flex items-center gap-1">
-                  <Star size={16} className="fill-accent text-accent" />
-                  <span className="font-bold text-primary text-[15px]">{Number(tourData.rating).toFixed(1)}</span>
+                  <Star size={16} className={tourData.service === "Spa" ? "fill-[#C1A88A] text-[#C1A88A]" : "fill-accent text-accent"} />
+                  <span className={`font-bold text-[15px] ${tourData.service === "Spa" ? "text-[#3d3730]" : "text-primary"}`}>{Number(tourData.rating).toFixed(1)}</span>
                   <span className="text-text-secondary text-[13px] underline cursor-pointer hover:text-text-primary">({tourData.reviews || 0} reviews)</span>
                 </div>
                 <div className="w-1 h-1 bg-gray-300 rounded-full"></div>
-                <span className="text-text-secondary font-medium text-[14px] hover:underline cursor-pointer">{tourData.location}</span>
+                <span className={`font-medium text-[14px] hover:underline cursor-pointer ${tourData.service === "Spa" ? "text-[#C1A88A]" : "text-text-secondary"}`}>{tourData.location}</span>
               </div>
             </div>
             
@@ -162,7 +230,9 @@ export default function TourDetail({ params }) {
                     key={tab}
                     onClick={() => setActiveTab(tab)}
                     className={`py-2.5 px-5 rounded-full whitespace-nowrap text-sm font-bold transition-colors ${
-                      isActive ? "bg-accent text-primary shadow-sm" : "bg-surface hover:bg-surface-hover text-text-secondary"
+                      isActive 
+                        ? (tourData.service === "Spa" ? "bg-[#A48F7A] text-white shadow-sm" : "bg-accent text-primary shadow-sm")
+                        : (tourData.service === "Spa" ? "bg-[#f0ede6] hover:bg-[#e6e2d8] text-[#8F8F99]" : "bg-surface hover:bg-surface-hover text-text-secondary")
                     }`}
                   >
                     {tab}
@@ -174,48 +244,72 @@ export default function TourDetail({ params }) {
             {/* Content Section (About this activity Active) */}
             {activeTab === "About this activity" && (
               <div className="animate-in fade-in duration-300">
-                <h3 className="font-bold text-[22px] md:text-[24px] text-primary mb-6">About this activity</h3>
+                <h3 className={`font-bold text-[22px] md:text-[24px] mb-6 ${tourData.service === "Spa" ? "text-[#3d3730] font-serif" : "text-primary"}`}>About this activity</h3>
                 
                 <div className="flex flex-col gap-6 mb-8">
                   <div className="flex items-start gap-4">
-                    <CheckCircle2 size={24} className="text-green-500 shrink-0 mt-0.5" strokeWidth={2} />
+                    <CheckCircle2 size={24} className={`${tourData.service === "Spa" ? "text-[#A48F7A]" : "text-green-500"} shrink-0 mt-0.5`} strokeWidth={2} />
                     <div className="flex flex-col">
-                      <span className="font-bold text-[16px] text-primary">Free cancellation</span>
+                      <span className={`font-bold text-[16px] ${tourData.service === "Spa" ? "text-[#3d3730]" : "text-primary"}`}>Free cancellation</span>
                       <span className="text-sm font-medium text-text-secondary mt-1">Cancel up to 24 hours in advance for a full refund</span>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-4">
-                    <Calendar size={24} className="text-primary shrink-0 mt-0.5" strokeWidth={2} />
+                    <Calendar size={24} className={`${tourData.service === "Spa" ? "text-[#A48F7A]" : "text-primary"} shrink-0 mt-0.5`} strokeWidth={2} />
                     <div className="flex flex-col">
-                      <span className="font-bold text-[16px] text-primary">Reserve now & pay later</span>
+                      <span className={`font-bold text-[16px] ${tourData.service === "Spa" ? "text-[#3d3730]" : "text-primary"}`}>Reserve now & pay later</span>
                       <span className="text-sm font-medium text-text-secondary mt-1">Keep your travel plans flexible — book your spot and pay nothing today.</span>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-4">
-                    <Clock size={24} className="text-primary shrink-0 mt-0.5" strokeWidth={2} />
+                    <Clock size={24} className={`${tourData.service === "Spa" ? "text-[#A48F7A]" : "text-primary"} shrink-0 mt-0.5`} strokeWidth={2} />
                     <div className="flex flex-col">
-                      <span className="font-bold text-[16px] text-primary">Duration {tourData.duration}</span>
-                      <span className="text-sm font-medium text-text-secondary mt-1">Check availability to see starting times.</span>
+                      <span className={`font-bold text-[16px] ${tourData.service === "Spa" ? "text-[#3d3730]" : "text-primary"}`}>{tourData.service === "Spa" ? "Treatment Duration" : "Duration " + tourData.duration}</span>
+                      <span className="text-sm font-medium text-text-secondary mt-1">{tourData.service === "Spa" ? "Customizable treatment lengths" : "Check availability to see starting times."}</span>
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-4">
-                    <Languages size={24} className="text-primary shrink-0 mt-0.5" strokeWidth={2} />
-                    <div className="flex flex-col">
-                      <span className="font-bold text-[16px] text-primary">Live tour guide</span>
-                      <span className="text-sm font-medium text-text-secondary mt-1">English, Indonesian</span>
-                    </div>
-                  </div>
+                  {tourData.service === "Tour" && (
+                    <>
+                      <div className="flex items-start gap-4">
+                        <Languages size={24} className="text-primary shrink-0 mt-0.5" strokeWidth={2} />
+                        <div className="flex flex-col">
+                          <span className="font-bold text-[16px] text-primary">Live tour guide</span>
+                          <span className="text-sm font-medium text-text-secondary mt-1">English, Indonesian</span>
+                        </div>
+                      </div>
 
-                  <div className="flex items-start gap-4">
-                    <Car size={24} className="text-primary shrink-0 mt-0.5" strokeWidth={2} />
-                    <div className="flex flex-col">
-                      <span className="font-bold text-[16px] text-primary">Pickup included</span>
-                      <span className="text-sm font-medium text-text-secondary mt-1">Wait in the hotel lobby 10 minutes before your scheduled pickup time.</span>
-                    </div>
-                  </div>
+                      <div className="flex items-start gap-4">
+                        <Car size={24} className="text-primary shrink-0 mt-0.5" strokeWidth={2} />
+                        <div className="flex flex-col">
+                          <span className="font-bold text-[16px] text-primary">Pickup included</span>
+                          <span className="text-sm font-medium text-text-secondary mt-1">Wait in the hotel lobby 10 minutes before your scheduled pickup time.</span>
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {tourData.service === "Scooter" && (
+                     <div className="flex items-start gap-4">
+                        <CheckCircle2 size={24} className="text-primary shrink-0 mt-0.5" strokeWidth={2} />
+                        <div className="flex flex-col">
+                           <span className="font-bold text-[16px] text-primary">Rental Inclusions</span>
+                           <span className="text-sm font-medium text-text-secondary mt-1">Includes 2 helmets, raincoat, and reliable customer support.</span>
+                        </div>
+                     </div>
+                  )}
+
+                  {tourData.service === "Spa" && (
+                     <div className="flex items-start gap-4">
+                        <CheckCircle2 size={24} className="text-[#A48F7A] shrink-0 mt-0.5" strokeWidth={2} />
+                        <div className="flex flex-col">
+                           <span className="font-bold text-[16px] text-[#3d3730]">Luxury Experience</span>
+                           <span className="text-sm font-medium text-text-secondary mt-1">Professional therapists using premium essential oils.</span>
+                        </div>
+                     </div>
+                  )}
                 </div>
               </div>
             )}
@@ -265,31 +359,111 @@ export default function TourDetail({ params }) {
                 <div className="mb-8">
                    <h4 className="font-bold text-[16px] text-primary mb-3">What's Included</h4>
                    <ul className="list-disc pl-5 text-sm text-text-secondary font-medium space-y-2">
-                      {tourData.included ? tourData.included.split('\n').map((inc, i) => <li key={i}>{inc}</li>) : <li>Standard amenities.</li>}
+                      {selectedPackage === "All Inclusive" && tourData.inclusiveIncluded 
+                         ? tourData.inclusiveIncluded.split('\n').map((inc, i) => <li key={i}>{inc}</li>) 
+                         : tourData.included ? tourData.included.split('\n').map((inc, i) => <li key={i}>{inc}</li>) : <li>Standard amenities.</li>}
                    </ul>
                 </div>
 
-                {tourData.excluded && (
+                {(selectedPackage === "All Inclusive" && tourData.inclusiveExcluded) ? (
+                  <div className="mb-8">
+                     <h4 className="font-bold text-[16px] text-primary mb-3">What's Excluded</h4>
+                     <ul className="list-disc pl-5 text-sm text-text-secondary font-medium space-y-2">
+                        {tourData.inclusiveExcluded.split('\n').map((exc, i) => <li key={i}>{exc}</li>)}
+                     </ul>
+                  </div>
+                ) : tourData.excluded ? (
                   <div className="mb-8">
                      <h4 className="font-bold text-[16px] text-primary mb-3">What's Excluded</h4>
                      <ul className="list-disc pl-5 text-sm text-text-secondary font-medium space-y-2">
                         {tourData.excluded.split('\n').map((exc, i) => <li key={i}>{exc}</li>)}
                      </ul>
                   </div>
-                )}
+                ) : null}
               </div>
             )}
           </div>
 
           {/* Right Column: Sticky Booking Widget (Desktop) */}
           <div className="hidden md:block md:w-[35%] lg:w-[32%]">
-            <div className="sticky top-[120px] bg-white rounded-2xl border border-gray-200 p-6 shadow-lg z-10 w-full">
+            <div className={`sticky top-[120px] rounded-2xl p-6 shadow-lg z-10 w-full ${tourData.service === "Spa" ? "bg-white border border-[#f0ede6]" : "bg-white border border-gray-200"}`}>
                <div className="mb-4 flex items-end gap-1">
-                  <span className="text-[34px] font-extrabold text-primary leading-none">IDR {Number(tourData.price).toLocaleString('id-ID')}</span>
-                  <span className="text-text-secondary text-[15px] font-medium pb-1">/ person</span>
+                  <span className={`text-[34px] font-extrabold leading-none ${tourData.service === "Spa" ? "text-[#3d3730] font-serif tracking-tight" : "text-primary"}`}>IDR {getUnitDynamicPrice().toLocaleString('id-ID')}</span>
+                  <span className="text-text-secondary text-[15px] font-medium pb-1">/ {tourData.service === "Spa" ? "treatment" : tourData.service === "Scooter" ? scooterDuration.replace('daily', 'day').replace('weekly', 'week').replace('monthly', 'month') : tourData.pricingType === "Per Group" ? "group" : "person"}</span>
                </div>
                
                <p className="text-sm text-text-secondary font-medium mb-6">Reserve now and pay later to book your spot and pay nothing today.</p>
+
+               {tourData.service === "Spa" && (
+                 <div className="mb-4">
+                   <span className="font-bold text-text-secondary text-[14px] mb-2 block ml-1">Treatment Duration</span>
+                   <div className="flex bg-[#F4F4F6] p-1 rounded-2xl w-full">
+                     {[
+                       { id: 'min60', label: '60 Min', price: tourData.min60 },
+                       { id: 'min90', label: '90 Min', price: tourData.min90 },
+                       { id: 'min120', label: '120 Min', price: tourData.min120 }
+                     ].filter(opt => opt.price).map(opt => (
+                       <button
+                         key={opt.id}
+                         onClick={() => setSpaDuration(opt.id)}
+                         className={`flex-1 py-1.5 text-[13px] font-bold rounded-xl transition-all ${spaDuration === opt.id ? 'bg-[#A48F7A] text-white shadow-sm' : 'text-text-secondary hover:text-[#A48F7A]'}`}
+                       >
+                         {opt.label}
+                       </button>
+                     ))}
+                   </div>
+                 </div>
+               )}
+
+               {tourData.service === "Scooter" && (
+                 <div className="mb-4">
+                   <span className="font-bold text-text-secondary text-[14px] mb-2 block ml-1">Rental Duration</span>
+                   <div className="flex bg-[#F4F4F6] p-1 rounded-2xl w-full">
+                     {[
+                       { id: 'daily', label: 'Daily', price: tourData.dailyPrice },
+                       { id: 'weekly', label: 'Weekly', price: tourData.weeklyPrice },
+                       { id: 'monthly', label: 'Monthly', price: tourData.monthlyPrice }
+                     ].filter(opt => opt.price).map(opt => (
+                       <button
+                         key={opt.id}
+                         onClick={() => setScooterDuration(opt.id)}
+                         className={`flex-1 py-1.5 text-[13px] font-bold rounded-xl transition-all ${scooterDuration === opt.id ? 'bg-white text-primary shadow-sm' : 'text-text-secondary hover:text-primary'}`}
+                       >
+                         {opt.label}
+                       </button>
+                     ))}
+                   </div>
+                 </div>
+               )}
+
+               {/* Package Selector */}
+               {(tourData.service === "Tour" || tourData.service === "Activities") && tourData.allInclusiveSurcharge && (
+                 <div className="mb-5">
+                   <span className="font-bold text-text-secondary text-[14px] mb-2 block ml-1">Select your package</span>
+                   <div className="flex flex-col gap-2">
+                      <div 
+                         onClick={() => setSelectedPackage('Standard')}
+                         className={`p-3 rounded-xl border-2 cursor-pointer transition-all ${selectedPackage === 'Standard' ? 'border-primary bg-primary/5' : 'border-gray-200 hover:border-gray-300'}`}
+                      >
+                         <div className="flex justify-between items-center mb-1">
+                            <span className="font-bold text-primary text-[14px]">Standard Package</span>
+                            {selectedPackage === 'Standard' && <CheckCircle2 size={16} className="text-primary" />}
+                         </div>
+                         <p className="text-[12px] text-text-secondary font-medium">Driver and guide only. Entrance fees not included.</p>
+                      </div>
+                      <div 
+                         onClick={() => setSelectedPackage('All Inclusive')}
+                         className={`p-3 rounded-xl border-2 cursor-pointer transition-all ${selectedPackage === 'All Inclusive' ? 'border-primary bg-primary/5' : 'border-gray-200 hover:border-gray-300'}`}
+                      >
+                         <div className="flex justify-between items-center mb-1">
+                            <span className="font-bold text-primary text-[14px]">All-Inclusive</span>
+                            <span className="text-[12px] font-bold text-accent">Rp {getAllInclusivePriceForPax(desktopPax).toLocaleString('id-ID')}/pax</span>
+                         </div>
+                         <p className="text-[12px] text-text-secondary font-medium">All entrance fees covered. Hassle-free experience.</p>
+                      </div>
+                   </div>
+                 </div>
+               )}
 
                {/* Date Selector Desktop */}
                <div className="mb-4 bg-[#F4F4F6] p-3 rounded-2xl flex items-center justify-between relative overflow-hidden">
@@ -307,7 +481,7 @@ export default function TourDetail({ params }) {
 
                {/* Add Pax Calculator Desktop */}
                <div className="flex items-center justify-between mb-6 bg-[#F4F4F6] p-3 rounded-2xl">
-                 <span className="font-bold text-text-secondary text-[14px] ml-1">Number of persons</span>
+                 <span className="font-bold text-text-secondary text-[14px] ml-1">{tourData.service === "Scooter" ? "Quantity" : "Number of persons"}</span>
                  <div className="flex items-center gap-3">
                    <button onClick={() => setDesktopPax(Math.max(1, desktopPax - 1))} className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-primary shadow-sm hover:bg-gray-50 active:scale-95 transition-all"><Minus size={16} strokeWidth={3} /></button>
                    <span className="font-extrabold text-primary text-[15px] w-4 text-center">{desktopPax}</span>
@@ -317,7 +491,7 @@ export default function TourDetail({ params }) {
 
                <div className="flex items-center justify-between mb-6 px-1">
                  <span className="font-bold text-primary text-[16px]">Total</span>
-                 <span className="font-extrabold text-primary text-[24px]">IDR {Number(tourData.price * desktopPax).toLocaleString('id-ID')}</span>
+                 <span className="font-extrabold text-primary text-[24px]">IDR {getTotalPrice().toLocaleString('id-ID')}</span>
                </div>
 
                <button 
@@ -325,7 +499,7 @@ export default function TourDetail({ params }) {
                    setModalStartStep(2);
                    setIsBookingModalOpen(true);
                  }} 
-                 className="w-full bg-accent hover:bg-accent-hover py-4 rounded-[20px] flex items-center justify-center gap-2 font-bold text-primary transition-all active:-translate-y-1 text-[17px] mb-6 shadow-sm"
+                 className={`w-full py-4 rounded-[20px] flex items-center justify-center gap-2 font-bold transition-all active:-translate-y-1 text-[17px] mb-6 shadow-sm ${tourData.service === "Spa" ? 'bg-[#A48F7A] hover:bg-[#8e7a67] text-white' : 'bg-accent hover:bg-accent-hover text-primary'}`}
                >
                  Check availability
                </button>
@@ -354,12 +528,60 @@ export default function TourDetail({ params }) {
 
       {/* Floating Bottom Booking Bar (Mobile Only) */}
       <div className="md:hidden fixed bottom-0 left-0 w-full bg-white z-40 px-5 pt-3.5 pb-[calc(env(safe-area-inset-bottom)+16px)] shadow-[0_-10px_40px_rgba(0,0,0,0.08)] border-t border-border">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex flex-col flex-1 overflow-hidden">
-            <span className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-0.5">Price starting from</span>
-            <div className="flex items-baseline gap-1.5 truncate">
-              <span className="text-[12px] font-extrabold text-primary">IDR</span>
-              <span className="text-[20px] font-black text-primary leading-none tracking-tight truncate">{Number(tourData.price).toLocaleString('id-ID')}</span>
+        <div className="flex flex-col gap-2">
+           {/* Package Selector for Mobile (Hidden per user request, moved to Modal) */}
+           <div className="hidden">
+           {(tourData.service === "Tour" || tourData.service === "Activities") && (tourData.hasAllInclusive || tourData.allInclusiveSurcharge) && (
+             <div className="flex gap-2 w-full mb-1">
+                <button 
+                   onClick={() => setSelectedPackage('Standard')} 
+                   className={`px-2.5 py-1.5 text-[11px] font-bold rounded-lg border flex-1 whitespace-nowrap transition-all ${selectedPackage === 'Standard' ? 'bg-primary text-white border-primary' : 'bg-white text-primary border-gray-200'}`}
+                >
+                   Standard
+                </button>
+                <button 
+                   onClick={() => setSelectedPackage('All Inclusive')} 
+                   className={`px-2.5 py-1.5 text-[11px] font-bold rounded-lg border flex-1 whitespace-nowrap transition-all flex justify-center items-center gap-1 ${selectedPackage === 'All Inclusive' ? 'bg-primary text-white border-primary' : 'bg-white text-primary border-gray-200'}`}
+                >
+                   All-Inclusive <span className={selectedPackage === 'All Inclusive' ? 'text-white/80' : 'text-accent'}>Rp {getAllInclusivePriceForPax(desktopPax).toLocaleString('id-ID')}</span>
+                </button>
+             </div>
+           )}
+           </div>
+           <div className="flex items-center justify-between gap-3">
+             <div className="flex flex-col flex-1 overflow-hidden">
+               {tourData.service !== "Tour" && (
+                 <div className="flex gap-2 w-full mb-2">
+                   {tourData.service === "Spa" ? (
+                      [
+                        { id: 'min60', label: '60 Min', price: tourData.min60 },
+                        { id: 'min90', label: '90 Min', price: tourData.min90 },
+                        { id: 'min120', label: '120 Min', price: tourData.min120 }
+                      ].filter(opt => opt.price).map(opt => (
+                        <button key={opt.id} onClick={() => setSpaDuration(opt.id)} className={`px-2.5 py-1 text-[11px] font-bold rounded-lg border flex-1 whitespace-nowrap ${spaDuration === opt.id ? 'bg-[#A48F7A] text-white border-[#A48F7A]' : 'bg-white text-[#A48F7A] border-gray-200'}`}>
+                          {opt.label}
+                        </button>
+                      ))
+                   ) : tourData.service === "Scooter" ? (
+                      [
+                        { id: 'daily', label: 'Daily', price: tourData.dailyPrice },
+                        { id: 'weekly', label: 'Weekly', price: tourData.weeklyPrice },
+                        { id: 'monthly', label: 'Monthly', price: tourData.monthlyPrice }
+                      ].filter(opt => opt.price).map(opt => (
+                        <button key={opt.id} onClick={() => setScooterDuration(opt.id)} className={`px-2.5 py-1 text-[11px] font-bold rounded-lg border flex-1 whitespace-nowrap ${scooterDuration === opt.id ? 'bg-primary text-white border-primary' : 'bg-white text-primary border-gray-200'}`}>
+                          {opt.label}
+                        </button>
+                      ))
+                   ) : null}
+                 </div>
+               )}
+               <span className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-0.5">
+                  {(tourData.service === "Tour" || tourData.service === "Activities") && tourData.allInclusiveSurcharge ? "Select your package" : "Price starting from"}
+               </span>
+               <div className="flex items-baseline gap-1.5 truncate">
+               <span className={`text-[20px] font-black leading-none tracking-tight truncate ${tourData.service === "Spa" ? "text-[#3d3730] font-serif" : "text-primary"}`}>
+                  {selectedPackage === 'All Inclusive' && (tourData.hasAllInclusive || tourData.allInclusiveSurcharge) ? getAllInclusivePriceForPax(desktopPax).toLocaleString('id-ID') : getUnitDynamicPrice().toLocaleString('id-ID')}
+               </span>
             </div>
           </div>
           <button 
@@ -367,17 +589,30 @@ export default function TourDetail({ params }) {
               setModalStartStep(1);
               setIsBookingModalOpen(true);
             }} 
-            className="bg-accent hover:bg-accent-hover px-6 py-3 rounded-xl flex items-center justify-center gap-2 font-bold text-primary transition-transform active:scale-95 shrink-0 whitespace-nowrap"
+            className={`px-6 py-3 rounded-xl flex items-center justify-center gap-2 font-bold transition-transform active:scale-95 shrink-0 whitespace-nowrap ${tourData.service === "Spa" ? 'bg-[#A48F7A] hover:bg-[#8e7a67] text-white' : 'bg-accent hover:bg-accent-hover text-primary'}`}
           >
-            Book Now <ArrowRight size={16} strokeWidth={3} className="-mr-1" />
+            {(tourData.hasAllInclusive || tourData.allInclusiveSurcharge) ? 'Select Options' : 'Book Now'} <ArrowRight size={16} strokeWidth={3} className="-mr-1" />
           </button>
         </div>
+      </div>
       </div>
 
       <BookingModal 
         isOpen={isBookingModalOpen} 
-        onClose={() => setIsBookingModalOpen(false)} 
-        serviceData={{ type: 'tour', id: tourData.id, title: tourData.title, price: tourData.price, pricingType: tourData.pricingType }} 
+        onClose={() => setIsBookingModalOpen(false)}         serviceData={{ 
+            type: 'tour', 
+            id: tourData.id, 
+            title: tourData.title, // Base title, modal handles inclusive title
+            baseTitle: tourData.title,
+            inclusiveTitle: tourData.inclusiveTitle,
+            price: tourData.price, 
+            pricingType: tourData.pricingType, // Original pricing type, modal overrides for inclusive
+            tourTiers: tourData.tourTiers,
+            selectedPackage: (tourData.hasAllInclusive || tourData.allInclusiveSurcharge) ? selectedPackage : null,
+            allInclusiveSurcharge: tourData.allInclusiveSurcharge,
+            hasAllInclusive: tourData.hasAllInclusive,
+            allInclusiveTiers: tourData.allInclusiveTiers
+         }} 
         initialPax={desktopPax}
         initialDate={desktopDate}
         startStep={modalStartStep}

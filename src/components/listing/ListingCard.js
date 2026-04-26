@@ -3,7 +3,11 @@ import { Heart, Star } from "lucide-react";
 import Link from "next/link";
 
 export default function ListingCard({ item, linkTo }) {
-  const formattedPrice = `IDR ${Number(item.price).toLocaleString('id-ID')}`;
+  const getFormattedPrice = (rawPrice) => {
+    const p = Number(rawPrice);
+    return Math.floor(p > 1000 ? p : p * 1000);
+  };
+  const formattedPrice = `IDR ${getFormattedPrice(item.price).toLocaleString('id-ID')}`;
 
   if (item.service === "Spa") {
     // Determine the prices to show
@@ -71,7 +75,7 @@ export default function ListingCard({ item, linkTo }) {
                    <span className="text-[10px] font-bold text-[#C1A88A] uppercase tracking-widest mb-0.5">{displayPrice.label}</span>
                    <div className="flex items-end gap-1">
                      <span className="font-extrabold text-[15px] sm:text-[16px] text-[#3d3730] tracking-tight leading-none">
-                       {`IDR ${Number(displayPrice.price).toLocaleString('id-ID')}`}
+                       {`IDR ${getFormattedPrice(displayPrice.price).toLocaleString('id-ID')}`}
                      </span>
                    </div>
                  </>

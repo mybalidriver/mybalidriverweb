@@ -3,16 +3,24 @@ import ListingCard from "@/components/listing/ListingCard";
 import { ShieldCheck, Truck, Clock } from "lucide-react";
 
 export const metadata = {
-  title: "Premium Scooter Rentals | Trove Experience",
+  title: "Premium Scooter Rentals | My Bali Driver",
 };
 
-const mockScooters = [
-  { id: 1, title: 'Honda Scoopy (Latest Model)', location: 'Ubud Delivery', rating: 4.8, reviews: 156, price: 5, duration: 'Per Day', category: 'Standard', image: 'https://images.unsplash.com/photo-1627063544321-dfb8df2a2cc6?auto=format&fit=crop&w=800&q=80', badge: 'Popular' },
-  { id: 2, title: 'Yamaha NMAX 155cc', location: 'Airport Pickup', rating: 4.9, reviews: 312, price: 10, duration: 'Per Day', category: 'Premium', image: 'https://images.unsplash.com/photo-1599827568589-32219e2fb0e8?auto=format&fit=crop&w=800&q=80' },
-  { id: 3, title: 'Honda Vario 125cc', location: 'Canggu Delivery', rating: 4.6, reviews: 89, price: 6, duration: 'Per Day', category: 'Standard', image: 'https://images.unsplash.com/photo-1616422285623-1d0fb7e9ddb1?auto=format&fit=crop&w=800&q=80' },
-];
+import { supabase } from "@/lib/supabase";
 
-export default function Scooter() {
+export const dynamic = 'force-dynamic';
+
+
+export default async function Scooter() {
+  const { data: scooters } = await supabase
+    .from('listings')
+    .select('*')
+    .eq('type', 'Scooter')
+    .eq('status', 'Active')
+    .order('created_at', { ascending: false });
+
+  const displayScooters = scooters || [];
+
   return (
     <div className="w-full pt-20 pb-20">
       
@@ -60,7 +68,7 @@ export default function Scooter() {
       <section className="container mx-auto px-4 lg:max-w-7xl">
         <h2 className="text-2xl md:text-3xl font-bold mb-8">Our Fleet</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {mockScooters.map(scooter => (
+          {displayScooters.map(scooter => (
             <ListingCard key={scooter.id} item={scooter} linkTo={`/scooter/${scooter.id}`} />
           ))}
         </div>

@@ -1,70 +1,92 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Users, DollarSign, Calendar, MapPin, TrendingUp, ChevronRight, Activity, Download } from "lucide-react";
 import { TourIcon, SpaIcon, ScooterIcon, TransportIcon } from "../../components/icons/CategoryIcons";
+import HeroSettingsModal from "../../components/admin/HeroSettingsModal";
+import { supabase } from "@/lib/supabase";
+
+const formatIDR = (num) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
 
 export default function AdminDashboard() {
   const [activeCategory, setActiveCategory] = useState("Tour");
   const [selectedBooking, setSelectedBooking] = useState(null);
+  const [isHeroModalOpen, setIsHeroModalOpen] = useState(false);
+  const [allBookings, setAllBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Mock Data organized by Category
-  const dashboardData = {
-    Tour: {
-      stats: [
-        { label: "Gross Revenue", value: "Rp 42.500.000", trend: "+12.5%", icon: DollarSign },
-        { label: "Confirmed Bookings", value: "142", trend: "+5.2%", icon: Calendar },
-        { label: "Total Participants", value: "3,842", trend: "+18.0%", icon: Users },
-        { label: "Active Inventory", value: "54", trend: "0.0%", icon: MapPin },
-      ],
-      bookings: [
-        { id: "BK-4291", ref: "GYGT-8841", user: "Emma Thompson", tour: "Mount Batur Sunrise Trek", amount: "Rp 650.000", status: "Confirmed", date: "Today, 09:24", details: { passengers: "2 Pax", booking_date: "2026-05-15", hotel_pickup: "W Bali Seminyak" } },
-        { id: "BK-4290", ref: "GYGT-8840", user: "Michael Chen", tour: "Nusa Penida West Island Tour", amount: "Rp 850.000", status: "Pending", date: "Today, 08:15", details: { passengers: "4 Pax", booking_date: "2026-05-18", hotel_pickup: "Four Seasons Sayan" } },
-        { id: "BK-4289", ref: "GYGT-8839", user: "Sarah Johnson", tour: "Uluwatu Sunset Temple & Fire Dance", amount: "Rp 400.000", status: "Completed", date: "Yesterday, 16:30", details: { passengers: "1 Pax", booking_date: "2026-05-12", hotel_pickup: "Self-arrival" } },
-        { id: "BK-4288", ref: "GYGT-8838", user: "David Smith", tour: "Ubud Monkey Forest Guided Tour", amount: "Rp 350.000", status: "Confirmed", date: "Yesterday, 13:12", details: { passengers: "2 Pax", booking_date: "2026-05-10", hotel_pickup: "Alila Ubud" } },
-      ]
-    },
-    Spa: {
-      stats: [
-        { label: "Gross Revenue", value: "Rp 18.200.000", trend: "+8.1%", icon: DollarSign },
-        { label: "Confirmed Appointments", value: "89", trend: "+12.0%", icon: Calendar },
-        { label: "Total Participants", value: "1,200", trend: "+5.4%", icon: Users },
-        { label: "Active Inventory", value: "12", trend: "0.0%", icon: MapPin },
-      ],
-      bookings: [
-        { id: "SP-1092", ref: "GYGS-1002", user: "Jessica Jung", tour: "Balinese Traditional Massage", amount: "Rp 250.000", status: "Confirmed", date: "Today, 10:00", details: { booking_date: "2026-05-16", preferred_time: "14:00", guests: "1 Pax", hotel_pickup: "Mandapa Ubud" } },
-        { id: "SP-1091", ref: "GYGS-1001", user: "Lukas Müller", tour: "Couples Romance Spa Experience", amount: "Rp 1.500.000", status: "Pending", date: "Yesterday, 15:20", details: { booking_date: "2026-05-20", preferred_time: "16:00", guests: "2 Pax", hotel_pickup: "Ayana Resort" } },
-      ]
-    },
-    Scooter: {
-      stats: [
-        { label: "Gross Revenue", value: "Rp 9.400.000", trend: "+22.4%", icon: DollarSign },
-        { label: "Confirmed Rentals", value: "45", trend: "-2.1%", icon: Calendar },
-        { label: "Total Renters", value: "850", trend: "+10.1%", icon: Users },
-        { label: "Active Fleet", value: "60", trend: "+5.0%", icon: MapPin },
-      ],
-      bookings: [
-        { id: "SC-8401", ref: "GYGV-841", user: "Tom Hacker", tour: "Honda Scoopy 2023", amount: "Rp 150.000", status: "Confirmed", date: "Today, 08:00", details: { booking_date: "2026-05-10", duration: "3 Days", delivery_location: "Ngurah Rai Airport" } },
-        { id: "SC-8400", ref: "GYGV-840", user: "Elena Rostova", tour: "Yamaha NMAX", amount: "Rp 250.000", status: "Completed", date: "Yesterday, 09:00", details: { booking_date: "2026-05-02", duration: "1 Day", delivery_location: "W Bali Seminyak" } },
-        { id: "SC-8399", ref: "GYGV-839", user: "Chris Davis", tour: "Vespa Sprint", amount: "Rp 400.000", status: "Confirmed", date: "Yesterday, 18:15", details: { booking_date: "2026-05-22", duration: "7 Days", delivery_location: "Canggu Echo Beach" } },
-      ]
-    },
-    Transport: {
-      stats: [
-        { label: "Gross Revenue", value: "Rp 21.000.000", trend: "+15.8%", icon: DollarSign },
-        { label: "Confirmed Transfers", value: "32", trend: "+8.9%", icon: Calendar },
-        { label: "Total Passengers", value: "2,100", trend: "+14.3%", icon: Users },
-        { label: "Active Drivers", value: "28", trend: "+2.1%", icon: MapPin },
-      ],
-      bookings: [
-        { id: "TR-5502", ref: "GYGTR-502", user: "Amanda Lee", tour: "Airport Transfer - DPS", amount: "Rp 300.000", status: "Pending", date: "Today, 13:45", details: { booking_date: "2026-06-05", preferred_time: "13:45", passengers: "3 Pax", pickup_location: "DPS Airport", dropoff_location: "Ubud Center" } },
-        { id: "TR-5501", ref: "GYGTR-501", user: "Mark Wilson", tour: "Full Day Private Van (10 Hours)", amount: "Rp 800.000", status: "Confirmed", date: "Today, 07:30", details: { booking_date: "2026-06-08", preferred_time: "08:00", passengers: "8 Pax", pickup_location: "Nusa Dua Resort", dropoff_location: "Multiple Stops - 10 Hours" } },
-      ]
+  useEffect(() => {
+    fetchBookings();
+  }, []);
+
+  const fetchBookings = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('bookings')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      setAllBookings(data || []);
+    } catch (err) {
+      console.error("Failed to fetch bookings", err);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const currentStats = dashboardData[activeCategory].stats;
-  const currentBookings = dashboardData[activeCategory].bookings;
+  const handleConfirmBooking = async (id) => {
+    try {
+      const { error } = await supabase
+        .from('bookings')
+        .update({ status: 'Confirmed' })
+        .eq('id', id);
+      
+      if (error) throw error;
+      
+      // Update local state
+      setAllBookings(prev => prev.map(b => b.id === id ? { ...b, status: 'Confirmed' } : b));
+      if (selectedBooking && selectedBooking.id === id) {
+        setSelectedBooking(prev => ({ ...prev, status: 'Confirmed' }));
+      }
+    } catch (err) {
+      alert("Failed to confirm booking: " + err.message);
+    }
+  };
+
+  const getStats = (category) => {
+    const categoryBookings = allBookings.filter(b => 
+       category === "Tour" ? (b.category === "Tour" || !b.category) : b.category === category
+    );
+
+    const confirmed = categoryBookings.filter(b => b.status === "Confirmed" || b.status === "Completed");
+    
+    // Calculate total revenue
+    const revenue = confirmed.reduce((sum, b) => {
+      const cleanAmount = String(b.amount).replace(/[^0-9]/g, '');
+      return sum + (parseInt(cleanAmount) || 0);
+    }, 0);
+
+    // Calculate total participants
+    const participants = categoryBookings.reduce((sum, b) => {
+       const pax = parseInt(b.details?.guests || b.details?.pax || 1);
+       return sum + (isNaN(pax) ? 1 : pax);
+    }, 0);
+
+    return [
+      { label: "Gross Revenue", value: revenue > 0 ? formatIDR(revenue) : "Rp 0", trend: "+0.0%", icon: DollarSign },
+      { label: "Confirmed Bookings", value: confirmed.length.toString(), trend: "+0.0%", icon: Calendar },
+      { label: "Total Participants", value: participants.toString(), trend: "+0.0%", icon: Users },
+      { label: "Total Inquiries", value: categoryBookings.length.toString(), trend: "+0.0%", icon: MapPin },
+    ];
+  };
+
+  const currentBookings = allBookings.filter(b => 
+     activeCategory === "Tour" ? (b.category === "Tour" || !b.category) : b.category === activeCategory
+  );
+
+  const currentStats = getStats(activeCategory);
 
   return (
     <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-8">
@@ -76,7 +98,10 @@ export default function AdminDashboard() {
           <p className="text-sm text-gray-500 mt-1 font-medium">Track your product portfolio performance and bookings.</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 bg-white border border-[#E8EAEF] text-[#1C1C1E] px-5 py-2.5 rounded-xl text-sm font-extrabold hover:bg-gray-50 transition-colors shadow-sm active:scale-95">
+          <button onClick={() => setIsHeroModalOpen(true)} className="flex items-center gap-2 bg-[#1C1C1E] text-[#D9FB41] px-5 py-2.5 rounded-xl text-sm font-extrabold hover:bg-black transition-colors shadow-sm active:scale-95">
+             Edit Homepage Hero
+          </button>
+          <button className="hidden sm:flex items-center gap-2 bg-white border border-[#E8EAEF] text-[#1C1C1E] px-5 py-2.5 rounded-xl text-sm font-extrabold hover:bg-gray-50 transition-colors shadow-sm active:scale-95">
              <Download size={16} /> Export Data
           </button>
         </div>
@@ -91,16 +116,9 @@ export default function AdminDashboard() {
             <span className="text-[13px] tracking-wide">Tour Dashboard</span>
           </button>
           <button 
-          onClick={() => setActiveCategory("Spa")}
-          className={`snap-center shrink-0 flex items-center justify-center gap-3 px-6 h-14 rounded-2xl font-extrabold shadow-sm active:scale-95 transition-all ${activeCategory === "Spa" ? "bg-[#1C1C1E] text-white" : "bg-white text-gray-500 hover:bg-gray-50 border border-[#E8EAEF]"}`}>
-            <SpaIcon size={20} strokeWidth={2.5} className={activeCategory === "Spa" ? "text-[#D9FB41]" : "text-gray-400"} />
-            <span className="text-[13px] tracking-wide">Spa Dashboard</span>
-          </button>
-          <button 
-          onClick={() => setActiveCategory("Scooter")}
-          className={`snap-center shrink-0 flex items-center justify-center gap-3 px-6 h-14 rounded-2xl font-extrabold shadow-sm active:scale-95 transition-all ${activeCategory === "Scooter" ? "bg-[#1C1C1E] text-white" : "bg-white text-gray-500 hover:bg-gray-50 border border-[#E8EAEF]"}`}>
-            <ScooterIcon size={20} strokeWidth={2.5} className={activeCategory === "Scooter" ? "text-[#D9FB41]" : "text-gray-400"} />
-            <span className="text-[13px] tracking-wide">Scooters</span>
+          onClick={() => setActiveCategory("Activities")}
+          className={`snap-center shrink-0 flex items-center justify-center gap-3 px-6 h-14 rounded-2xl font-extrabold shadow-sm active:scale-95 transition-all ${activeCategory === "Activities" ? "bg-[#1C1C1E] text-white" : "bg-white text-gray-500 hover:bg-gray-50 border border-[#E8EAEF]"}`}>
+            <span className="text-[13px] tracking-wide">Activities</span>
           </button>
           <button 
           onClick={() => setActiveCategory("Transport")}
@@ -145,8 +163,8 @@ export default function AdminDashboard() {
             <Activity size={20} className="text-[#1C1C1E]" strokeWidth={2.5} />
             <h3 className="font-black text-lg text-[#1C1C1E]">Recent Bookings Log</h3>
           </div>
-          <button className="text-sm font-extrabold text-[#1C1C1E] hover:text-gray-500 flex items-center gap-1 transition-colors">
-             View All Bookings <ChevronRight size={16} strokeWidth={3} />
+          <button onClick={fetchBookings} className="text-sm font-extrabold text-[#1C1C1E] hover:text-gray-500 flex items-center gap-1 transition-colors">
+             Refresh Data <ChevronRight size={16} strokeWidth={3} />
           </button>
         </div>
         
@@ -163,30 +181,41 @@ export default function AdminDashboard() {
                 </tr>
              </thead>
              <tbody className="divide-y divide-[#E8EAEF] text-sm">
+                {currentBookings.length === 0 && !loading && (
+                   <tr>
+                      <td colSpan={6} className="px-6 py-8 text-center text-gray-500 font-bold">No bookings found in this category.</td>
+                   </tr>
+                )}
+                {loading && (
+                   <tr>
+                      <td colSpan={6} className="px-6 py-8 text-center text-gray-500 font-bold">Loading live database...</td>
+                   </tr>
+                )}
                 {currentBookings.map((booking, i) => (
-                  <tr key={i} onClick={() => setSelectedBooking(booking)} className="hover:bg-[#F8F9FA] transition-colors group cursor-pointer active:bg-gray-100">
+                  <tr key={booking.id} onClick={() => setSelectedBooking(booking)} className="hover:bg-[#F8F9FA] transition-colors group cursor-pointer active:bg-gray-100">
                      <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-3">
                            <div className="w-10 h-10 rounded-xl bg-white border border-[#E8EAEF] shadow-sm flex items-center justify-center text-[#1C1C1E] font-black text-xs shrink-0 group-hover:bg-[#1C1C1E] group-hover:text-[#D9FB41] transition-colors">
-                              {booking.id.split('-')[1]}
+                              {booking.id.substring(3, 7)}
                            </div>
                            <div className="flex flex-col">
-                              <span className="font-extrabold text-[#1C1C1E]">{booking.ref}</span>
-                              <span className="text-[11px] font-bold text-gray-400">{booking.id}</span>
+                              <span className="font-extrabold text-[#1C1C1E]">{booking.id}</span>
+                              <span className="text-[11px] font-bold text-gray-400">{typeof booking.booking_date === 'object' ? JSON.stringify(booking.booking_date) : booking.booking_date}</span>
                            </div>
                         </div>
                      </td>
-                     <td className="px-6 py-4 whitespace-nowrap hidden sm:table-cell text-gray-600 font-bold">{booking.user}</td>
+                     <td className="px-6 py-4 whitespace-nowrap hidden sm:table-cell text-gray-600 font-bold">{typeof booking.customer_name === 'object' ? JSON.stringify(booking.customer_name) : booking.customer_name}</td>
                      <td className="px-6 py-4 text-[#1C1C1E] font-bold hidden md:table-cell">
-                        {booking.tour}
+                        {typeof booking.service_name === 'object' ? JSON.stringify(booking.service_name) : booking.service_name}
                      </td>
-                     <td className="px-6 py-4 whitespace-nowrap text-gray-500 font-medium hidden lg:table-cell">{booking.date}</td>
-                     <td className="px-6 py-4 whitespace-nowrap font-black text-[#1C1C1E] text-right">{booking.amount}</td>
+                     <td className="px-6 py-4 whitespace-nowrap text-gray-500 font-medium hidden lg:table-cell">{new Date(booking.created_at || Date.now()).toLocaleDateString()}</td>
+                     <td className="px-6 py-4 whitespace-nowrap font-black text-[#1C1C1E] text-right">{typeof booking.amount === 'object' ? JSON.stringify(booking.amount) : booking.amount}</td>
                      <td className="px-6 py-4 whitespace-nowrap text-center hidden sm:table-cell">
                         <span className={`inline-flex items-center px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest
                           ${booking.status === 'Confirmed' ? 'bg-[#D9FB41] text-[#1C1C1E]' : ''}
                           ${booking.status === 'Pending' ? 'bg-amber-100 text-amber-800' : ''}
                           ${booking.status === 'Completed' ? 'bg-gray-100 text-gray-500' : ''}
+                          ${booking.status === 'Cancelled' ? 'bg-red-100 text-red-600' : ''}
                         `}>
                           {booking.status}
                         </span>
@@ -202,16 +231,17 @@ export default function AdminDashboard() {
       {selectedBooking && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center font-sans px-4">
           <div className="fixed inset-0 bg-[#1C1C1E]/60 backdrop-blur-sm" onClick={() => setSelectedBooking(null)} />
-          <div className="relative w-full max-w-sm bg-white rounded-3xl shadow-2xl p-6 z-10 animate-scaleIn">
+          <div className="relative w-full max-w-sm bg-white rounded-3xl shadow-2xl p-6 z-10 animate-scaleIn max-h-[90dvh] overflow-y-auto no-scrollbar">
              <div className="flex justify-between items-start mb-6">
                 <div>
-                  <h3 className="text-xl font-extrabold text-[#1C1C1E]">{selectedBooking.ref}</h3>
-                  <p className="text-xs font-bold text-gray-400 mt-1">{selectedBooking.id}</p>
+                  <h3 className="text-xl font-extrabold text-[#1C1C1E] break-all">{selectedBooking.id}</h3>
+                  <p className="text-xs font-bold text-gray-400 mt-1">{typeof selectedBooking.customer_name === 'object' ? JSON.stringify(selectedBooking.customer_name) : selectedBooking.customer_name} • {typeof selectedBooking.contact_info === 'object' ? JSON.stringify(selectedBooking.contact_info) : selectedBooking.contact_info}</p>
                 </div>
                 <span className={`inline-flex items-center px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest
                     ${selectedBooking.status === 'Confirmed' ? 'bg-[#D9FB41] text-[#1C1C1E]' : ''}
                     ${selectedBooking.status === 'Pending' ? 'bg-amber-100 text-amber-800' : ''}
                     ${selectedBooking.status === 'Completed' ? 'bg-gray-100 text-gray-500' : ''}
+                    ${selectedBooking.status === 'Cancelled' ? 'bg-red-100 text-red-600' : ''}
                 `}>
                     {selectedBooking.status}
                 </span>
@@ -219,33 +249,31 @@ export default function AdminDashboard() {
              
              <div className="space-y-4 mb-6 border-y border-[#E8EAEF] py-4">
                <div>
-                 <p className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Customer</p>
-                 <p className="text-sm font-bold text-[#1C1C1E]">{selectedBooking.user}</p>
-               </div>
-               <div>
                  <p className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Product Selected</p>
-                 <p className="text-sm font-bold text-[#1C1C1E]">{selectedBooking.tour}</p>
+                 <p className="text-sm font-bold text-[#1C1C1E]">{typeof selectedBooking.service_name === 'object' ? JSON.stringify(selectedBooking.service_name) : selectedBooking.service_name}</p>
                </div>
                <div className="flex justify-between">
                  <div>
-                   <p className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Timestamp</p>
-                   <p className="text-sm font-bold text-[#1C1C1E]">{selectedBooking.date}</p>
+                   <p className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Date</p>
+                   <p className="text-sm font-bold text-[#1C1C1E]">{typeof selectedBooking.booking_date === 'object' ? JSON.stringify(selectedBooking.booking_date) : selectedBooking.booking_date}</p>
                  </div>
                  <div className="text-right">
                    <p className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Amount</p>
-                   <p className="text-sm font-black text-[#1C1C1E]">{selectedBooking.amount}</p>
+                   <p className="text-sm font-black text-[#1C1C1E]">{typeof selectedBooking.amount === 'object' ? JSON.stringify(selectedBooking.amount) : selectedBooking.amount}</p>
                  </div>
                </div>
              </div>
 
-             {selectedBooking.details && (
+             {selectedBooking.details && typeof selectedBooking.details === 'object' && (
                <div className="mb-6 p-4 bg-[#F8F9FA] rounded-2xl border border-[#E8EAEF]">
                  <p className="text-[10px] font-extrabold text-[#1C1C1E] uppercase tracking-widest mb-3">Customer Form Details</p>
                  <div className="space-y-3">
                    {Object.entries(selectedBooking.details).map(([key, value]) => (
                      <div key={key} className="flex flex-col">
                        <span className="text-[10px] font-bold text-gray-500 uppercase leading-tight mb-1">{key.replace(/_/g, ' ')}</span>
-                       <span className="text-[14px] font-extrabold text-[#1C1C1E] leading-tight break-words">{value}</span>
+                       <span className="text-[14px] font-extrabold text-[#1C1C1E] leading-tight break-words">
+                          {typeof value === 'object' ? JSON.stringify(value) : value}
+                       </span>
                      </div>
                    ))}
                  </div>
@@ -253,12 +281,20 @@ export default function AdminDashboard() {
              )}
              <div className="flex gap-3 mt-6">
                <button onClick={() => setSelectedBooking(null)} className="flex-1 py-3 bg-[#F8F9FA] text-[#1C1C1E] font-extrabold rounded-xl hover:bg-gray-100 transition-colors">Close</button>
-               <button onClick={() => setSelectedBooking(null)} className="flex-1 py-3 bg-[#1C1C1E] text-[#D9FB41] font-extrabold rounded-xl hover:bg-black transition-colors">Manage</button>
+               {selectedBooking.status === 'Pending' && (
+                  <button 
+                    onClick={() => handleConfirmBooking(selectedBooking.id)} 
+                    className="flex-1 py-3 bg-[#1C1C1E] text-[#D9FB41] font-extrabold rounded-xl hover:bg-black transition-colors"
+                  >
+                    Confirm
+                  </button>
+               )}
              </div>
           </div>
         </div>
       )}
 
+      {isHeroModalOpen && <HeroSettingsModal onClose={() => setIsHeroModalOpen(false)} />}
     </div>
   );
 }

@@ -15,12 +15,7 @@ export default function CustomersManagement() {
   const [editingCustomer, setEditingCustomer] = useState(null);
   const [formData, setFormData] = useState({ name: "", email: "", phone: "" });
 
-  const initialCustomers = [
-    { id: "CUST-001", name: "Emma Thompson", email: "emma.t@example.com", phone: "+62812345678", joined: "Jan 12, 2026", ltv: "Rp 1.250.000", status: "Active" },
-    { id: "CUST-002", name: "Michael Chen", email: "mike.chen@example.com", phone: "+1415551234", joined: "Feb 03, 2026", ltv: "Rp 850.000", status: "Active" },
-    { id: "CUST-003", name: "Elena Rostova", email: "elena.r@example.com", phone: "+4478111222", joined: "Feb 20, 2026", ltv: "Rp 3.500.000", status: "Active" },
-    { id: "CUST-004", name: "Suspicious User", email: "scammer99@example.com", phone: "Unknown", joined: "Mar 01, 2026", ltv: "Rp 0", status: "Suspended" },
-  ];
+  const initialCustomers = [];
 
   useEffect(() => {
     const saved = localStorage.getItem("bali_customers");

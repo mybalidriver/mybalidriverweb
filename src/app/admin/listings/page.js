@@ -11,6 +11,7 @@ import Image from "next/image";
 import EditListingModal from "../../../components/admin/EditListingModal";
 import EditCompanyModal from "../../../components/admin/EditCompanyModal";
 import ReviewModal from "../../../components/admin/ReviewModal";
+import HeroSettingsModal from "../../../components/admin/HeroSettingsModal";
 
 export default function AdminListings() {
   const [activeTab, setActiveTab] = useState("Tour");
@@ -18,15 +19,15 @@ export default function AdminListings() {
   const [editingItem, setEditingItem] = useState(null);
   const [reviewingItem, setReviewingItem] = useState(null);
   const [expandedCompanyIds, setExpandedCompanyIds] = useState([]);
+  const [isHeroModalOpen, setIsHeroModalOpen] = useState(false);
 
   const allListings = {
     Tour: [],
-    Spa: [],
-    Scooter: [],
+    Activities: [],
     Transport: []
   };
 
-  const tabs = ["Tour", "Spa", "Scooter", "Transport"];
+  const tabs = ["Tour", "Activities", "Transport"];
   const [listingsData, setListingsData] = useState(allListings);
   const [companiesList, setCompaniesList] = useState([]);
   const [editingCompany, setEditingCompany] = useState(null);
@@ -41,8 +42,8 @@ export default function AdminListings() {
          setIsLoading(false);
          return;
        }
-       if (data) {
-         const grouped = { Tour: [], Spa: [], Scooter: [], Transport: [] };
+         if (data) {
+         const grouped = { Tour: [], Activities: [], Transport: [] };
          data.forEach(d => {
             const frontendItem = {
                id: d.id,
@@ -77,7 +78,7 @@ export default function AdminListings() {
 
   let currentListings = listingsData[activeTab].filter(item => 
     item.title?.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    ((activeTab === "Scooter" || activeTab === "Spa") && item.company?.toLowerCase().includes(searchQuery.toLowerCase()))
+    ((activeTab === "Activities" || activeTab === "Tour" || activeTab === "Transport") && item.company?.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   const matchedDbCompanies = companiesList.filter(comp => comp.name.toLowerCase().includes(searchQuery.toLowerCase()));
@@ -247,10 +248,15 @@ export default function AdminListings() {
                  : "Add, edit, or remove your products."}
             </p>
           </div>
-          <button onClick={handleCreateNew} className={`flex items-center justify-center gap-2 px-5 py-2.5 rounded-md font-semibold text-sm shadow-sm transition-all text-white ${(activeTab === "Scooter" || activeTab === "Spa") ? 'bg-gray-800 hover:bg-gray-900' : 'bg-[#FF5533] hover:bg-[#E64A2E]'}`}>
-            <Plus size={18} strokeWidth={2.5} />
-            {(activeTab === "Scooter" || activeTab === "Spa") ? "Add Company" : "Create Product"}
-          </button>
+          <div className="flex items-center gap-3">
+             <button onClick={() => setIsHeroModalOpen(true)} className="hidden sm:flex items-center justify-center gap-2 px-5 py-2.5 rounded-md font-semibold text-sm shadow-sm transition-all bg-[#1C1C1E] text-[#D9FB41] hover:bg-black">
+                Edit Homepage Hero
+             </button>
+             <button onClick={handleCreateNew} className={`flex items-center justify-center gap-2 px-5 py-2.5 rounded-md font-semibold text-sm shadow-sm transition-all text-white ${(activeTab === "Scooter" || activeTab === "Spa") ? 'bg-gray-800 hover:bg-gray-900' : 'bg-[#FF5533] hover:bg-[#E64A2E]'}`}>
+               <Plus size={18} strokeWidth={2.5} />
+               {(activeTab === "Scooter" || activeTab === "Spa") ? "Add Company" : "Create Product"}
+             </button>
+          </div>
         </div>
 
         {/* Filters and Search */}
@@ -522,6 +528,10 @@ export default function AdminListings() {
            item={reviewingItem} 
            onClose={() => setReviewingItem(null)} 
         />
+      )}
+      {/* Hero Settings Modal */}
+      {isHeroModalOpen && (
+         <HeroSettingsModal onClose={() => setIsHeroModalOpen(false)} />
       )}
     </div>
   );

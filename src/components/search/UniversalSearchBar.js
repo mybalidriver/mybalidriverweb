@@ -2,14 +2,15 @@
 
 import React, { useState } from "react";
 import { Search, MapPin, Calendar, Users, Building, Wifi, CarTaxiFront } from "lucide-react";
-import { TourIcon, ScooterIcon, SpaIcon } from "@/components/icons/CategoryIcons";
+import { TourIcon, ScooterIcon, SpaIcon, TransportIcon } from "@/components/icons/CategoryIcons";
+
+import { Map, Bus, Sparkles, Car } from "lucide-react";
 
 const services = [
-  { id: "tours", label: "Tours", icon: TourIcon },
-  { id: "scooter", label: "Scooter", icon: ScooterIcon },
-  { id: "spa", label: "Spa", icon: SpaIcon },
-  { id: "hotels", label: "Hotels", icon: Building },
-  { id: "esim", label: "eSIM", icon: Wifi },
+  { id: "tours", label: "Tours", icon: Map },
+  { id: "transport", label: "Transport", icon: Bus },
+  { id: "activities", label: "Activities", icon: Sparkles },
+  { id: "carRental", label: "Car Rental", icon: Car },
 ];
 
 const UniversalSearchBar = () => {

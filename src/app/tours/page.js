@@ -2,15 +2,10 @@ import React from "react";
 import ListingCard from "@/components/listing/ListingCard";
 import UniversalSearchBar from "@/components/search/UniversalSearchBar";
 import { Filter, ChevronDown, Check } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
-const mockTours = [
-  { id: 1, title: 'Nusa Penida West Island Tour with Snorkeling', location: 'Nusa Penida', rating: 4.9, reviews: 342, price: 45, duration: 'Full Day', category: 'Island Tour', image: 'https://images.unsplash.com/photo-1554481923-a6918bd997bc?auto=format&fit=crop&w=800&q=80', badge: 'Bestseller' },
-  { id: 2, title: 'Mount Batur Sunrise Trekking & Hot Springs', location: 'Kintamani', rating: 4.8, reviews: 215, price: 35, duration: '12 Hours', category: 'Trekking', image: 'https://images.unsplash.com/photo-1577717903315-1691ae25ab3f?auto=format&fit=crop&w=800&q=80' },
-  { id: 3, title: 'Ubud Sacred Monkey Forest & Jungle Swing', location: 'Ubud', rating: 4.7, reviews: 189, price: 25, duration: 'Half Day', category: 'Culture', image: 'https://images.unsplash.com/photo-1537956965359-7573183d1f57?auto=format&fit=crop&w=800&q=80' },
-  { id: 4, title: 'Uluwatu Sunset Temple & Kecak Fire Dance', location: 'Uluwatu', rating: 4.9, reviews: 521, price: 30, duration: '6 Hours', category: 'Show & Culture', image: 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=800&q=80', badge: 'Popular' },
-  { id: 5, title: 'Waterfalls Tour: Tegenungan, Tibumana & Tukad Cepung', location: 'Gianyar', rating: 4.6, reviews: 112, price: 28, duration: '8 Hours', category: 'Nature', image: 'https://images.unsplash.com/photo-1590504104977-802758117769?auto=format&fit=crop&w=800&q=80' },
-  { id: 6, title: 'Lempuyang Temple (Gates of Heaven) & Tirta Gangga', location: 'Karangasem', rating: 4.5, reviews: 98, price: 40, duration: 'Full Day', category: 'Photography', image: 'https://images.unsplash.com/photo-1610486829777-66a96e949cb3?auto=format&fit=crop&w=800&q=80' },
-];
+export const dynamic = 'force-dynamic';
+
 
 const SidebarFilter = ({ title, options }) => (
   <div className="mb-6 border-b border-border pb-6 last:border-0 last:pb-0">
@@ -29,7 +24,16 @@ const SidebarFilter = ({ title, options }) => (
   </div>
 );
 
-export default function Tours() {
+export default async function Tours() {
+  const { data: tours } = await supabase
+    .from('listings')
+    .select('*')
+    .eq('type', 'Tour')
+    .eq('status', 'Active')
+    .order('created_at', { ascending: false });
+
+  const displayTours = tours || [];
+
   return (
     <div className="w-full bg-background min-h-screen pt-24 pb-20">
       <div className="container mx-auto px-4 lg:max-w-7xl">
@@ -82,7 +86,7 @@ export default function Tours() {
           {/* Main Listings */}
           <div className="flex-1">
             <div className="flex justify-between items-center mb-6">
-              <span className="font-medium text-text-secondary text-sm">Showing 145 Tours</span>
+              <span className="font-medium text-text-secondary text-sm">Showing {displayTours.length} Tours</span>
               
               <div className="flex items-center gap-2">
                 <span className="text-sm text-text-secondary">Sort by:</span>
@@ -93,7 +97,7 @@ export default function Tours() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {mockTours.map(tour => (
+              {displayTours.map(tour => (
                 <ListingCard key={tour.id} item={tour} linkTo={`/tours/${tour.id}`} />
               ))}
             </div>
