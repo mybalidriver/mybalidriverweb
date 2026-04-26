@@ -86,17 +86,31 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
       if (formData.dropoffLocation.url) messageDetails += `\n*DESTINATION MAPS:* ${formData.dropoffLocation.url}`;
     }
 
-    // Default Price format if passed
+    // Calculate Total correctly
     if (serviceData?.price) {
-      // rough multiplication if pax/duration matters 
-      let multiplier = 1;
-      if (["tour", "spa", "transport"].includes(serviceData?.type)) {
-         multiplier = serviceData?.pricingType === "Per Group" ? 1 : (parseInt(formData.guests) || 1);
-      } else if (serviceData?.type === "scooter") {
-         multiplier = parseInt(formData.duration) || 1;
+      let pax = parseInt(formData.guests) || 1;
+      let basePrice = Number(serviceData.price) || 0;
+      
+      // Handle All Inclusive Surcharge if selected
+      if (localPackage === 'All Inclusive') {
+         if (serviceData.allInclusiveTiers && serviceData.allInclusiveTiers.length > 0) {
+            let applicableTier = [...serviceData.allInclusiveTiers].reverse().find(t => pax >= t.minPax);
+            if (applicableTier) basePrice = Number(applicableTier.price);
+         } else if (serviceData.allInclusiveSurcharge) {
+            basePrice += Number(serviceData.allInclusiveSurcharge);
+         }
+      } else if (serviceData.tourTiers && serviceData.tourTiers.length > 0) {
+         let applicableTier = [...serviceData.tourTiers].reverse().find(t => pax >= t.minPax);
+         if (applicableTier) basePrice = Number(applicableTier.price);
       }
       
-      const total = serviceData.price * multiplier;
+      let total = basePrice;
+      if (serviceData.type === 'scooter') {
+         total = basePrice * (parseInt(formData.duration) || 1);
+      } else if (["tour", "spa", "transport"].includes(serviceData?.type)) {
+         total = basePrice * (serviceData?.pricingType === "Per Group" ? 1 : pax);
+      }
+      
       messageDetails += `\n${divider}\n*TOTAL ESTIMATE:* ${formatIDR(total)}`;
     }
 
@@ -163,29 +177,29 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
                             <span className="font-bold text-primary text-[14px]">Standard Journey</span>
                             {localPackage === 'Standard' && <div className="w-5 h-5 rounded-full bg-[#cce823] flex items-center justify-center shadow-sm"><Check size={12} strokeWidth={3} className="text-[#1C1C1E]" /></div>}
                          </div>
-                         <p className="text-[12px] text-gray-500 font-medium leading-snug">Essential driver and guide service. Excludes entrance fees and meals.</p>
+                         <p className="text-[12px] text-gray-500 font-medium leading-snug">Essential driver and guide service. Entrance fees are not included.</p>
                       </div>
                       <div 
                          onClick={() => setLocalPackage('All Inclusive')}
                          className={`p-3.5 rounded-2xl border-2 cursor-pointer transition-all ${localPackage === 'All Inclusive' ? 'border-[#cce823] bg-[#cce823]/10' : 'border-[#F4F4F6] bg-[#F4F4F6] hover:border-gray-200'}`}
                       >
                          <div className="flex justify-between items-center mb-1">
-                            <span className="font-bold text-primary text-[14px]">VIP All-Inclusive Experience</span>
+                            <span className="font-bold text-primary text-[14px]">All-Inclusive Experience</span>
                             <span className="text-[11px] font-extrabold text-[#1C1C1E] bg-[#cce823] px-2 py-0.5 rounded-md shadow-sm">
                               {(() => {
                                 let pax = parseInt(formData.guests) || 1;
-                                let price = serviceData.allInclusiveSurcharge || 0;
+                                let price = Number(serviceData.allInclusiveSurcharge) || 0;
                                 if (serviceData.allInclusiveTiers && serviceData.allInclusiveTiers.length > 0) {
                                   let applicableTier = [...serviceData.allInclusiveTiers].reverse().find(t => pax >= t.minPax);
-                                  if (applicableTier) price = applicableTier.price;
+                                  if (applicableTier) price = Number(applicableTier.price);
                                 } else if (serviceData.allInclusiveSurcharge && serviceData.price) {
-                                  price = serviceData.price + serviceData.allInclusiveSurcharge;
+                                  price = Number(serviceData.price) + Number(serviceData.allInclusiveSurcharge);
                                 }
                                 return `Rp ${price.toLocaleString('id-ID')}/pax`;
                               })()}
                             </span>
                          </div>
-                         <p className="text-[12px] text-gray-500 font-medium leading-snug">Everything taken care of. Includes all tickets, fees, and a seamless hassle-free day.</p>
+                         <p className="text-[12px] text-gray-500 font-medium leading-snug">Everything taken care of. Includes all required tickets and fees for a seamless day.</p>
                       </div>
                     </div>
                   </div>
@@ -328,19 +342,19 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
                <span className="text-[22px] font-extrabold text-primary">
                  {(() => {
                     let pax = parseInt(formData.guests) || 1;
-                    let basePrice = serviceData.price;
+                    let basePrice = Number(serviceData.price) || 0;
                     
                     // Handle All Inclusive Surcharge if selected
                     if (localPackage === 'All Inclusive') {
                        if (serviceData.allInclusiveTiers && serviceData.allInclusiveTiers.length > 0) {
                           let applicableTier = [...serviceData.allInclusiveTiers].reverse().find(t => pax >= t.minPax);
-                          if (applicableTier) basePrice = applicableTier.price;
+                          if (applicableTier) basePrice = Number(applicableTier.price);
                        } else if (serviceData.allInclusiveSurcharge) {
-                          basePrice += serviceData.allInclusiveSurcharge;
+                          basePrice += Number(serviceData.allInclusiveSurcharge);
                        }
                     } else if (serviceData.tourTiers && serviceData.tourTiers.length > 0) {
                        let applicableTier = [...serviceData.tourTiers].reverse().find(t => pax >= t.minPax);
-                       if (applicableTier) basePrice = applicableTier.price;
+                       if (applicableTier) basePrice = Number(applicableTier.price);
                     }
                     
                     if (serviceData.type === 'scooter') {
