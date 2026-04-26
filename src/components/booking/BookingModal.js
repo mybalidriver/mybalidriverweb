@@ -8,7 +8,7 @@ import { APIProvider } from "@vis.gl/react-google-maps";
 
 const formatIDR = (num) => `IDR ${Number(num).toLocaleString('id-ID')}`;
 
-export default function BookingModal({ isOpen, onClose, serviceData, initialPax = 1, initialDate = "", startStep = 1 }) {
+export default function BookingModal({ isOpen, onClose, serviceData, initialPax = 1, initialDate = "", startStep = 1, onPackageChange }) {
   const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "AIzaSyBvRg3xJ6dSPKSOwTRSmGUmaEfYRQ5WRCQ";
   const [mounted, setMounted] = useState(false);
   const [step, setStep] = useState(1);
@@ -37,6 +37,11 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
       setLocalPackage(serviceData?.selectedPackage || "Standard");
     }
   }, [isOpen, initialPax, initialDate, startStep, serviceData]);
+
+  const handlePackageSelect = (pkg) => {
+    setLocalPackage(pkg);
+    if (onPackageChange) onPackageChange(pkg);
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -193,7 +198,7 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
                     <span className="font-bold text-primary text-[14px] ml-1">Select your experience</span>
                     <div className="flex flex-col gap-2">
                       <div 
-                         onClick={() => setLocalPackage('Standard')}
+                         onClick={() => handlePackageSelect('Standard')}
                          className={`p-3.5 rounded-2xl border-2 cursor-pointer transition-all ${localPackage === 'Standard' ? 'border-[#cce823] bg-[#cce823]/10' : 'border-[#F4F4F6] bg-[#F4F4F6] hover:border-gray-200'}`}
                       >
                          <div className="flex justify-between items-center mb-1">
@@ -203,7 +208,7 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
                          <p className="text-[12px] text-gray-500 font-medium leading-snug">Essential driver and guide service. Entrance fees are not included.</p>
                       </div>
                       <div 
-                         onClick={() => setLocalPackage('All Inclusive')}
+                         onClick={() => handlePackageSelect('All Inclusive')}
                          className={`p-3.5 rounded-2xl border-2 cursor-pointer transition-all ${localPackage === 'All Inclusive' ? 'border-[#cce823] bg-[#cce823]/10' : 'border-[#F4F4F6] bg-[#F4F4F6] hover:border-gray-200'}`}
                       >
                          <div className="flex justify-between items-center mb-1">
