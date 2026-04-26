@@ -133,6 +133,8 @@ export default function Home() {
   const [isDesktop, setIsDesktop] = useState(true);
   const [isPlaying, setIsPlaying] = useState(true);
   const [activeMobileLabelIdx, setActiveMobileLabelIdx] = useState(0);
+  const [showMobileLabel, setShowMobileLabel] = useState(true);
+  const [hasShownMidRollLabel, setHasShownMidRollLabel] = useState(false);
   const heroMediaRef = React.useRef(null);
 
   useEffect(() => {
@@ -141,6 +143,30 @@ export default function Home() {
     }, 3000);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    if (!isPlaying) {
+      setShowMobileLabel(true);
+      return;
+    }
+    
+    // When playing starts
+    setShowMobileLabel(false);
+
+    if (!hasShownMidRollLabel) {
+      const showTimer = setTimeout(() => {
+        if (isPlaying) {
+          setShowMobileLabel(true);
+          const hideTimer = setTimeout(() => {
+            setShowMobileLabel(false);
+            setHasShownMidRollLabel(true);
+          }, 5000);
+          return () => clearTimeout(hideTimer);
+        }
+      }, 20000);
+      return () => clearTimeout(showTimer);
+    }
+  }, [isPlaying, hasShownMidRollLabel]);
 
   const togglePlayPause = () => {
     const nextState = !isPlaying;
@@ -533,42 +559,44 @@ export default function Home() {
                 )}
               </div>
               
-              {/* Mobile Hero Recommendation Labels (Animated Swap) */}
+              {/* Mobile Hero Recommendation Labels (Stacked Centered) */}
               {camp.isHeroSlide && (
-                <div className="absolute bottom-6 left-5 z-20">
-                  <AnimatePresence mode="wait">
-                    {(() => {
-                      const labels = [];
-                      if (camp.campaignRecommendation) labels.push({ text: camp.campaignRecommendation, link: camp.campaignIgLink, type: 'primary' });
-                      if (camp.campaignRecommendation2) labels.push({ text: camp.campaignRecommendation2, link: camp.campaignIgLink2, type: 'secondary' });
-                      
-                      if (labels.length === 0) return null;
-                      const activeLabel = labels[activeMobileLabelIdx % labels.length];
-
-                      return (
-                        <motion.a 
-                           key={activeLabel.type}
-                           initial={{ y: 15, opacity: 0 }}
-                           animate={{ y: 0, opacity: 1 }}
-                           exit={{ y: -15, opacity: 0 }}
-                           transition={{ duration: 0.4 }}
-                           href={activeLabel.link || "#"} 
-                           target="_blank" rel="noopener noreferrer" 
-                           className="inline-flex items-center gap-2.5 bg-black/50 backdrop-blur-xl border border-white/20 text-white px-4 py-2.5 rounded-full text-[10px] sm:text-[11px] font-bold uppercase tracking-widest shadow-lg hover:bg-white/10 transition-colors pointer-events-auto w-max"
-                        >
-                           {activeLabel.type === 'primary' ? (
-                             <div className="w-6 h-6 rounded-full bg-[#cce823]/20 flex items-center justify-center">
+                <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-[95%] flex flex-col items-center gap-2.5 z-20 pointer-events-none">
+                  <AnimatePresence>
+                    {showMobileLabel && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 15 }}
+                        transition={{ duration: 0.5, ease: "easeInOut" }}
+                        className="flex flex-col items-center gap-2 w-full"
+                      >
+                        {camp.campaignRecommendation && (
+                          <a 
+                             href={camp.campaignIgLink || "#"} 
+                             target="_blank" rel="noopener noreferrer" 
+                             className="inline-flex items-center justify-center gap-2.5 bg-black/60 backdrop-blur-2xl border border-white/20 text-white px-5 py-3 rounded-full text-[10px] sm:text-[11px] font-bold uppercase tracking-widest shadow-[0_8px_32px_rgba(0,0,0,0.5)] hover:bg-white/10 transition-all pointer-events-auto max-w-full"
+                          >
+                             <div className="w-6 h-6 rounded-full bg-[#cce823]/20 flex items-center justify-center shrink-0">
                                <Star size={12} className="text-[#cce823] fill-[#cce823]" />
                              </div>
-                           ) : (
-                             <div className="w-6 h-6 rounded-full bg-purple-500/20 flex items-center justify-center">
+                             <span className="mt-0.5 truncate">{camp.campaignRecommendation}</span>
+                          </a>
+                        )}
+                        {camp.campaignRecommendation2 && (
+                          <a 
+                             href={camp.campaignIgLink2 || "#"} 
+                             target="_blank" rel="noopener noreferrer" 
+                             className="inline-flex items-center justify-center gap-2.5 bg-black/60 backdrop-blur-2xl border border-white/20 text-white px-5 py-3 rounded-full text-[10px] sm:text-[11px] font-bold uppercase tracking-widest shadow-[0_8px_32px_rgba(0,0,0,0.5)] hover:bg-white/10 transition-all pointer-events-auto max-w-full"
+                          >
+                             <div className="w-6 h-6 rounded-full bg-purple-500/20 flex items-center justify-center shrink-0">
                                <Star size={12} className="text-purple-400 fill-purple-400" />
                              </div>
-                           )}
-                           <span className="mt-0.5">{activeLabel.text}</span>
-                        </motion.a>
-                      );
-                    })()}
+                             <span className="mt-0.5 truncate">{camp.campaignRecommendation2}</span>
+                          </a>
+                        )}
+                      </motion.div>
+                    )}
                   </AnimatePresence>
                 </div>
               )}
