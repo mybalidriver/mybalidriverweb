@@ -573,12 +573,10 @@ export default function Home() {
                         <a 
                            href={camp.campaignIgLink || "#"} 
                            target="_blank" rel="noopener noreferrer" 
-                           className="inline-flex items-center justify-center gap-2.5 bg-black/60 backdrop-blur-2xl border border-white/20 text-white px-5 py-2.5 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.5)] hover:bg-white/10 transition-all pointer-events-auto max-w-full"
+                           className="inline-flex items-center justify-center gap-2 bg-[#cce823] text-[#1C1C1E] px-4 py-2 rounded-md shadow-[0_8px_30px_rgba(204,232,35,0.3)] hover:scale-105 transition-transform pointer-events-auto max-w-full"
                         >
-                           <div className="w-5 h-5 rounded-full bg-[#cce823]/20 flex items-center justify-center shrink-0">
-                             <Star size={10} className="text-[#cce823] fill-[#cce823]" />
-                           </div>
-                           <span className="mt-0.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-center whitespace-normal leading-tight line-clamp-2">{camp.campaignRecommendation}</span>
+                           <Star size={12} className="text-[#1C1C1E] fill-[#1C1C1E] shrink-0 mt-0.5" />
+                           <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-center whitespace-normal leading-tight line-clamp-2">{camp.campaignRecommendation}</span>
                         </a>
                       </motion.div>
                     )}
@@ -596,12 +594,10 @@ export default function Home() {
                         <a 
                            href={camp.campaignIgLink2 || "#"} 
                            target="_blank" rel="noopener noreferrer" 
-                           className="inline-flex items-center justify-center gap-2.5 bg-black/60 backdrop-blur-2xl border border-white/20 text-white px-5 py-2.5 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.5)] hover:bg-white/10 transition-all pointer-events-auto max-w-full"
+                           className="inline-flex items-center justify-center gap-2 bg-[#1C1C1E]/95 backdrop-blur-md border-l-4 border-[#cce823] text-[#cce823] px-4 py-2 rounded-md shadow-2xl hover:scale-105 transition-transform pointer-events-auto max-w-full"
                         >
-                           <div className="w-5 h-5 rounded-full bg-purple-500/20 flex items-center justify-center shrink-0">
-                             <Star size={10} className="text-purple-400 fill-purple-400" />
-                           </div>
-                           <span className="mt-0.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-center whitespace-normal leading-tight line-clamp-2">{camp.campaignRecommendation2}</span>
+                           <Star size={12} className="text-[#cce823] fill-[#cce823] shrink-0 mt-0.5" />
+                           <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-center whitespace-normal leading-tight line-clamp-2">{camp.campaignRecommendation2}</span>
                         </a>
                       </motion.div>
                     )}
