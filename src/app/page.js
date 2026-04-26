@@ -354,28 +354,24 @@ export default function Home() {
         {/* Mobile Top Header Search (Hidden on Desktop) */}
         <div className="md:hidden relative z-40 px-5">
           
-          {/* Location Filter (Modern Pill Style) */}
-          <div className="mb-6 -mx-5 px-5">
-            <div className="flex items-center overflow-x-auto no-scrollbar gap-2.5 pb-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+          {/* Location Filter (Modern Tab Style) */}
+          <div className="bg-white rounded-[32px] p-1.5 shadow-[0_4px_24px_rgb(0,0,0,0.04)] border border-gray-100 mb-4">
+            <div className="flex items-center overflow-x-auto no-scrollbar hide-scroll" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
               {["All Bali", "Ubud", "Canggu", "Seminyak", "Nusa Penida", "Uluwatu"].map((loc) => {
                 const isActive = (searchQuery.toLowerCase() === loc.toLowerCase()) || (searchQuery === "" && loc === "All Bali");
                 return (
                   <button 
                     key={loc}
                     onClick={() => setSearchQuery(loc === "All Bali" ? "" : loc)}
-                    className={`relative flex items-center justify-center px-5 py-3 rounded-[20px] active:scale-95 transition-all duration-300 outline-none shrink-0 border ${
-                      isActive 
-                        ? 'bg-[#cce823] border-[#cce823] shadow-[0_8px_16px_rgba(204,232,35,0.25)]' 
-                        : 'bg-white border-transparent shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.06)]'
+                    className={`relative flex items-center justify-center px-5 py-2.5 rounded-[24px] active:scale-95 transition-all duration-300 outline-none shrink-0 ${
+                      isActive ? 'bg-[#cce823] shadow-sm' : 'bg-transparent'
                     }`}
                   >
+                    {/* Text Label or Icon */}
                     {loc === "All Bali" ? (
-                      <div className="flex items-center gap-2">
-                         <BaliGateIcon isActive={isActive} className={`w-4 h-4 transition-colors duration-300 ${isActive ? 'text-[#1C1C1E]' : 'text-gray-400'}`} />
-                         <span className={`text-[15px] tracking-tight ${isActive ? 'font-black text-[#1C1C1E]' : 'font-bold text-gray-500'}`}>All</span>
-                      </div>
+                      <BaliGateIcon isActive={isActive} className={`w-5 h-5 transition-colors duration-300 ${isActive ? 'text-[#1C1C1E]' : 'text-gray-400 hover:text-gray-600'}`} />
                     ) : (
-                      <span className={`text-[15px] tracking-tight ${isActive ? 'font-black text-[#1C1C1E]' : 'font-bold text-gray-500'}`}>
+                      <span className={`text-[14px] tracking-tight whitespace-nowrap transition-colors duration-300 ${isActive ? 'text-[#1C1C1E] font-black' : 'text-gray-400 font-bold hover:text-gray-600'}`}>
                         {loc}
                       </span>
                     )}
