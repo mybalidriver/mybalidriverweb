@@ -133,7 +133,7 @@ export default function Home() {
   const [isDesktop, setIsDesktop] = useState(true);
   const [isPlaying, setIsPlaying] = useState(true);
   const [activeMobileLabelIdx, setActiveMobileLabelIdx] = useState(0);
-  const [showMobileLabel, setShowMobileLabel] = useState(true);
+  const [showHeroLabel, setShowHeroLabel] = useState(true);
   const [hasShownMidRollLabel, setHasShownMidRollLabel] = useState(false);
   const heroMediaRef = React.useRef(null);
 
@@ -146,19 +146,19 @@ export default function Home() {
 
   useEffect(() => {
     if (!isPlaying) {
-      setShowMobileLabel(true);
+      setShowHeroLabel(true);
       return;
     }
     
     // When playing starts
-    setShowMobileLabel(false);
+    setShowHeroLabel(false);
 
     if (!hasShownMidRollLabel) {
       const showTimer = setTimeout(() => {
         if (isPlaying) {
-          setShowMobileLabel(true);
+          setShowHeroLabel(true);
           const hideTimer = setTimeout(() => {
-            setShowMobileLabel(false);
+            setShowHeroLabel(false);
             setHasShownMidRollLabel(true);
           }, 5000);
           return () => clearTimeout(hideTimer);
@@ -562,7 +562,7 @@ export default function Home() {
               {camp.isHeroSlide && (
                 <>
                   <AnimatePresence>
-                    {showMobileLabel && camp.campaignRecommendation && (
+                    {showHeroLabel && camp.campaignRecommendation && (
                       <motion.div
                         initial={{ opacity: 0, y: -15 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -583,7 +583,7 @@ export default function Home() {
                   </AnimatePresence>
 
                   <AnimatePresence>
-                    {showMobileLabel && camp.campaignRecommendation2 && (
+                    {showHeroLabel && camp.campaignRecommendation2 && (
                       <motion.div
                         initial={{ opacity: 0, y: 15 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -670,28 +670,44 @@ export default function Home() {
                 </>
               )}
               
-              {/* Left Recommendation Label */}
-              {camp.isHeroSlide && camp.campaignRecommendation && (
-                <div className="absolute bottom-[20%] left-[6%] xl:left-[8%] z-20 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-300">
-                   <a href={camp.campaignIgLink || "#"} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3.5 bg-black/40 backdrop-blur-2xl border border-white/10 text-white pl-2 pr-6 py-2 rounded-full text-[13px] font-bold uppercase tracking-[0.15em] shadow-[0_8px_32px_rgba(0,0,0,0.4)] hover:bg-white/10 hover:border-white/30 transition-all duration-300 pointer-events-auto hover:scale-105 group w-max">
-                      <div className="w-10 h-10 rounded-full bg-[#cce823]/10 flex items-center justify-center group-hover:bg-[#cce823]/20 transition-colors border border-[#cce823]/20">
-                        <Star size={16} className="text-[#cce823] fill-[#cce823] drop-shadow-[0_0_8px_rgba(204,232,35,0.8)]" />
-                      </div>
-                      <span className="mt-0.5 drop-shadow-md">{camp.campaignRecommendation}</span>
-                   </a>
-                </div>
+              {/* Left Recommendation Label (Under Text) */}
+              {camp.isHeroSlide && (
+                <AnimatePresence>
+                  {showHeroLabel && camp.campaignRecommendation && (
+                    <motion.div
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      transition={{ duration: 0.5, ease: "easeInOut" }}
+                      className="absolute bottom-[18%] left-[4%] z-20 pointer-events-none"
+                    >
+                       <a href={camp.campaignIgLink || "#"} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 bg-[#cce823] text-[#1C1C1E] px-6 py-3 rounded-md shadow-[0_8px_30px_rgba(204,232,35,0.3)] hover:scale-105 transition-transform duration-300 pointer-events-auto max-w-max">
+                          <Star size={16} className="text-[#1C1C1E] fill-[#1C1C1E] shrink-0 mt-0.5" />
+                          <span className="text-[12px] xl:text-[14px] font-black uppercase tracking-widest drop-shadow-sm whitespace-nowrap">{camp.campaignRecommendation}</span>
+                       </a>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               )}
 
               {/* Right Recommendation Label (Above Numbers) */}
-              {camp.isHeroSlide && camp.campaignRecommendation2 && (
-                <div className="absolute bottom-[18%] right-[4%] z-20 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-500">
-                   <a href={camp.campaignIgLink2 || "#"} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3.5 bg-black/40 backdrop-blur-2xl border border-white/10 text-white pl-2 pr-6 py-2 rounded-full text-[13px] font-bold uppercase tracking-[0.15em] shadow-[0_8px_32px_rgba(0,0,0,0.4)] hover:bg-white/10 hover:border-white/30 transition-all duration-300 pointer-events-auto hover:scale-105 group w-max">
-                      <div className="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center group-hover:bg-purple-500/20 transition-colors border border-purple-500/20">
-                        <Star size={16} className="text-purple-400 fill-purple-400 drop-shadow-[0_0_8px_rgba(168,85,247,0.8)]" />
-                      </div>
-                      <span className="mt-0.5 drop-shadow-md">{camp.campaignRecommendation2}</span>
-                   </a>
-                </div>
+              {camp.isHeroSlide && (
+                <AnimatePresence>
+                  {showHeroLabel && camp.campaignRecommendation2 && (
+                    <motion.div
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 20 }}
+                      transition={{ duration: 0.5, ease: "easeInOut" }}
+                      className="absolute bottom-[18%] right-[4%] z-20 pointer-events-none"
+                    >
+                       <a href={camp.campaignIgLink2 || "#"} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 bg-[#1C1C1E]/95 backdrop-blur-md border-l-4 border-[#cce823] text-[#cce823] px-6 py-3 rounded-md shadow-2xl hover:scale-105 transition-transform duration-300 pointer-events-auto max-w-max">
+                          <Star size={16} className="text-[#cce823] fill-[#cce823] shrink-0 mt-0.5" />
+                          <span className="text-[12px] xl:text-[14px] font-black uppercase tracking-widest drop-shadow-sm whitespace-nowrap">{camp.campaignRecommendation2}</span>
+                       </a>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               )}
 
               {/* Desktop Center Play/Pause Toggle */}
@@ -699,7 +715,7 @@ export default function Home() {
                 <div className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none">
                   <button 
                     onClick={togglePlayPause} 
-                    className={`w-24 h-24 rounded-full bg-black/40 backdrop-blur-md border border-white/20 text-white flex items-center justify-center hover:bg-black/60 hover:scale-105 transition-all pointer-events-auto active:scale-95 shadow-[0_8px_32px_rgba(0,0,0,0.5)] group ${isPlaying ? 'opacity-0 hover:opacity-100' : 'opacity-100'}`}
+                    className={`w-24 h-24 rounded-full bg-black/40 backdrop-blur-md border border-white/20 text-white flex items-center justify-center hover:bg-black/60 hover:scale-105 transition-all pointer-events-auto active:scale-95 shadow-[0_8px_32px_rgba(0,0,0,0.5)] group ${isPlaying ? 'opacity-0' : 'opacity-100'}`}
                     title={isPlaying ? "Pause Video" : "Play Video"}
                   >
                     {isPlaying ? <Pause size={36} className="fill-current" /> : <Play size={36} className="fill-current ml-2" />}
