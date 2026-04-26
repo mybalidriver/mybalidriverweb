@@ -66,7 +66,7 @@ const getYoutubeEmbedUrl = (url) => {
   const match = url.match(regExp);
   const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
   return (match && match[2].length === 11)
-    ? `https://www.youtube.com/embed/${match[2]}?autoplay=1&mute=0&loop=1&playlist=${match[2]}&controls=0&showinfo=0&rel=0&modestbranding=1&enablejsapi=1&playsinline=1&vq=hd1080&hd=1&origin=${encodeURIComponent(origin)}`
+    ? `https://www.youtube.com/embed/${match[2]}?autoplay=1&mute=0&loop=1&playlist=${match[2]}&controls=0&showinfo=0&rel=0&modestbranding=1&enablejsapi=1&playsinline=1&vq=hd2160&hd=1&origin=${encodeURIComponent(origin)}`
     : null;
 };
 
@@ -671,43 +671,23 @@ export default function Home() {
               )}
               
               {/* Left Recommendation Label (Under Text) */}
-              {camp.isHeroSlide && (
-                <AnimatePresence>
-                  {showHeroLabel && camp.campaignRecommendation && (
-                    <motion.div
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      transition={{ duration: 0.5, ease: "easeInOut" }}
-                      className="absolute bottom-[18%] left-[4%] z-20 pointer-events-none"
-                    >
-                       <a href={camp.campaignIgLink || "#"} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 bg-[#cce823] text-[#1C1C1E] px-6 py-3 rounded-md shadow-[0_8px_30px_rgba(204,232,35,0.3)] hover:scale-105 transition-transform duration-300 pointer-events-auto max-w-max">
-                          <Star size={16} className="text-[#1C1C1E] fill-[#1C1C1E] shrink-0 mt-0.5" />
-                          <span className="text-[12px] xl:text-[14px] font-black uppercase tracking-widest drop-shadow-sm whitespace-nowrap">{camp.campaignRecommendation}</span>
-                       </a>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+              {camp.isHeroSlide && camp.campaignRecommendation && (
+                <div className="absolute bottom-[18%] left-[4%] z-20 pointer-events-none">
+                   <a href={camp.campaignIgLink || "#"} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 bg-[#cce823] text-[#1C1C1E] px-6 py-3 rounded-md shadow-[0_8px_30px_rgba(204,232,35,0.3)] hover:scale-105 transition-transform duration-300 pointer-events-auto max-w-max">
+                      <Star size={16} className="text-[#1C1C1E] fill-[#1C1C1E] shrink-0 mt-0.5" />
+                      <span className="text-[12px] xl:text-[14px] font-black uppercase tracking-widest drop-shadow-sm whitespace-nowrap">{camp.campaignRecommendation}</span>
+                   </a>
+                </div>
               )}
 
               {/* Right Recommendation Label (Above Numbers) */}
-              {camp.isHeroSlide && (
-                <AnimatePresence>
-                  {showHeroLabel && camp.campaignRecommendation2 && (
-                    <motion.div
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 20 }}
-                      transition={{ duration: 0.5, ease: "easeInOut" }}
-                      className="absolute bottom-[18%] right-[4%] z-20 pointer-events-none"
-                    >
-                       <a href={camp.campaignIgLink2 || "#"} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 bg-[#1C1C1E]/95 backdrop-blur-md border-l-4 border-[#cce823] text-[#cce823] px-6 py-3 rounded-md shadow-2xl hover:scale-105 transition-transform duration-300 pointer-events-auto max-w-max">
-                          <Star size={16} className="text-[#cce823] fill-[#cce823] shrink-0 mt-0.5" />
-                          <span className="text-[12px] xl:text-[14px] font-black uppercase tracking-widest drop-shadow-sm whitespace-nowrap">{camp.campaignRecommendation2}</span>
-                       </a>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+              {camp.isHeroSlide && camp.campaignRecommendation2 && (
+                <div className="absolute bottom-[18%] right-[4%] z-20 pointer-events-none">
+                   <a href={camp.campaignIgLink2 || "#"} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 bg-[#1C1C1E]/95 backdrop-blur-md border-l-4 border-[#cce823] text-[#cce823] px-6 py-3 rounded-md shadow-2xl hover:scale-105 transition-transform duration-300 pointer-events-auto max-w-max">
+                      <Star size={16} className="text-[#cce823] fill-[#cce823] shrink-0 mt-0.5" />
+                      <span className="text-[12px] xl:text-[14px] font-black uppercase tracking-widest drop-shadow-sm whitespace-nowrap">{camp.campaignRecommendation2}</span>
+                   </a>
+                </div>
               )}
 
               {/* Desktop Center Play/Pause Toggle */}
