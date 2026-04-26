@@ -66,7 +66,7 @@ const getYoutubeEmbedUrl = (url) => {
   const match = url.match(regExp);
   const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
   return (match && match[2].length === 11)
-    ? `https://www.youtube.com/embed/${match[2]}?autoplay=1&mute=0&loop=1&playlist=${match[2]}&controls=0&showinfo=0&rel=0&modestbranding=1&enablejsapi=1&playsinline=1&origin=${encodeURIComponent(origin)}`
+    ? `https://www.youtube.com/embed/${match[2]}?autoplay=1&mute=0&loop=1&playlist=${match[2]}&controls=0&showinfo=0&rel=0&modestbranding=1&enablejsapi=1&playsinline=1&vq=hd1080&hd=1&origin=${encodeURIComponent(origin)}`
     : null;
 };
 
