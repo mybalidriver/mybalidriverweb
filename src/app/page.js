@@ -354,8 +354,8 @@ export default function Home() {
         {/* Mobile Top Header Search (Hidden on Desktop) */}
         <div className="md:hidden relative z-40 px-5">
           
-          {/* Location Filter (Modern Tab Style) */}
-          <div className="bg-white rounded-[32px] p-1.5 shadow-[0_4px_24px_rgb(0,0,0,0.04)] border border-gray-100 mb-4">
+          {/* Location Filter (Animated Segmented Control Style) */}
+          <div className="bg-[#cce823] rounded-[32px] p-1.5 shadow-[0_4px_20px_rgba(204,232,35,0.3)] mb-4">
             <div className="flex items-center overflow-x-auto no-scrollbar hide-scroll" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
               {["All Bali", "Ubud", "Canggu", "Seminyak", "Nusa Penida", "Uluwatu"].map((loc) => {
                 const isActive = (searchQuery.toLowerCase() === loc.toLowerCase()) || (searchQuery === "" && loc === "All Bali");
@@ -363,18 +363,27 @@ export default function Home() {
                   <button 
                     key={loc}
                     onClick={() => setSearchQuery(loc === "All Bali" ? "" : loc)}
-                    className={`relative flex items-center justify-center px-5 py-2.5 rounded-[24px] active:scale-95 transition-all duration-300 outline-none shrink-0 ${
-                      isActive ? 'bg-[#cce823] shadow-sm' : 'bg-transparent'
-                    }`}
+                    className="relative flex items-center justify-center px-5 py-2.5 rounded-[24px] active:scale-95 outline-none shrink-0"
                   >
-                    {/* Text Label or Icon */}
-                    {loc === "All Bali" ? (
-                      <BaliGateIcon isActive={isActive} className={`w-5 h-5 transition-colors duration-300 ${isActive ? 'text-[#1C1C1E]' : 'text-gray-400 hover:text-gray-600'}`} />
-                    ) : (
-                      <span className={`text-[14px] tracking-tight whitespace-nowrap transition-colors duration-300 ${isActive ? 'text-[#1C1C1E] font-black' : 'text-gray-400 font-bold hover:text-gray-600'}`}>
-                        {loc}
-                      </span>
+                    {/* Animated Sliding White Pill */}
+                    {isActive && (
+                      <motion.div 
+                        layoutId="locationActiveIndicator"
+                        className="absolute inset-0 bg-white rounded-[24px] shadow-sm"
+                        transition={{ type: "spring", stiffness: 400, damping: 28 }}
+                      />
                     )}
+                    
+                    {/* Text Label or Icon */}
+                    <div className="relative z-10 flex items-center justify-center">
+                      {loc === "All Bali" ? (
+                        <BaliGateIcon isActive={isActive} className={`w-5 h-5 transition-colors duration-300 ${isActive ? 'text-[#1C1C1E]' : 'text-[#1C1C1E]/60 hover:text-[#1C1C1E]'}`} />
+                      ) : (
+                        <span className={`text-[14px] tracking-tight whitespace-nowrap transition-colors duration-300 ${isActive ? 'text-[#1C1C1E] font-extrabold' : 'text-[#1C1C1E]/70 font-bold hover:text-[#1C1C1E]'}`}>
+                          {loc}
+                        </span>
+                      )}
+                    </div>
                   </button>
                 );
               })}
