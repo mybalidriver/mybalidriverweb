@@ -140,9 +140,7 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
               </div>
               <div className="flex-1 overflow-hidden">
                 <p className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">{serviceData.type}</p>
-                <h3 className="font-exrabold text-[15px] text-primary truncate leading-tight">
-                  {localPackage === 'All Inclusive' && serviceData.inclusiveTitle ? serviceData.inclusiveTitle : serviceData.baseTitle || serviceData.title}
-                </h3>
+                <h3 className="font-exrabold text-[15px] text-primary truncate leading-tight">{serviceData.title}</h3>
               </div>
             </div>
           )}
@@ -152,39 +150,49 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
             {/* STEP 1: PARTICIPANTS & OPTIONS */}
             {step === 1 && (
               <>
-                {/* Package Selector (Tour/Activities) - Moved ABOVE Calendar */}
+                {/* Package Selector (Tour/Activities) */}
                 {(serviceData?.type === "tour" || serviceData?.type === "activities") && (serviceData?.hasAllInclusive || serviceData?.allInclusiveSurcharge) && (
                   <div className="flex flex-col gap-3">
-                    <span className="font-bold text-primary text-[14px] ml-1">Select Package</span>
+                    <span className="font-bold text-primary text-[14px] ml-1">Select your experience</span>
                     <div className="flex flex-col gap-2">
                       <div 
                          onClick={() => setLocalPackage('Standard')}
                          className={`p-3.5 rounded-2xl border-2 cursor-pointer transition-all ${localPackage === 'Standard' ? 'border-[#cce823] bg-[#cce823]/10' : 'border-[#F4F4F6] bg-[#F4F4F6] hover:border-gray-200'}`}
                       >
                          <div className="flex justify-between items-center mb-1">
-                            <span className="font-bold text-primary text-[14px]">Essential Tour Only</span>
+                            <span className="font-bold text-primary text-[14px]">Standard Journey</span>
                             {localPackage === 'Standard' && <div className="w-5 h-5 rounded-full bg-[#cce823] flex items-center justify-center shadow-sm"><Check size={12} strokeWidth={3} className="text-[#1C1C1E]" /></div>}
                          </div>
-                         <p className="text-[12px] text-gray-500 font-medium leading-snug">Driver and guide only. Entrance fees not included.</p>
+                         <p className="text-[12px] text-gray-500 font-medium leading-snug">Essential driver and guide service. Excludes entrance fees and meals.</p>
                       </div>
                       <div 
                          onClick={() => setLocalPackage('All Inclusive')}
                          className={`p-3.5 rounded-2xl border-2 cursor-pointer transition-all ${localPackage === 'All Inclusive' ? 'border-[#cce823] bg-[#cce823]/10' : 'border-[#F4F4F6] bg-[#F4F4F6] hover:border-gray-200'}`}
                       >
                          <div className="flex justify-between items-center mb-1">
-                            <span className="font-bold text-primary text-[14px]">Premium All-Inclusive</span>
+                            <span className="font-bold text-primary text-[14px]">VIP All-Inclusive Experience</span>
                             <span className="text-[11px] font-extrabold text-[#1C1C1E] bg-[#cce823] px-2 py-0.5 rounded-md shadow-sm">
-                              +{serviceData.allInclusiveSurcharge ? formatIDR(serviceData.allInclusiveSurcharge) : 'Custom'}/pax
+                              {(() => {
+                                let pax = parseInt(formData.guests) || 1;
+                                let price = serviceData.allInclusiveSurcharge || 0;
+                                if (serviceData.allInclusiveTiers && serviceData.allInclusiveTiers.length > 0) {
+                                  let applicableTier = [...serviceData.allInclusiveTiers].reverse().find(t => pax >= t.minPax);
+                                  if (applicableTier) price = applicableTier.price;
+                                } else if (serviceData.allInclusiveSurcharge && serviceData.price) {
+                                  price = serviceData.price + serviceData.allInclusiveSurcharge;
+                                }
+                                return `Rp ${price.toLocaleString('id-ID')}/pax`;
+                              })()}
                             </span>
                          </div>
-                         <p className="text-[12px] text-gray-500 font-medium leading-snug">All entrance fees covered. Hassle-free experience.</p>
+                         <p className="text-[12px] text-gray-500 font-medium leading-snug">Everything taken care of. Includes all tickets, fees, and a seamless hassle-free day.</p>
                       </div>
                     </div>
                   </div>
                 )}
 
-                <div className="flex flex-col gap-5">
-                  <div className="w-full flex-shrink-0 mt-1">
+                <div className="flex flex-col gap-5 mt-1">
+                  <div className="w-full flex-shrink-0">
                      <WeeklyCalendar value={formData.date} onChange={(dateStr) => handleInputChange({ target: { name: 'date', value: dateStr }})} />
                   </div>
 
@@ -320,19 +328,19 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
                <span className="text-[22px] font-extrabold text-primary">
                  {(() => {
                     let pax = parseInt(formData.guests) || 1;
-                    let basePrice = Number(serviceData.price || 0);
+                    let basePrice = serviceData.price;
                     
                     // Handle All Inclusive Surcharge if selected
                     if (localPackage === 'All Inclusive') {
                        if (serviceData.allInclusiveTiers && serviceData.allInclusiveTiers.length > 0) {
                           let applicableTier = [...serviceData.allInclusiveTiers].reverse().find(t => pax >= t.minPax);
-                          if (applicableTier) basePrice = Number(applicableTier.price);
+                          if (applicableTier) basePrice = applicableTier.price;
                        } else if (serviceData.allInclusiveSurcharge) {
-                          basePrice += Number(serviceData.allInclusiveSurcharge);
+                          basePrice += serviceData.allInclusiveSurcharge;
                        }
                     } else if (serviceData.tourTiers && serviceData.tourTiers.length > 0) {
                        let applicableTier = [...serviceData.tourTiers].reverse().find(t => pax >= t.minPax);
-                       if (applicableTier) basePrice = Number(applicableTier.price);
+                       if (applicableTier) basePrice = applicableTier.price;
                     }
                     
                     if (serviceData.type === 'scooter') {
