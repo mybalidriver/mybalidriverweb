@@ -187,9 +187,25 @@ export default function Home() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const fetchHeroSettings = () => {
-    const saved = localStorage.getItem("homepage_hero_settings");
-    if (saved) setHeroSettings(JSON.parse(saved));
+  const fetchHeroSettings = async () => {
+    try {
+      const { supabase } = await import('@/lib/supabase');
+      const { data, error } = await supabase.from('homepage_settings').select('*').eq('id', 1).single();
+      if (error && error.code !== 'PGRST116') throw error;
+      
+      if (data) {
+        setHeroSettings({
+          campaignVideo: data.campaign_video || "",
+          campaignYoutubeLink: data.campaign_youtube_link || "",
+          campaignRecommendation: data.campaign_recommendation || "",
+          campaignIgLink: data.campaign_ig_link || "",
+          campaignRecommendation2: data.campaign_recommendation_2 || "",
+          campaignIgLink2: data.campaign_ig_link_2 || ""
+        });
+      }
+    } catch (err) {
+      console.error("Failed to fetch hero settings:", err.message);
+    }
   };
 
   useEffect(() => {

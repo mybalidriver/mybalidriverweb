@@ -136,3 +136,19 @@ ALTER TABLE public.bookings DISABLE ROW LEVEL SECURITY;
 DROP TRIGGER IF EXISTS update_bookings_modtime ON public.bookings;
 CREATE TRIGGER update_bookings_modtime BEFORE UPDATE ON public.bookings FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
 
+
+-- 5. HOMEPAGE SETTINGS TABLE
+CREATE TABLE IF NOT EXISTS public.homepage_settings (
+    id INT PRIMARY KEY DEFAULT 1 CHECK (id = 1),
+    campaign_video TEXT,
+    campaign_youtube_link TEXT,
+    campaign_recommendation TEXT,
+    campaign_ig_link TEXT,
+    campaign_recommendation_2 TEXT,
+    campaign_ig_link_2 TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+INSERT INTO public.homepage_settings (id) VALUES (1) ON CONFLICT DO NOTHING;
+ALTER TABLE public.homepage_settings DISABLE ROW LEVEL SECURITY;

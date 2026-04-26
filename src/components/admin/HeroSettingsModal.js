@@ -16,11 +16,28 @@ export default function HeroSettingsModal({ onClose }) {
   const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem("homepage_hero_settings");
-    if (saved) {
-      setSettings(JSON.parse(saved));
-    }
+    fetchSettings();
   }, []);
+
+  const fetchSettings = async () => {
+    try {
+      const { data, error } = await supabase.from('homepage_settings').select('*').eq('id', 1).single();
+      if (error && error.code !== 'PGRST116') throw error; // PGRST116 is 'not found'
+      
+      if (data) {
+        setSettings({
+          campaignVideo: data.campaign_video || "",
+          campaignYoutubeLink: data.campaign_youtube_link || "",
+          campaignRecommendation: data.campaign_recommendation || "",
+          campaignIgLink: data.campaign_ig_link || "",
+          campaignRecommendation2: data.campaign_recommendation_2 || "",
+          campaignIgLink2: data.campaign_ig_link_2 || ""
+        });
+      }
+    } catch (err) {
+      console.error("Error fetching homepage settings:", err.message);
+    }
+  };
 
   const handleVideoUpload = async (e) => {
     const file = e.target.files[0];
@@ -47,11 +64,27 @@ export default function HeroSettingsModal({ onClose }) {
     }
   };
 
-  const handleSave = () => {
-    localStorage.setItem("homepage_hero_settings", JSON.stringify(settings));
-    // Dispatch custom event to sync with other components
-    window.dispatchEvent(new Event("homepage_hero_settings_changed"));
-    onClose();
+  const handleSave = async () => {
+    try {
+      const { error } = await supabase.from('homepage_settings').upsert({
+        id: 1,
+        campaign_video: settings.campaignVideo,
+        campaign_youtube_link: settings.campaignYoutubeLink,
+        campaign_recommendation: settings.campaignRecommendation,
+        campaign_ig_link: settings.campaignIgLink,
+        campaign_recommendation_2: settings.campaignRecommendation2,
+        campaign_ig_link_2: settings.campaignIgLink2,
+        updated_at: new Date().toISOString()
+      });
+
+      if (error) throw error;
+
+      // Dispatch custom event to sync with other components
+      window.dispatchEvent(new Event("homepage_hero_settings_changed"));
+      onClose();
+    } catch (err) {
+      alert("Failed to save settings: " + err.message);
+    }
   };
 
   return (
