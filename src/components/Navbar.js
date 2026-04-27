@@ -49,23 +49,24 @@ export default function Navbar() {
     setIsTranslating(true);
     
     const code = langCode.toLowerCase();
+    
+    // Set google translate cookies with and without domain for broader compatibility
     document.cookie = `googtrans=/en/${code}; path=/; domain=${window.location.hostname}`;
+    document.cookie = `googtrans=/en/${code}; path=/; domain=.${window.location.hostname}`;
     document.cookie = `googtrans=/en/${code}; path=/`;
 
-    const checkExist = setInterval(() => {
+    // Wait a brief moment to ensure cookie is set
+    setTimeout(() => {
       const select = document.querySelector('.goog-te-combo');
       if (select) {
         select.value = code;
-        select.dispatchEvent(new Event('change'));
-        clearInterval(checkExist);
-        setTimeout(() => setIsTranslating(false), 800);
+        select.dispatchEvent(new Event('change', { bubbles: true, cancelable: true }));
+        setIsTranslating(false);
+      } else {
+        // Fallback: If combo box is not injected yet, reload the page so the script reads the newly set cookie
+        window.location.reload();
       }
-    }, 100);
-
-    setTimeout(() => {
-      clearInterval(checkExist);
-      setIsTranslating(false);
-    }, 3000);
+    }, 150);
   };
   
   const services = [
