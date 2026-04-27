@@ -5,6 +5,7 @@ import { X, Calendar, MapPin, Users, Phone, User, Clock, ArrowRight, ChevronLeft
 import WeeklyCalendar from "./WeeklyCalendar";
 import LocationAutocomplete from "./LocationAutocomplete";
 import { APIProvider } from "@vis.gl/react-google-maps";
+import { supabase } from "@/lib/supabase";
 
 const formatIDR = (num) => `IDR ${Number(num).toLocaleString('id-ID')}`;
 
@@ -60,7 +61,7 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleCheckout = (e) => {
+  const handleCheckout = async (e) => {
     e.preventDefault();
     
     // Generate Random Booking ID
@@ -121,6 +122,29 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
 
     const waUrl = `https://wa.me/6285174119423?text=${encodeURIComponent(messageDetails)}`;
     
+    try {
+      await supabase.from('bookings').insert({
+        id: bookingId,
+        customer_name: formData.name,
+        contact_info: formData.phone,
+        service_name: sTitle,
+        booking_date: formData.date,
+        amount: formatIDR(total),
+        status: 'Pending',
+        category: serviceData?.type === "tour" ? "Tour" : serviceData?.type === "transport" ? "Transport" : "Activities",
+        details: {
+          guests: formData.guests,
+          package: localPackage,
+          time: formData.time,
+          duration: formData.duration,
+          pickup_location: formData.pickupLocation.name,
+          dropoff_location: formData.dropoffLocation.name
+        }
+      });
+    } catch (err) {
+      console.error("Failed to save booking to Supabase:", err);
+    }
+
     window.open(waUrl, "_blank");
     onClose();
   };

@@ -14,6 +14,17 @@ export default function BookingsManagement() {
 
   useEffect(() => {
     fetchBookings();
+    
+    const channel = supabase
+      .channel('bookings_changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'bookings' }, (payload) => {
+        fetchBookings();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const fetchBookings = async () => {
