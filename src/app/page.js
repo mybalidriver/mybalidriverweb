@@ -843,25 +843,34 @@ export default function Home() {
             <h2 className="text-[20px] font-bold text-primary">Categories</h2>
             <span className="text-sm font-semibold text-text-secondary">See more</span>
           </div>
-          <div className="flex overflow-x-auto no-scrollbar gap-6 pb-0 pt-2 px-2 border-b border-gray-100">
-            {currentCategories.map((c) => {
-              const Icon = c.icon;
-              const isActive = activeCat === c.id;
-              return (
-                <button
-                  key={c.id}
-                  onClick={() => setActiveCat(c.id)}
-                  className={`flex flex-col items-center gap-[6px] min-w-[56px] pb-3 shrink-0 transition-all active:scale-95 touch-manipulation select-none cursor-pointer outline-none border-b-2 -mb-[1px] ${
-                    isActive 
-                      ? "border-primary text-primary opacity-100" 
-                      : "border-transparent text-[#71717A] hover:text-primary hover:border-gray-200 opacity-60 hover:opacity-100"
-                  }`}
-                >
-                  {Icon && <Icon size={28} className={isActive ? "text-primary" : "text-[#71717A]"} strokeWidth={1.5} />}
-                  <span className={`text-[12px] whitespace-nowrap ${isActive ? "font-bold" : "font-semibold"}`}>{c.id}</span>
-                </button>
-              );
-            })}
+          <div className="bg-[#cce823] rounded-[32px] p-1.5 shadow-[0_4px_20px_rgba(204,232,35,0.3)]">
+            <div className="flex items-center overflow-x-auto no-scrollbar hide-scroll" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+              {currentCategories.map((c) => {
+                const Icon = c.icon;
+                const isActive = activeCat === c.id;
+                return (
+                  <button
+                    key={c.id}
+                    onClick={() => setActiveCat(c.id)}
+                    className="relative flex items-center justify-center px-4 py-2 rounded-[24px] active:scale-95 outline-none shrink-0"
+                  >
+                    {isActive && (
+                      <motion.div 
+                        layoutId="categoryActiveIndicator"
+                        className="absolute inset-0 bg-white rounded-[24px] shadow-sm"
+                        transition={{ type: "spring", stiffness: 400, damping: 28 }}
+                      />
+                    )}
+                    <div className="relative z-10 flex items-center justify-center gap-1.5">
+                      {Icon && <Icon size={16} className={`transition-colors duration-300 ${isActive ? 'text-[#1C1C1E]' : 'text-[#1C1C1E]/60 hover:text-[#1C1C1E]'}`} strokeWidth={2} />}
+                      <span className={`text-[13px] tracking-tight whitespace-nowrap transition-colors duration-300 ${isActive ? 'text-[#1C1C1E] font-extrabold' : 'text-[#1C1C1E]/70 font-bold hover:text-[#1C1C1E]'}`}>
+                        {c.id}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </section>
 
