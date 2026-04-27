@@ -1,12 +1,20 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { TreePine, Umbrella, Mountain, Droplets, Search, Plane, Building, Building2, Train, Bus, BriefcaseBusiness, Heart, HeartOff, MapPin, Map, Car, Bike, Wifi, Navigation, Sparkles, Landmark, Camera, Waves, Compass, ChevronDown, ChevronLeft, ChevronRight, Settings2, Star, Instagram, Zap, Home as HomeIcon, Flower2, Globe, ArrowUpRight, Play, Pause } from "lucide-react";
+import { TreePine, Umbrella, Mountain, Droplets, Search, Plane, Building, Building2, Train, Bus, BriefcaseBusiness, Heart, HeartOff, MapPin, Map, Car, Bike, Wifi, Navigation, Sparkles, Landmark, Camera, Waves, Compass, ChevronDown, ChevronLeft, ChevronRight, Settings2, Star, Zap, Home as HomeIcon, Flower2, Globe, ArrowUpRight, Play, Pause } from "lucide-react";
 import { TourIcon, SpaIcon, TransportIcon, ScooterIcon, ThinSparklesIcon, TowelsIcon, LotusIcon, CreattieTourIcon, CreattieSpaIcon, CreattieScooterIcon, CreattieTransportIcon, CreattieEsimIcon, AirbnbTourIcon, AirbnbSpaIcon, AirbnbScooterIcon, AirbnbTransportIcon, AirbnbEsimIcon } from "@/components/icons/CategoryIcons";
 import ListingCard from "@/components/listing/ListingCard";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+
+const InstagramIcon = ({ size = 24, className = "", strokeWidth = 2 }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+  </svg>
+);
 
 const BaliGateIcon = ({ className, isActive }) => (
   <svg 
@@ -583,7 +591,7 @@ export default function Home() {
                            target="_blank" rel="noopener noreferrer" 
                            className="inline-flex items-center justify-center gap-2 bg-[#cce823] text-[#1C1C1E] px-4 py-2 rounded-md shadow-[0_8px_30px_rgba(204,232,35,0.3)] hover:scale-105 transition-transform pointer-events-auto max-w-full"
                         >
-                           <Instagram size={14} className="text-[#1C1C1E] shrink-0 mt-0.5" strokeWidth={2} />
+                           <InstagramIcon size={14} className="text-[#1C1C1E] shrink-0 mt-0.5" strokeWidth={2} />
                            <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-center whitespace-normal leading-tight line-clamp-2">{camp.campaignRecommendation}</span>
                         </a>
                       </motion.div>
@@ -604,7 +612,7 @@ export default function Home() {
                            target="_blank" rel="noopener noreferrer" 
                            className="inline-flex items-center justify-center gap-2 bg-[#1C1C1E]/95 backdrop-blur-md border-l-4 border-[#cce823] text-[#cce823] px-4 py-2 rounded-md shadow-2xl hover:scale-105 transition-transform pointer-events-auto max-w-full"
                         >
-                           <Instagram size={14} className="text-[#cce823] shrink-0 mt-0.5" strokeWidth={2} />
+                           <InstagramIcon size={14} className="text-[#cce823] shrink-0 mt-0.5" strokeWidth={2} />
                            <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-center whitespace-normal leading-tight line-clamp-2">{camp.campaignRecommendation2}</span>
                         </a>
                       </motion.div>
@@ -682,7 +690,7 @@ export default function Home() {
               {camp.isHeroSlide && camp.campaignRecommendation && (
                 <div className="absolute bottom-[18%] left-[4%] z-20 pointer-events-none">
                    <a href={camp.campaignIgLink || "#"} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 bg-[#cce823] text-[#1C1C1E] px-6 py-3 rounded-md shadow-[0_8px_30px_rgba(204,232,35,0.3)] hover:scale-105 transition-transform duration-300 pointer-events-auto max-w-max">
-                      <Instagram size={18} className="text-[#1C1C1E] shrink-0 mt-0.5" strokeWidth={2} />
+                      <InstagramIcon size={18} className="text-[#1C1C1E] shrink-0 mt-0.5" strokeWidth={2} />
                       <span className="text-[12px] xl:text-[14px] font-black uppercase tracking-widest drop-shadow-sm whitespace-nowrap">{camp.campaignRecommendation}</span>
                    </a>
                 </div>
@@ -692,7 +700,7 @@ export default function Home() {
               {camp.isHeroSlide && camp.campaignRecommendation2 && (
                 <div className="absolute bottom-[18%] right-[4%] z-20 pointer-events-none">
                    <a href={camp.campaignIgLink2 || "#"} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 bg-[#1C1C1E]/95 backdrop-blur-md border-l-4 border-[#cce823] text-[#cce823] px-6 py-3 rounded-md shadow-2xl hover:scale-105 transition-transform duration-300 pointer-events-auto max-w-max">
-                      <Instagram size={18} className="text-[#cce823] shrink-0 mt-0.5" strokeWidth={2} />
+                      <InstagramIcon size={18} className="text-[#cce823] shrink-0 mt-0.5" strokeWidth={2} />
                       <span className="text-[12px] xl:text-[14px] font-black uppercase tracking-widest drop-shadow-sm whitespace-nowrap">{camp.campaignRecommendation2}</span>
                    </a>
                 </div>
