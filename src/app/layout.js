@@ -16,7 +16,7 @@ export const viewport = {
 };
 
 export const metadata = {
-  title: "My Bali Driver",
+  title: "mybalidriver",
   description: "Modern travel experience platform.",
 };
 

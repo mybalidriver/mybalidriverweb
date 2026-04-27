@@ -36,7 +36,7 @@ export default function Navbar() {
   if (pathname.match(/^\/tours\/.+/) || pathname === '/map') return null;
 
   return (
-    <header className={`fixed z-50 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] left-1/2 -translate-x-1/2 w-full ${isScrolled ? "top-0 bg-white/90 backdrop-blur-md shadow-sm border-b border-border md:top-4 md:w-[85%] md:max-w-[1000px] md:rounded-full md:shadow-[0_8px_30px_rgb(0,0,0,0.08)] md:border md:border-gray-100 md:py-2.5" : "top-0 bg-background md:bg-transparent md:border-b-0 md:w-[95%] md:max-w-[1400px] md:py-5 pt-4 pb-4"}`}>
+    <header className={`fixed z-50 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] left-1/2 -translate-x-1/2 w-full ${isScrolled ? "top-0 bg-white md:bg-white/90 md:backdrop-blur-md shadow-sm border-b border-border md:top-4 md:w-[85%] md:max-w-[1000px] md:rounded-full md:shadow-[0_8px_30px_rgb(0,0,0,0.08)] md:border md:border-gray-100 md:py-2.5" : "top-0 bg-white md:bg-transparent md:border-b-0 md:w-[95%] md:max-w-[1400px] md:py-5 pt-4 pb-4"}`}>
       
       {/* MOBILE LAYOUT (Inspired by the Reference Image) */}
       <div className="md:hidden px-6 flex items-center justify-between">
@@ -46,7 +46,7 @@ export default function Navbar() {
               <img src={session.user.image || "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80"} referrerPolicy="no-referrer" alt="Avatar" className="w-full h-full object-cover" />
             </div>
           ) : (
-            <div className="w-11 h-11 bg-accent/20 rounded-full border border-accent/30 flex justify-center items-center cursor-pointer hover:bg-accent/30 transition-colors shadow-sm" onClick={() => signIn('google')}>
+            <div className="w-11 h-11 bg-accent rounded-full flex justify-center items-center cursor-pointer hover:brightness-95 transition-colors shadow-sm" onClick={() => signIn('google')}>
                <User size={20} className="text-primary" />
             </div>
           )}
@@ -66,7 +66,7 @@ export default function Navbar() {
             )}
           </div>
         </div>
-        <button className="w-10 h-10 border border-accent/30 bg-accent/20 rounded-full flex items-center justify-center hover:bg-accent/30 relative shadow-soft transition-colors">
+        <button className="w-10 h-10 bg-accent rounded-full flex items-center justify-center hover:brightness-95 relative shadow-soft transition-colors">
           <Bell size={18} className="text-primary" />
           <div className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full"></div>
         </button>
@@ -76,8 +76,8 @@ export default function Navbar() {
       <div className="hidden md:flex container mx-auto px-6 w-full items-center justify-between">
         
         {/* Logo */}
-        <Link href="/" className={`font-black tracking-[0.2em] flex-1 flex items-center text-xl md:text-[20px] uppercase transition-colors duration-500 ${isScrolled ? 'text-[#1C1C1E]' : 'text-white'}`}>
-          MY BALI DRIVER
+        <Link href="/" className={`font-black tracking-[0.1em] flex-1 flex items-center text-xl md:text-[22px] transition-colors duration-500 ${isScrolled ? 'text-[#1C1C1E]' : 'text-white'}`}>
+          mybalidriver
         </Link>
 
         {/* Center Compressed Search */}

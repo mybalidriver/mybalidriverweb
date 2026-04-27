@@ -2,7 +2,7 @@ import React from "react";
 import { Wifi, Earth, Check } from "lucide-react";
 
 export const metadata = {
-  title: "Bali Travel eSIM | My Bali Driver",
+  title: "Bali Travel eSIM | mybalidriver",
 };
 
 export default function Esim() {
