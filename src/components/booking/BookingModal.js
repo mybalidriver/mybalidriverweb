@@ -112,11 +112,13 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
          if (applicableTier) basePrice = Number(applicableTier.price);
       }
       
-      total = basePrice;
       if (serviceData.type === 'scooter') {
          total = basePrice * (parseInt(formData.duration) || 1);
-      } else if (["tour", "spa", "transport"].includes(serviceData?.type)) {
-         total = basePrice * (serviceData?.pricingType === "Per Group" ? 1 : pax);
+      } else if (["tour", "spa", "transport", "activities"].includes(serviceData?.type?.toLowerCase())) {
+         let isGroupPricing = serviceData?.pricingType === "Per Group" && localPackage !== 'All Inclusive';
+         total = basePrice * (isGroupPricing ? 1 : pax);
+      } else {
+         total = basePrice;
       }
       
       messageDetails += `\n${divider}\n*TOTAL ESTIMATE:* ${formatIDR(total)}`;
@@ -124,30 +126,29 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
 
     const waUrl = `https://wa.me/6285174119423?text=${encodeURIComponent(messageDetails)}`;
     
-    try {
-      await supabase.from('bookings').insert({
-        id: bookingId,
-        customer_name: formData.name,
-        contact_info: formData.phone,
-        service_name: sTitle,
-        booking_date: formData.date,
-        amount: formatIDR(total),
-        status: 'Pending',
-        category: serviceData?.type === "tour" ? "Tour" : serviceData?.type === "transport" ? "Transport" : "Activities",
-        details: {
-          guests: formData.guests,
-          package: localPackage,
-          time: formData.time,
-          duration: formData.duration,
-          pickup_location: formData.pickupLocation.name,
-          dropoff_location: formData.dropoffLocation.name
-        }
-      });
-    } catch (err) {
-      console.error("Failed to save booking to Supabase:", err);
-    }
+    // Fire and forget Supabase insert to avoid async popup blocker issues
+    supabase.from('bookings').insert({
+      id: bookingId,
+      customer_name: formData.name,
+      contact_info: formData.phone,
+      service_name: sTitle,
+      booking_date: formData.date,
+      amount: formatIDR(total),
+      status: 'Pending',
+      category: serviceData?.type === "tour" ? "Tour" : serviceData?.type === "transport" ? "Transport" : "Activities",
+      details: {
+        guests: formData.guests,
+        package: localPackage,
+        time: formData.time,
+        duration: formData.duration,
+        pickup_location: formData.pickupLocation.name,
+        dropoff_location: formData.dropoffLocation.name
+      }
+    }).then(({ error }) => {
+      if (error) console.error("Failed to save booking to Supabase:", error);
+    });
 
-    window.open(waUrl, "_blank");
+    window.location.href = waUrl; // Use location.href for safer mobile redirect
     onClose();
   };
 
@@ -394,8 +395,9 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
                     
                     if (serviceData.type === 'scooter') {
                        return formatIDR(basePrice * (parseInt(formData.duration) || 1));
-                    } else if (["tour", "spa", "transport"].includes(serviceData?.type)) {
-                       return formatIDR(basePrice * (serviceData?.pricingType === "Per Group" ? 1 : pax));
+                    } else if (["tour", "spa", "transport", "activities"].includes(serviceData?.type?.toLowerCase())) {
+                       let isGroupPricing = serviceData?.pricingType === "Per Group" && localPackage !== 'All Inclusive';
+                       return formatIDR(basePrice * (isGroupPricing ? 1 : pax));
                     }
                     return formatIDR(basePrice);
                  })()}
