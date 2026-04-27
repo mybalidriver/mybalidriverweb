@@ -46,8 +46,8 @@ export default function Navbar() {
               <img src={session.user.image || "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80"} referrerPolicy="no-referrer" alt="Avatar" className="w-full h-full object-cover" />
             </div>
           ) : (
-            <div className="w-11 h-11 bg-gray-100 rounded-full border border-border flex justify-center items-center cursor-pointer hover:bg-gray-200 transition-colors shadow-sm" onClick={() => signIn('google')}>
-               <User size={20} className="text-gray-500" />
+            <div className="w-11 h-11 bg-accent/20 rounded-full border border-accent/30 flex justify-center items-center cursor-pointer hover:bg-accent/30 transition-colors shadow-sm" onClick={() => signIn('google')}>
+               <User size={20} className="text-primary" />
             </div>
           )}
           <div className="flex flex-col">
@@ -66,9 +66,9 @@ export default function Navbar() {
             )}
           </div>
         </div>
-        <button className="w-10 h-10 border border-border bg-white rounded-full flex items-center justify-center hover:bg-gray-50 relative shadow-soft">
+        <button className="w-10 h-10 border border-accent/30 bg-accent/20 rounded-full flex items-center justify-center hover:bg-accent/30 relative shadow-soft transition-colors">
           <Bell size={18} className="text-primary" />
-          <div className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border border-white"></div>
+          <div className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full"></div>
         </button>
       </div>
 
