@@ -843,8 +843,8 @@ export default function Home() {
             <h2 className="text-[20px] font-bold text-primary">Categories</h2>
             <span className="text-sm font-semibold text-text-secondary">See more</span>
           </div>
-          <div className="flex justify-center w-full">
-            <div className="bg-[#cce823] rounded-[32px] p-1.5 shadow-[0_4px_20px_rgba(204,232,35,0.3)] inline-block max-w-full">
+          <div className="flex justify-center w-full overflow-hidden">
+            <div className="bg-[#cce823] rounded-[32px] p-1.5 shadow-[0_4px_20px_rgba(204,232,35,0.3)] w-fit max-w-full mx-auto">
               <div className="flex items-center overflow-x-auto no-scrollbar hide-scroll" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
               {currentCategories.map((c) => {
                 const Icon = c.icon;
