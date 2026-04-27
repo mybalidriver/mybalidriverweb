@@ -92,6 +92,8 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
       if (formData.dropoffLocation.url) messageDetails += `\n*DESTINATION MAPS:* ${formData.dropoffLocation.url}`;
     }
 
+    let total = 0;
+    
     // Calculate Total correctly
     if (serviceData?.price) {
       let pax = parseInt(formData.guests) || 1;
@@ -110,7 +112,7 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
          if (applicableTier) basePrice = Number(applicableTier.price);
       }
       
-      let total = basePrice;
+      total = basePrice;
       if (serviceData.type === 'scooter') {
          total = basePrice * (parseInt(formData.duration) || 1);
       } else if (["tour", "spa", "transport"].includes(serviceData?.type)) {
