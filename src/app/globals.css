@@ -66,4 +66,31 @@ body {
   color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Prevent Google Translate from pushing the body down */
+  top: 0 !important;
+}
+
+/* Hide Google Translate UI elements */
+.goog-te-banner-frame {
+  display: none !important;
+}
+.goog-te-combo {
+  display: none !important;
+}
+#google_translate_element {
+  display: none !important;
+}
+.skiptranslate {
+  display: none !important;
+}
+.goog-tooltip {
+    display: none !important;
+}
+.goog-tooltip:hover {
+    display: none !important;
+}
+.goog-text-highlight {
+    background-color: transparent !important;
+    border: none !important; 
+    box-shadow: none !important;
 }
