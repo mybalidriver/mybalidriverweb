@@ -101,11 +101,10 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
       
       // Handle All Inclusive Surcharge if selected
       if (localPackage === 'All Inclusive') {
+         basePrice = Number(serviceData.allInclusiveSurcharge) || basePrice;
          if (serviceData.allInclusiveTiers && serviceData.allInclusiveTiers.length > 0) {
             let applicableTier = [...serviceData.allInclusiveTiers].reverse().find(t => pax >= t.minPax);
             if (applicableTier) basePrice = Number(applicableTier.price);
-         } else if (serviceData.allInclusiveSurcharge) {
-            basePrice = Number(serviceData.allInclusiveSurcharge);
          }
       } else if (serviceData.tourTiers && serviceData.tourTiers.length > 0) {
          let applicableTier = [...serviceData.tourTiers].reverse().find(t => pax >= t.minPax);
@@ -382,11 +381,10 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
                     
                     // Handle All Inclusive Surcharge if selected
                     if (localPackage === 'All Inclusive') {
+                       basePrice = Number(serviceData.allInclusiveSurcharge) || basePrice;
                        if (serviceData.allInclusiveTiers && serviceData.allInclusiveTiers.length > 0) {
                           let applicableTier = [...serviceData.allInclusiveTiers].reverse().find(t => pax >= t.minPax);
                           if (applicableTier) basePrice = Number(applicableTier.price);
-                       } else if (serviceData.allInclusiveSurcharge) {
-                          basePrice = Number(serviceData.allInclusiveSurcharge);
                        }
                     } else if (serviceData.tourTiers && serviceData.tourTiers.length > 0) {
                        let applicableTier = [...serviceData.tourTiers].reverse().find(t => pax >= t.minPax);
