@@ -121,7 +121,17 @@ export default function TourDetail({ params }) {
           }
           frontendObj.images = allImages;
           
+          let calculatedMinPax = 1;
+          if (frontendObj.pricingType === "Per Person" && frontendObj.tourTiers && frontendObj.tourTiers.length > 0) {
+             const validTiers = frontendObj.tourTiers.filter(t => t.price && Number(t.price) > 0);
+             if (validTiers.length > 0) {
+                calculatedMinPax = Math.min(...validTiers.map(t => Number(t.pax)));
+             }
+          }
+          frontendObj.minPax = calculatedMinPax;
+          
           setTourData(frontendObj);
+          setDesktopPax(calculatedMinPax);
        }
     };
     fetchDetail();
@@ -494,7 +504,7 @@ export default function TourDetail({ params }) {
                <div className="flex items-center justify-between mb-6 bg-[#F4F4F6] p-3 rounded-2xl">
                  <span className="font-bold text-text-secondary text-[14px] ml-1">{tourData.service === "Scooter" ? "Quantity" : "Number of persons"}</span>
                  <div className="flex items-center gap-3">
-                   <button onClick={() => setDesktopPax(Math.max(1, desktopPax - 1))} className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-primary shadow-sm hover:bg-gray-50 active:scale-95 transition-all"><Minus size={16} strokeWidth={3} /></button>
+                   <button onClick={() => setDesktopPax(Math.max(tourData.minPax || 1, desktopPax - 1))} className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-primary shadow-sm hover:bg-gray-50 active:scale-95 transition-all"><Minus size={16} strokeWidth={3} /></button>
                    <span className="font-extrabold text-primary text-[15px] w-4 text-center">{desktopPax}</span>
                    <button onClick={() => setDesktopPax(desktopPax + 1)} className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-primary shadow-sm hover:bg-gray-50 active:scale-95 transition-all"><Plus size={16} strokeWidth={3} /></button>
                  </div>
@@ -623,7 +633,8 @@ export default function TourDetail({ params }) {
             selectedPackage: (tourData.hasAllInclusive || tourData.allInclusiveSurcharge) ? selectedPackage : null,
             allInclusiveSurcharge: tourData.allInclusiveSurcharge,
             hasAllInclusive: tourData.hasAllInclusive,
-            allInclusiveTiers: tourData.allInclusiveTiers
+            allInclusiveTiers: tourData.allInclusiveTiers,
+            minPax: tourData.minPax || 1
          }} 
         initialPax={desktopPax}
         initialDate={desktopDate}

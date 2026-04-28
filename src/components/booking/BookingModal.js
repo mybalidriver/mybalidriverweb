@@ -30,9 +30,10 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
   useEffect(() => {
     if (isOpen) {
       setStep(startStep);
+      const minP = serviceData?.minPax || 1;
       setFormData(prev => ({ 
         ...prev, 
-        guests: String(initialPax),
+        guests: String(Math.max(minP, initialPax)),
         date: initialDate || prev.date
       }));
       setLocalPackage(serviceData?.selectedPackage || "Standard");
@@ -62,8 +63,10 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
   };
 
   const handleGuestsChange = (newGuests) => {
-    setFormData(prev => ({ ...prev, guests: String(newGuests) }));
-    if (onPaxChange) onPaxChange(newGuests);
+    const minP = serviceData?.minPax || 1;
+    const finalGuests = Math.max(minP, newGuests);
+    setFormData(prev => ({ ...prev, guests: String(finalGuests) }));
+    if (onPaxChange) onPaxChange(finalGuests);
   };
 
   const handleCheckout = async (e) => {
@@ -289,7 +292,7 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
                      <div className="flex items-center gap-4 mr-1">
                        <button 
                          type="button"
-                         onClick={() => handleGuestsChange(Math.max(1, parseInt(formData.guests || 1) - 1))} 
+                         onClick={() => handleGuestsChange(parseInt(formData.guests || 1) - 1)} 
                          className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-primary shadow-sm hover:bg-gray-50 active:scale-95 transition-all"
                        >
                          <Minus size={16} strokeWidth={3} />
