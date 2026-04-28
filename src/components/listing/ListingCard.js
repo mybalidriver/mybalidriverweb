@@ -13,7 +13,7 @@ export default function ListingCard({ item, linkTo }) {
       const validTiers = item.tourTiers.filter(t => t.price && Number(t.price) > 0);
       if (validTiers.length > 0) {
           validTiers.sort((a, b) => Number(a.pax) - Number(b.pax));
-          basePriceToUse = validTiers[0].price;
+          basePriceToUse = Number(validTiers[0].price) / Number(validTiers[0].pax);
       }
   }
 
