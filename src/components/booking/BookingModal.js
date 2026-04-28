@@ -95,20 +95,25 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
     let total = 0;
     
     // Calculate Total correctly
-    if (serviceData?.price) {
+      const getMultiplierPrice = (rawPrice) => {
+        const p = Number(rawPrice);
+        if (!p) return 0;
+        return Math.floor(p > 1000 ? p : p * 1000);
+      };
+
       let pax = parseInt(formData.guests) || 1;
-      let basePrice = Number(serviceData.price) || 0;
+      let basePrice = getMultiplierPrice(serviceData.price);
       
       // Handle All Inclusive Surcharge if selected
       if (localPackage === 'All Inclusive') {
-         basePrice = Number(serviceData.allInclusiveSurcharge) || basePrice;
+         basePrice = getMultiplierPrice(serviceData.allInclusiveSurcharge) || basePrice;
          if (serviceData.allInclusiveTiers && serviceData.allInclusiveTiers.length > 0) {
-            let applicableTier = [...serviceData.allInclusiveTiers].reverse().find(t => pax >= t.minPax);
-            if (applicableTier) basePrice = Number(applicableTier.price);
+            let applicableTier = serviceData.allInclusiveTiers.find(t => Number(t.pax) === pax);
+            if (applicableTier) basePrice = getMultiplierPrice(applicableTier.price);
          }
       } else if (serviceData.tourTiers && serviceData.tourTiers.length > 0) {
-         let applicableTier = [...serviceData.tourTiers].reverse().find(t => pax >= t.minPax);
-         if (applicableTier) basePrice = Number(applicableTier.price);
+         let applicableTier = serviceData.tourTiers.find(t => Number(t.pax) === pax);
+         if (applicableTier) basePrice = getMultiplierPrice(applicableTier.price);
       }
       
       if (serviceData.type === 'scooter') {
@@ -241,11 +246,16 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
                             <span className="font-bold text-primary text-[14px]">All-Inclusive Experience</span>
                             <span className="text-[11px] font-extrabold text-[#1C1C1E] bg-[#cce823] px-2 py-0.5 rounded-md shadow-sm">
                               {(() => {
+                                const getMultiplierPrice = (rawPrice) => {
+                                  const p = Number(rawPrice);
+                                  if (!p) return 0;
+                                  return Math.floor(p > 1000 ? p : p * 1000);
+                                };
                                 let pax = parseInt(formData.guests) || 1;
-                                let price = Number(serviceData.allInclusiveSurcharge) || 0;
+                                let price = getMultiplierPrice(serviceData.allInclusiveSurcharge);
                                 if (serviceData.allInclusiveTiers && serviceData.allInclusiveTiers.length > 0) {
-                                  let applicableTier = [...serviceData.allInclusiveTiers].reverse().find(t => pax >= t.minPax);
-                                  if (applicableTier) price = Number(applicableTier.price);
+                                  let applicableTier = serviceData.allInclusiveTiers.find(t => Number(t.pax) === pax);
+                                  if (applicableTier) price = getMultiplierPrice(applicableTier.price);
                                 }
                                 return `Rp ${price.toLocaleString('id-ID')}/pax`;
                               })()}
@@ -376,19 +386,24 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
                <span className="text-[14px] font-bold text-gray-500">Expected Total</span>
                <span className="text-[22px] font-extrabold text-primary">
                  {(() => {
+                    const getMultiplierPrice = (rawPrice) => {
+                      const p = Number(rawPrice);
+                      if (!p) return 0;
+                      return Math.floor(p > 1000 ? p : p * 1000);
+                    };
                     let pax = parseInt(formData.guests) || 1;
-                    let basePrice = Number(serviceData.price) || 0;
+                    let basePrice = getMultiplierPrice(serviceData.price);
                     
                     // Handle All Inclusive Surcharge if selected
                     if (localPackage === 'All Inclusive') {
-                       basePrice = Number(serviceData.allInclusiveSurcharge) || basePrice;
+                       basePrice = getMultiplierPrice(serviceData.allInclusiveSurcharge) || basePrice;
                        if (serviceData.allInclusiveTiers && serviceData.allInclusiveTiers.length > 0) {
-                          let applicableTier = [...serviceData.allInclusiveTiers].reverse().find(t => pax >= t.minPax);
-                          if (applicableTier) basePrice = Number(applicableTier.price);
+                          let applicableTier = serviceData.allInclusiveTiers.find(t => Number(t.pax) === pax);
+                          if (applicableTier) basePrice = getMultiplierPrice(applicableTier.price);
                        }
                     } else if (serviceData.tourTiers && serviceData.tourTiers.length > 0) {
-                       let applicableTier = [...serviceData.tourTiers].reverse().find(t => pax >= t.minPax);
-                       if (applicableTier) basePrice = Number(applicableTier.price);
+                       let applicableTier = serviceData.tourTiers.find(t => Number(t.pax) === pax);
+                       if (applicableTier) basePrice = getMultiplierPrice(applicableTier.price);
                     }
                     
                     if (serviceData.type === 'scooter') {
