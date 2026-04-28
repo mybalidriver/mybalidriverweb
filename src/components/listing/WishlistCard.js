@@ -3,8 +3,17 @@ import { Heart, Star, MapPin, Bookmark } from "lucide-react";
 import Link from "next/link";
 
 export default function WishlistCard({ item, linkTo }) {
-  const isIdr = item.price >= 1000;
-  const formattedPrice = isIdr ? `IDR ${(item.price).toLocaleString('id-ID')}` : `$${item.price}`;
+  let basePriceToUse = item.price;
+  if (!basePriceToUse && item.tourTiers && item.tourTiers.length > 0) {
+      const validTiers = item.tourTiers.filter(t => t.price && Number(t.price) > 0);
+      if (validTiers.length > 0) {
+          validTiers.sort((a, b) => Number(a.pax) - Number(b.pax));
+          basePriceToUse = validTiers[0].price;
+      }
+  }
+
+  const isIdr = basePriceToUse >= 1000;
+  const formattedPrice = isIdr ? `IDR ${Number(basePriceToUse).toLocaleString('id-ID')}` : `$${basePriceToUse}`;
 
   return (
     <Link href={linkTo} className="relative flex flex-col w-full aspect-[4/5] sm:aspect-square overflow-hidden rounded-[32px] group block w-full outline-none transform transition-transform duration-300 hover:scale-[1.02] shadow-[0_8px_30px_rgb(0,0,0,0.06)] active:scale-[0.98]">

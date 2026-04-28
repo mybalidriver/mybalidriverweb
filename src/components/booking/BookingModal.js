@@ -394,7 +394,7 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
 
         {/* Footer / Actions */}
         <div className="p-6 border-t border-gray-100 shrink-0 bg-white rounded-b-[32px] mt-auto">
-           {serviceData?.price && (
+           {serviceData && (
              <div className="flex justify-between items-center mb-4 px-1">
                <span className="text-[14px] font-bold text-gray-500">Expected Total</span>
                <span className="text-[22px] font-extrabold text-primary">

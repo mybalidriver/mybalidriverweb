@@ -7,7 +7,17 @@ export default function ListingCard({ item, linkTo }) {
     const p = Number(rawPrice);
     return Math.floor(p > 1000 ? p : p * 1000);
   };
-  const formattedPrice = `IDR ${getFormattedPrice(item.price).toLocaleString('id-ID')}`;
+
+  let basePriceToUse = item.price;
+  if (!basePriceToUse && item.tourTiers && item.tourTiers.length > 0) {
+      const validTiers = item.tourTiers.filter(t => t.price && Number(t.price) > 0);
+      if (validTiers.length > 0) {
+          validTiers.sort((a, b) => Number(a.pax) - Number(b.pax));
+          basePriceToUse = validTiers[0].price;
+      }
+  }
+
+  const formattedPrice = `IDR ${getFormattedPrice(basePriceToUse).toLocaleString('id-ID')}`;
 
   if (item.service === "Spa") {
     // Determine the prices to show
