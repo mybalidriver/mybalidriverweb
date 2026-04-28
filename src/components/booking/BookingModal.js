@@ -108,11 +108,13 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
       if (localPackage === 'All Inclusive') {
          basePrice = getMultiplierPrice(serviceData.allInclusiveSurcharge) || basePrice;
          if (serviceData.allInclusiveTiers && serviceData.allInclusiveTiers.length > 0) {
-            let applicableTier = serviceData.allInclusiveTiers.find(t => Number(t.pax) === pax);
+            let sortedTiers = [...serviceData.allInclusiveTiers].sort((a, b) => Number(b.pax) - Number(a.pax));
+            let applicableTier = sortedTiers.find(t => pax >= Number(t.pax));
             if (applicableTier) basePrice = getMultiplierPrice(applicableTier.price);
          }
       } else if (serviceData.tourTiers && serviceData.tourTiers.length > 0) {
-         let applicableTier = serviceData.tourTiers.find(t => Number(t.pax) === pax);
+         let sortedTiers = [...serviceData.tourTiers].sort((a, b) => Number(b.pax) - Number(a.pax));
+         let applicableTier = sortedTiers.find(t => pax >= Number(t.pax));
          if (applicableTier) basePrice = getMultiplierPrice(applicableTier.price);
       }
       
@@ -254,7 +256,8 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
                                 let pax = parseInt(formData.guests) || 1;
                                 let price = getMultiplierPrice(serviceData.allInclusiveSurcharge);
                                 if (serviceData.allInclusiveTiers && serviceData.allInclusiveTiers.length > 0) {
-                                  let applicableTier = serviceData.allInclusiveTiers.find(t => Number(t.pax) === pax);
+                                  let sortedTiers = [...serviceData.allInclusiveTiers].sort((a, b) => Number(b.pax) - Number(a.pax));
+                                  let applicableTier = sortedTiers.find(t => pax >= Number(t.pax));
                                   if (applicableTier) price = getMultiplierPrice(applicableTier.price);
                                 }
                                 return `Rp ${price.toLocaleString('id-ID')}/pax`;
@@ -398,11 +401,13 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
                     if (localPackage === 'All Inclusive') {
                        basePrice = getMultiplierPrice(serviceData.allInclusiveSurcharge) || basePrice;
                        if (serviceData.allInclusiveTiers && serviceData.allInclusiveTiers.length > 0) {
-                          let applicableTier = serviceData.allInclusiveTiers.find(t => Number(t.pax) === pax);
+                          let sortedTiers = [...serviceData.allInclusiveTiers].sort((a, b) => Number(b.pax) - Number(a.pax));
+                          let applicableTier = sortedTiers.find(t => pax >= Number(t.pax));
                           if (applicableTier) basePrice = getMultiplierPrice(applicableTier.price);
                        }
                     } else if (serviceData.tourTiers && serviceData.tourTiers.length > 0) {
-                       let applicableTier = serviceData.tourTiers.find(t => Number(t.pax) === pax);
+                       let sortedTiers = [...serviceData.tourTiers].sort((a, b) => Number(b.pax) - Number(a.pax));
+                       let applicableTier = sortedTiers.find(t => pax >= Number(t.pax));
                        if (applicableTier) basePrice = getMultiplierPrice(applicableTier.price);
                     }
                     

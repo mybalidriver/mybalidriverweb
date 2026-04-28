@@ -40,7 +40,8 @@ export default function TourDetail({ params }) {
     
     let basePrice = getMultiplierPrice(tourData.price);
     if (tourData.pricingType === "Per Person" && tourData.tourTiers) {
-       const tier = tourData.tourTiers.find(t => Number(t.pax) === desktopPax);
+       const sortedTiers = [...tourData.tourTiers].sort((a, b) => Number(b.pax) - Number(a.pax));
+       const tier = sortedTiers.find(t => desktopPax >= Number(t.pax));
        if (tier) basePrice = getMultiplierPrice(tier.price);
     }
     return basePrice;
@@ -50,7 +51,8 @@ export default function TourDetail({ params }) {
       if (!tourData) return 0;
       let aiPrice = getMultiplierPrice(tourData.allInclusiveSurcharge);
       if (tourData.allInclusiveTiers && tourData.allInclusiveTiers.length > 0) {
-          const aiTier = tourData.allInclusiveTiers.find(t => Number(t.pax) === pax);
+          const sortedTiers = [...tourData.allInclusiveTiers].sort((a, b) => Number(b.pax) - Number(a.pax));
+          const aiTier = sortedTiers.find(t => pax >= Number(t.pax));
           if (aiTier) aiPrice = getMultiplierPrice(aiTier.price);
       }
       return aiPrice;
