@@ -112,11 +112,12 @@ export default function TourDetail({ params }) {
              "https://images.unsplash.com/photo-1610486829777-66a96e949cb3?auto=format&fit=crop&w=800&q=80"  // Gates of Heaven
           ];
 
-          frontendObj.images = [
-             coverImg, 
-             ...validGallery, 
-             ...fallbackGallery
-          ].slice(0, 5); // Take max 5 for grid stability
+          let allImages = [coverImg, ...validGallery];
+          if (allImages.length < 5) {
+             const needed = 5 - allImages.length;
+             allImages = [...allImages, ...fallbackGallery.slice(0, needed)];
+          }
+          frontendObj.images = allImages;
           
           setTourData(frontendObj);
        }
@@ -185,17 +186,25 @@ export default function TourDetail({ params }) {
         </div>
 
         {/* Gallery Grid */}
-        <div className="grid grid-cols-4 grid-rows-2 gap-2 h-[55vh] min-h-[450px] max-h-[550px] w-full rounded-[32px] overflow-hidden relative">
-          <div className="col-span-2 row-span-2 relative group overflow-hidden cursor-pointer">
-            <img src={tourData.images[0]} alt="Hero Main" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-            <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors"></div>
-          </div>
-          {tourData.images.slice(1, 5).map((img, idx) => (
-            <div key={idx} className="relative group overflow-hidden cursor-pointer">
-               <img src={img} alt={`Gallery ${idx + 1}`} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-95 group-hover:opacity-100" />
-               <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors"></div>
+        <div className="h-[55vh] min-h-[450px] max-h-[550px] w-full rounded-[32px] overflow-hidden relative">
+          <div 
+             className="grid grid-rows-2 gap-2 h-full w-full overflow-x-auto no-scrollbar"
+             style={{ 
+               gridAutoFlow: 'column', 
+               gridAutoColumns: tourData.images.length > 5 ? 'calc(23% - 6px)' : 'calc(25% - 6px)' 
+             }}
+          >
+            <div className="col-span-2 row-span-2 relative group overflow-hidden cursor-pointer">
+              <img src={tourData.images[0]} alt="Hero Main" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors"></div>
             </div>
-          ))}
+            {tourData.images.slice(1).map((img, idx) => (
+              <div key={idx} className="relative group overflow-hidden cursor-pointer">
+                 <img src={img} alt={`Gallery ${idx + 1}`} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-95 group-hover:opacity-100" />
+                 <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors"></div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
