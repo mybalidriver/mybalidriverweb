@@ -129,8 +129,18 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
       if (serviceData.type === 'scooter') {
          total = basePrice * (parseInt(formData.duration) || 1);
       } else if (["tour", "spa", "transport", "activities"].includes(serviceData?.type?.toLowerCase())) {
-         let isGroupPricing = serviceData?.pricingType === "Per Group" && localPackage !== 'All Inclusive';
-         total = basePrice * (isGroupPricing ? 1 : pax);
+         if (localPackage === 'All Inclusive') {
+             if (serviceData.allInclusiveTiers && serviceData.allInclusiveTiers.length > 0) {
+                 total = basePrice;
+             } else {
+                 total = basePrice * pax;
+             }
+         } else if (serviceData?.tourTiers && serviceData.tourTiers.length > 0) {
+             total = basePrice;
+         } else {
+             let isGroupPricing = serviceData?.pricingType === "Per Group";
+             total = basePrice * (isGroupPricing ? 1 : pax);
+         }
       } else {
          total = basePrice;
       }
@@ -270,7 +280,7 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
                                   let applicableTier = sortedTiers.find(t => pax >= Number(t.pax));
                                   if (applicableTier) price = getMultiplierPrice(applicableTier.price);
                                 }
-                                return `Rp ${price.toLocaleString('id-ID')}/pax`;
+                                return `Rp ${price.toLocaleString('id-ID')}${(serviceData.allInclusiveTiers && serviceData.allInclusiveTiers.length > 0) ? '' : '/pax'}`;
                               })()}
                             </span>
                          </div>
@@ -424,8 +434,18 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
                     if (serviceData.type === 'scooter') {
                        return formatIDR(basePrice * (parseInt(formData.duration) || 1));
                     } else if (["tour", "spa", "transport", "activities"].includes(serviceData?.type?.toLowerCase())) {
-                       let isGroupPricing = serviceData?.pricingType === "Per Group" && localPackage !== 'All Inclusive';
-                       return formatIDR(basePrice * (isGroupPricing ? 1 : pax));
+                       if (localPackage === 'All Inclusive') {
+                          if (serviceData.allInclusiveTiers && serviceData.allInclusiveTiers.length > 0) {
+                             return formatIDR(basePrice);
+                          } else {
+                             return formatIDR(basePrice * pax);
+                          }
+                       } else if (serviceData?.tourTiers && serviceData.tourTiers.length > 0) {
+                          return formatIDR(basePrice);
+                       } else {
+                          let isGroupPricing = serviceData?.pricingType === "Per Group";
+                          return formatIDR(basePrice * (isGroupPricing ? 1 : pax));
+                       }
                     }
                     return formatIDR(basePrice);
                  })()}

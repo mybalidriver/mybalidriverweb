@@ -67,16 +67,19 @@ export default function TourDetail({ params }) {
         let baseUnit = getUnitDynamicPrice();
         if (selectedPackage === "All Inclusive" && (tourData.hasAllInclusive || tourData.allInclusiveSurcharge)) {
            baseUnit = getAllInclusivePriceForPax(desktopPax);
-        }
-
-        if (tourData.pricingType === "Per Group") {
-           if (selectedPackage === "All Inclusive" && (tourData.hasAllInclusive || tourData.allInclusiveSurcharge)) {
-              total = baseUnit * desktopPax; // All Inclusive is always per person
+           if (tourData.allInclusiveTiers && tourData.allInclusiveTiers.length > 0) {
+              total = baseUnit; // Tiers are total prices
            } else {
-              total = baseUnit;
+              total = baseUnit * desktopPax; // Fallback to multiplying surcharge
            }
         } else {
-           total = baseUnit * desktopPax;
+           if (tourData.pricingType === "Per Group") {
+              total = baseUnit;
+           } else if (tourData.tourTiers && tourData.tourTiers.length > 0) {
+              total = baseUnit; // Tiers are total prices
+           } else {
+              total = baseUnit * desktopPax;
+           }
         }
      }
      return total;
@@ -410,7 +413,7 @@ export default function TourDetail({ params }) {
             <div className={`sticky top-[120px] rounded-2xl p-6 shadow-lg z-10 w-full ${tourData.service === "Spa" ? "bg-white border border-[#f0ede6]" : "bg-white border border-gray-200"}`}>
                <div className="mb-4 flex items-end gap-1">
                   <span className={`text-[34px] font-extrabold leading-none ${tourData.service === "Spa" ? "text-[#3d3730] font-serif tracking-tight" : "text-primary"}`}>IDR {getUnitDynamicPrice().toLocaleString('id-ID')}</span>
-                  <span className="text-text-secondary text-[15px] font-medium pb-1">/ {tourData.service === "Spa" ? "treatment" : tourData.service === "Scooter" ? scooterDuration.replace('daily', 'day').replace('weekly', 'week').replace('monthly', 'month') : tourData.pricingType === "Per Group" ? "group" : "person"}</span>
+                  <span className="text-text-secondary text-[15px] font-medium pb-1">/ {tourData.service === "Spa" ? "treatment" : tourData.service === "Scooter" ? scooterDuration.replace('daily', 'day').replace('weekly', 'week').replace('monthly', 'month') : tourData.pricingType === "Per Group" ? "group" : (tourData.tourTiers && tourData.tourTiers.length > 0 ? "total" : "person")}</span>
                </div>
                
                <p className="text-sm text-text-secondary font-medium mb-6">Reserve now and pay later to book your spot and pay nothing today.</p>
