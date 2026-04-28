@@ -612,7 +612,7 @@ export default function TourDetail({ params }) {
         isOpen={isBookingModalOpen} 
         onClose={() => setIsBookingModalOpen(false)}
         serviceData={{ 
-            type: 'tour', 
+            type: tourData.service?.toLowerCase() || 'tour', 
             id: tourData.id, 
             title: tourData.title, // Base title, modal handles inclusive title
             baseTitle: tourData.title,
@@ -629,6 +629,8 @@ export default function TourDetail({ params }) {
         initialDate={desktopDate}
         startStep={modalStartStep}
         onPackageChange={setSelectedPackage}
+        onPaxChange={setDesktopPax}
+        onDateChange={setDesktopDate}
       />
 
     </div>

@@ -9,7 +9,7 @@ import { supabase } from "@/lib/supabase";
 
 const formatIDR = (num) => `IDR ${Number(num).toLocaleString('id-ID')}`;
 
-export default function BookingModal({ isOpen, onClose, serviceData, initialPax = 1, initialDate = "", startStep = 1, onPackageChange }) {
+export default function BookingModal({ isOpen, onClose, serviceData, initialPax = 1, initialDate = "", startStep = 1, onPackageChange, onPaxChange, onDateChange }) {
   const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "AIzaSyBvRg3xJ6dSPKSOwTRSmGUmaEfYRQ5WRCQ";
   const [mounted, setMounted] = useState(false);
   const [step, setStep] = useState(1);
@@ -59,6 +59,11 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleGuestsChange = (newGuests) => {
+    setFormData(prev => ({ ...prev, guests: String(newGuests) }));
+    if (onPaxChange) onPaxChange(newGuests);
   };
 
   const handleCheckout = async (e) => {
@@ -128,7 +133,6 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
       }
       
       messageDetails += `\n${divider}\n*TOTAL ESTIMATE:* ${formatIDR(total)}`;
-    }
 
     const waUrl = `https://wa.me/6285174119423?text=${encodeURIComponent(messageDetails)}`;
     
@@ -210,7 +214,10 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
               <>
                 <div className="flex flex-col gap-5">
                   <div className="w-full flex-shrink-0">
-                     <WeeklyCalendar value={formData.date} onChange={(dateStr) => handleInputChange({ target: { name: 'date', value: dateStr }})} />
+                     <WeeklyCalendar value={formData.date} onChange={(dateStr) => {
+                       handleInputChange({ target: { name: 'date', value: dateStr }});
+                       if (onDateChange) onDateChange(dateStr);
+                     }} />
                   </div>
 
                   {/* Time (for Spa, Transport) */}
@@ -282,7 +289,7 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
                      <div className="flex items-center gap-4 mr-1">
                        <button 
                          type="button"
-                         onClick={() => setFormData(p => ({...p, guests: String(Math.max(1, parseInt(p.guests || 1) - 1))}))} 
+                         onClick={() => handleGuestsChange(Math.max(1, parseInt(formData.guests || 1) - 1))} 
                          className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-primary shadow-sm hover:bg-gray-50 active:scale-95 transition-all"
                        >
                          <Minus size={16} strokeWidth={3} />
@@ -290,7 +297,7 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
                        <span className="font-extrabold text-primary text-[16px] w-4 text-center">{formData.guests}</span>
                        <button 
                          type="button"
-                         onClick={() => setFormData(p => ({...p, guests: String(parseInt(p.guests || 1) + 1)}))} 
+                         onClick={() => handleGuestsChange(parseInt(formData.guests || 1) + 1)} 
                          className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-primary shadow-sm hover:bg-gray-50 active:scale-95 transition-all"
                        >
                          <Plus size={16} strokeWidth={3} />
