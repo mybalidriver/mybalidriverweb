@@ -6,6 +6,7 @@ import WeeklyCalendar from "./WeeklyCalendar";
 import LocationAutocomplete from "./LocationAutocomplete";
 import { APIProvider } from "@vis.gl/react-google-maps";
 import { supabase } from "@/lib/supabase";
+import { useSession } from "next-auth/react";
 
 const formatIDR = (num) => `IDR ${Number(num).toLocaleString('id-ID')}`;
 
@@ -14,6 +15,7 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
   const [mounted, setMounted] = useState(false);
   const [step, setStep] = useState(1);
   const [localPackage, setLocalPackage] = useState("Standard");
+  const { data: session } = useSession();
   
   // Form State
   const [formData, setFormData] = useState({
@@ -165,7 +167,8 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
         time: formData.time,
         duration: formData.duration,
         pickup_location: formData.pickupLocation.name,
-        dropoff_location: formData.dropoffLocation.name
+        dropoff_location: formData.dropoffLocation.name,
+        customer_email: session?.user?.email || null
       }
     }).then(({ error }) => {
       if (error) console.error("Failed to save booking to Supabase:", error);

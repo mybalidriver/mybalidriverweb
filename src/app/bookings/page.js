@@ -29,14 +29,10 @@ export default function BookingsPage() {
   const fetchBookings = async (email) => {
     setLoadingBookings(true);
     try {
-      // NOTE: currently bookings in Supabase might not have an email column.
-      // If customer_email or contact_info contains the email, we search by that.
-      // Since contact_info usually stores the phone number, this might return empty unless the schema tracks emails.
-      // We are fetching based on contact_info matching email just in case, or assuming no bookings exist yet.
       const { data, error } = await supabase
         .from('bookings')
         .select('*')
-        .eq('contact_info', email) // fallback logic for NextAuth emails
+        .eq('details->>customer_email', email) // search the JSONB details column for the email
         .order('created_at', { ascending: false });
 
       if (error) throw error;
