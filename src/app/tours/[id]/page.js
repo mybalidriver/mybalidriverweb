@@ -146,7 +146,7 @@ export default function TourDetail({ params }) {
               const { data: savedItem } = await supabase
                 .from('bookings')
                 .select('id')
-                .eq('category', 'Wishlist')
+                .eq('details->>isWishlist', 'true')
                 .eq('details->>customer_email', session.user.email)
                 .eq('details->item->>id', resolvedParams.id)
                 .single();
@@ -187,7 +187,7 @@ export default function TourDetail({ params }) {
         await supabase
           .from('bookings')
           .delete()
-          .eq('category', 'Wishlist')
+          .eq('details->>isWishlist', 'true')
           .eq('details->>customer_email', session.user.email)
           .eq('details->item->>id', tourData.id);
         setIsSaved(false);
@@ -199,10 +199,10 @@ export default function TourDetail({ params }) {
           contact_info: session.user.email,
           service_name: tourData.title,
           booking_date: new Date().toISOString().split('T')[0],
-          amount: tourData.price,
-          status: 'Saved',
-          category: 'Wishlist',
-          details: { customer_email: session.user.email, item: tourData, image: tourData.images[0] }
+          amount: "0",
+          status: 'Pending',
+          category: tourData.category || 'Tour',
+          details: { customer_email: session.user.email, item: tourData, image: tourData.images[0], isWishlist: true }
         });
         setIsSaved(true);
       }

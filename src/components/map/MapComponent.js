@@ -173,70 +173,76 @@ function MapInterface() {
                  image: t.image || 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=400&q=80'
               };
            });
-           setDbTours(mappedTours);
 
-           // Automatic Pin Detection Logic
-           if (geocodingLib) {
-             const geocoder = new geocodingLib.Geocoder();
-             const regionMap = new Map();
+           // 1. Instant local cache matching (no API required)
+           const regionMap = new Map();
+           const unknownTours = [];
 
-             for (const t of mappedTours) {
-               const locLower = t.locationRaw.toLowerCase();
-               
-               let matchedRegion = null;
-               // Match to a known general area first
-               for (const [key, coords] of Object.entries(LOCATION_CACHE)) {
-                 if (locLower.includes(key)) {
-                   matchedRegion = { id: key, name: key.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '), lat: coords.lat, lng: coords.lng };
-                   break;
-                 }
+           for (const t of mappedTours) {
+             const locLower = t.locationRaw.toLowerCase();
+             let matchedRegion = null;
+             
+             for (const [key, coords] of Object.entries(LOCATION_CACHE)) {
+               if (locLower.includes(key)) {
+                 matchedRegion = { id: key, name: key.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '), lat: coords.lat, lng: coords.lng };
+                 break;
                }
+             }
 
-               // If no match, we fallback to Geocoder, but we still group them by whatever the Geocoder returns
-               if (matchedRegion) {
-                 if (!regionMap.has(matchedRegion.id)) {
-                   regionMap.set(matchedRegion.id, matchedRegion);
-                 }
-                 t.mapRegionId = matchedRegion.id; // Assign tour to this region
-               } else {
-                 try {
-                   // Fallback: Geocode the raw location but strip it to a city/area level if possible
-                   const result = await new Promise((resolve) => {
-                     geocoder.geocode({ address: `${t.locationRaw}, Bali, Indonesia` }, (results, status) => {
-                       if (status === 'OK' && results[0]) {
-                         // Find the locality/sublocality name to use as a region
-                         let areaName = t.locationRaw;
-                         for (const comp of results[0].address_components) {
-                            if (comp.types.includes("locality") || comp.types.includes("sublocality") || comp.types.includes("administrative_area_level_3")) {
-                               areaName = comp.short_name;
-                               break;
-                            }
-                         }
-                         const areaId = areaName.toLowerCase();
-                         resolve({
-                           id: areaId,
-                           name: areaName,
-                           lat: results[0].geometry.location.lat(),
-                           lng: results[0].geometry.location.lng()
-                         });
-                       } else {
-                         resolve(null);
+             if (matchedRegion) {
+               if (!regionMap.has(matchedRegion.id)) {
+                 regionMap.set(matchedRegion.id, matchedRegion);
+               }
+               t.mapRegionId = matchedRegion.id;
+             } else {
+               unknownTours.push(t);
+             }
+           }
+           
+           // Show cached pins immediately
+           setDynamicDestinations(Array.from(regionMap.values()));
+           setDbTours([...mappedTours]);
+
+           // 2. Automatic Pin Detection Logic for unknown regions (requires API)
+           if (geocodingLib && unknownTours.length > 0) {
+             const geocoder = new geocodingLib.Geocoder();
+
+             for (const t of unknownTours) {
+               try {
+                 const result = await new Promise((resolve) => {
+                   geocoder.geocode({ address: `${t.locationRaw}, Bali, Indonesia` }, (results, status) => {
+                     if (status === 'OK' && results[0]) {
+                       let areaName = t.locationRaw;
+                       for (const comp of results[0].address_components) {
+                          if (comp.types.includes("locality") || comp.types.includes("sublocality") || comp.types.includes("administrative_area_level_3")) {
+                             areaName = comp.short_name;
+                             break;
+                          }
                        }
-                     });
-                   });
-                   if (result) {
-                     if (!regionMap.has(result.id)) {
-                       regionMap.set(result.id, result);
+                       resolve({
+                         id: areaName.toLowerCase(),
+                         name: areaName,
+                         lat: results[0].geometry.location.lat(),
+                         lng: results[0].geometry.location.lng()
+                       });
+                     } else {
+                       resolve(null);
                      }
-                     t.mapRegionId = result.id;
+                   });
+                 });
+                 
+                 if (result) {
+                   if (!regionMap.has(result.id)) {
+                     regionMap.set(result.id, result);
                    }
-                 } catch (e) {
-                   console.error("Geocoding error for", t.locationRaw, e);
+                   t.mapRegionId = result.id;
                  }
+               } catch (e) {
+                 console.error("Geocoding error for", t.locationRaw, e);
                }
              }
              setDynamicDestinations(Array.from(regionMap.values()));
-             setDbTours([...mappedTours]); // Update with mapRegionId attached
+             setDbTours([...mappedTours]); 
            }
         }
       } catch (err) {

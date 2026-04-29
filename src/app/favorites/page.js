@@ -30,7 +30,7 @@ export default function FavoritesPage() {
        const { data, error } = await supabase
          .from('bookings')
          .select('*')
-         .eq('category', 'Wishlist')
+         .eq('details->>isWishlist', 'true')
          .eq('details->>customer_email', email)
          .order('created_at', { ascending: false });
        
