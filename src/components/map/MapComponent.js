@@ -8,12 +8,22 @@ import { useRouter } from "next/navigation";
 // Formatter for IDR
 const formatIDR = (num) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
 
-const popularDestinations = [
-  { id: 'nusa-penida', name: 'Nusa Penida', lat: -8.739184, lng: 115.53112 },
-  { id: 'batur', name: 'Mount Batur', lat: -8.239045, lng: 115.377685 },
-  { id: 'ubud', name: 'Ubud', lat: -8.51909, lng: 115.26325 },
-  { id: 'uluwatu', name: 'Uluwatu', lat: -8.8267, lng: 115.0938 }
-];
+// Local cache to avoid repeated geocoding of the same regions
+const LOCATION_CACHE = {
+  'nusa penida': { lat: -8.739184, lng: 115.53112 },
+  'mount batur': { lat: -8.239045, lng: 115.377685 },
+  'kintamani': { lat: -8.239045, lng: 115.377685 },
+  'ubud': { lat: -8.51909, lng: 115.26325 },
+  'uluwatu': { lat: -8.8267, lng: 115.0938 },
+  'canggu': { lat: -8.6478, lng: 115.1385 },
+  'seminyak': { lat: -8.6913, lng: 115.1682 },
+  'kuta': { lat: -8.7233, lng: 115.1686 },
+  'sanur': { lat: -8.6793, lng: 115.2630 },
+  'nusa dua': { lat: -8.8061, lng: 115.2268 },
+  'bedugul': { lat: -8.2833, lng: 115.1667 },
+  'lovina': { lat: -8.1611, lng: 115.0256 },
+  'amed': { lat: -8.3364, lng: 115.6514 }
+};
 
 const CATEGORIES = ["Tour", "Transport", "Activities"];
 
@@ -119,6 +129,9 @@ function MapInterface() {
   const [transportsData, setTransportsData] = useState([]);
   const [dbTours, setDbTours] = useState([]);
   const [selectedTransport, setSelectedTransport] = useState(null);
+  const [dynamicDestinations, setDynamicDestinations] = useState([]);
+  
+  const geocodingLib = useMapsLibrary("geocoding");
   
   // States migrated from MapPage
   const [activeMode, setActiveMode] = useState("Tour");
@@ -151,30 +164,69 @@ function MapInterface() {
 
            // Parse Tours with Smart Logic Mapping
            const tours = data.filter(d => d.type === 'Tour' || d.type === 'Activities');
-           setDbTours(tours.map(t => {
-              const loc = (t.location || "").toLowerCase();
-              let locationId = 'ubud'; // Default fallback
-              
-              if (loc.includes('penida')) locationId = 'nusa-penida';
-              else if (loc.includes('batur') || loc.includes('kintamani')) locationId = 'batur';
-              else if (loc.includes('uluwatu') || loc.includes('jimbaran') || loc.includes('nusa dua') || loc.includes('pecatu')) locationId = 'uluwatu';
-              else if (loc.includes('ubud') || loc.includes('gianyar') || loc.includes('tegalalang')) locationId = 'ubud';
-
+           const mappedTours = tours.map(t => {
               return {
                  id: t.id,
-                 locationId: locationId,
+                 locationRaw: t.location || "Bali",
                  price: t.price,
                  name: t.title,
                  image: t.image || 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=400&q=80'
               };
-           }));
+           });
+           setDbTours(mappedTours);
+
+           // Automatic Pin Detection Logic
+           if (geocodingLib) {
+             const uniqueLocations = Array.from(new Set(mappedTours.map(t => t.locationRaw.trim()).filter(Boolean)));
+             const geocoder = new geocodingLib.Geocoder();
+             const newDestinations = [];
+
+             for (const loc of uniqueLocations) {
+               const locLower = loc.toLowerCase();
+               
+               // Check local cache first to save API calls
+               let foundCache = null;
+               for (const [key, coords] of Object.entries(LOCATION_CACHE)) {
+                 if (locLower.includes(key)) {
+                   foundCache = { id: loc, name: loc, lat: coords.lat, lng: coords.lng };
+                   break;
+                 }
+               }
+
+               if (foundCache) {
+                 newDestinations.push(foundCache);
+               } else {
+                 // Fallback to Google Geocoder for completely unknown regions
+                 try {
+                   const result = await new Promise((resolve) => {
+                     geocoder.geocode({ address: `${loc}, Bali, Indonesia` }, (results, status) => {
+                       if (status === 'OK' && results[0]) {
+                         resolve({
+                           id: loc,
+                           name: loc,
+                           lat: results[0].geometry.location.lat(),
+                           lng: results[0].geometry.location.lng()
+                         });
+                       } else {
+                         resolve(null);
+                       }
+                     });
+                   });
+                   if (result) newDestinations.push(result);
+                 } catch (e) {
+                   console.error("Geocoding error for", loc, e);
+                 }
+               }
+             }
+             setDynamicDestinations(newDestinations);
+           }
         }
       } catch (err) {
         console.error("Failed to fetch listings", err);
       }
     };
     fetchListings();
-  }, []);
+  }, [geocodingLib]);
 
   const [pickup, setPickup] = useState("");
   const [dropoff, setDropoff] = useState("");
@@ -193,7 +245,7 @@ function MapInterface() {
   const showTours = activeMode !== "Transport";
 
   const displayedTours = selectedRegion 
-    ? dbTours.filter(t => t.locationId === selectedRegion) 
+    ? dbTours.filter(t => t.locationRaw === selectedRegion) 
     : dbTours;
 
   return (
@@ -207,7 +259,7 @@ function MapInterface() {
         onTilesLoaded={() => setMapLoaded(true)}
         style={{ width: '100%', height: '100%' }}
       >
-        {showTours && popularDestinations.map((dest) => (
+        {showTours && dynamicDestinations.map((dest) => (
           <AdvancedMarker 
             key={dest.id} 
             position={{ lat: dest.lat, lng: dest.lng }} 
