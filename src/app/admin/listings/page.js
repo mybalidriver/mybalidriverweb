@@ -381,7 +381,17 @@ export default function AdminListings() {
                                      <h4 className="font-extrabold text-[15px] sm:text-[16px] text-gray-900">{item.title}</h4>
                                      <span className="bg-gray-100 text-[10px] font-extrabold text-gray-600 px-2.5 py-1 rounded-lg uppercase tracking-wider">{item.category}</span>
                                    </div>
-                                   <div className="text-[13px] font-semibold text-gray-500">Rp {item.price} {item.duration ? `/ ${item.duration}` : ''}</div>
+                                   <div className="text-[13px] font-semibold text-gray-500">
+                                      {(() => {
+                                         let dp = item.price;
+                                         if ((!dp || Number(String(dp).replace(/[^0-9]/g, '')) === 0) && item.tourTiers && Array.isArray(item.tourTiers)) {
+                                            const vt = item.tourTiers.find(t => t.price && Number(String(t.price).replace(/[^0-9]/g, '')) > 0);
+                                            if (vt) dp = vt.price;
+                                         }
+                                         const cdp = Number(String(dp || 0).replace(/[^0-9]/g, ''));
+                                         return cdp > 1000 ? `Rp ${cdp.toLocaleString('id-ID')}` : `Rp ${(cdp * 15000).toLocaleString('id-ID')}`;
+                                      })()} {item.duration ? `/ ${item.duration}` : ''}
+                                   </div>
                                 </div>
                              </div>
                              <div className="flex flex-wrap items-center justify-between sm:justify-end gap-3 sm:gap-4 w-full sm:w-auto border-t sm:border-t-0 border-gray-50 pt-4 sm:pt-0 mt-1 sm:mt-0">
@@ -419,10 +429,11 @@ export default function AdminListings() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {currentListings.map(item => {
               let displayPrice = item.price;
-              if ((!displayPrice || displayPrice === 0) && item.tourTiers && Array.isArray(item.tourTiers)) {
-                 const validTier = item.tourTiers.find(t => t.price && t.price.toString().trim() !== "");
+              if ((!displayPrice || Number(String(displayPrice).replace(/[^0-9]/g, '')) === 0) && item.tourTiers && Array.isArray(item.tourTiers)) {
+                 const validTier = item.tourTiers.find(t => t.price && Number(String(t.price).replace(/[^0-9]/g, '')) > 0);
                  if (validTier) displayPrice = validTier.price;
               }
+              const cleanDisplayPrice = Number(String(displayPrice || 0).replace(/[^0-9]/g, ''));
               return (
             <div key={item.id} className="bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] group hover:shadow-[0_8px_40px_rgb(0,0,0,0.08)] transition-all flex flex-col">
               {/* Image Section */}
@@ -475,7 +486,7 @@ export default function AdminListings() {
                 <div className="mt-auto flex flex-col sm:flex-row items-start sm:items-end justify-between border-t border-gray-50 pt-4 gap-3 sm:gap-0">
                   <div className="w-full sm:w-auto">
                     <div className="font-black text-[18px] text-primary mb-0.5 tracking-tight">
-                       {displayPrice > 1000 ? `IDR ${Number(displayPrice).toLocaleString('id-ID')}` : `IDR ${(displayPrice * 15000).toLocaleString('id-ID')}`}
+                       {cleanDisplayPrice > 1000 ? `IDR ${cleanDisplayPrice.toLocaleString('id-ID')}` : `IDR ${(cleanDisplayPrice * 15000).toLocaleString('id-ID')}`}
                     </div>
                     <div className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">
                        / {item.pricingType === "Per Group" ? 'GROUP' : 'PERSON'}

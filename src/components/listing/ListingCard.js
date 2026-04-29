@@ -17,7 +17,7 @@ export default function ListingCard({ item, linkTo }) {
           const { data } = await supabase
             .from('bookings')
             .select('id')
-            .eq('category', 'Wishlist')
+            .eq('details->>isWishlist', 'true')
             .eq('details->>customer_email', session.user.email)
             .eq('details->item->>id', item.id)
             .single();
@@ -44,7 +44,7 @@ export default function ListingCard({ item, linkTo }) {
         await supabase
           .from('bookings')
           .delete()
-          .eq('category', 'Wishlist')
+          .eq('details->>isWishlist', 'true')
           .eq('details->>customer_email', session.user.email)
           .eq('details->item->>id', item.id);
         setIsSaved(false);
@@ -55,10 +55,10 @@ export default function ListingCard({ item, linkTo }) {
           contact_info: session.user.email,
           service_name: item.title,
           booking_date: new Date().toISOString().split('T')[0],
-          amount: item.price || 0,
-          status: 'Saved',
-          category: 'Wishlist',
-          details: { customer_email: session.user.email, item: item, image: item.image }
+          amount: "0",
+          status: 'Pending',
+          category: item.category || 'Tour',
+          details: { customer_email: session.user.email, item: item, image: item.image, isWishlist: true }
         });
         setIsSaved(true);
       }
@@ -75,15 +75,16 @@ export default function ListingCard({ item, linkTo }) {
   };
 
   let basePriceToUse = item.price;
-  if (!basePriceToUse && item.tourTiers && item.tourTiers.length > 0) {
-      const validTiers = item.tourTiers.filter(t => t.price && Number(t.price) > 0);
+  if ((!basePriceToUse || basePriceToUse == 0) && item.tourTiers && item.tourTiers.length > 0) {
+      const validTiers = item.tourTiers.filter(t => t.price && Number(String(t.price).replace(/[^0-9]/g, '')) > 0);
       if (validTiers.length > 0) {
           validTiers.sort((a, b) => Number(a.pax) - Number(b.pax));
-          basePriceToUse = Number(validTiers[0].price) / Number(validTiers[0].pax);
+          basePriceToUse = Number(String(validTiers[0].price).replace(/[^0-9]/g, '')) / Number(validTiers[0].pax);
       }
   }
 
-  const formattedPrice = `IDR ${getFormattedPrice(basePriceToUse).toLocaleString('id-ID')}`;
+  const cleanBasePrice = Number(String(basePriceToUse || 0).replace(/[^0-9]/g, ''));
+  const formattedPrice = `IDR ${getFormattedPrice(cleanBasePrice).toLocaleString('id-ID')}`;
 
   if (item.service === "Spa") {
     // Determine the prices to show

@@ -177,33 +177,45 @@ function MapInterface() {
 
            // Automatic Pin Detection Logic
            if (geocodingLib) {
-             const uniqueLocations = Array.from(new Set(mappedTours.map(t => t.locationRaw.trim()).filter(Boolean)));
              const geocoder = new geocodingLib.Geocoder();
-             const newDestinations = [];
+             const regionMap = new Map();
 
-             for (const loc of uniqueLocations) {
-               const locLower = loc.toLowerCase();
+             for (const t of mappedTours) {
+               const locLower = t.locationRaw.toLowerCase();
                
-               // Check local cache first to save API calls
-               let foundCache = null;
+               let matchedRegion = null;
+               // Match to a known general area first
                for (const [key, coords] of Object.entries(LOCATION_CACHE)) {
                  if (locLower.includes(key)) {
-                   foundCache = { id: loc, name: loc, lat: coords.lat, lng: coords.lng };
+                   matchedRegion = { id: key, name: key.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '), lat: coords.lat, lng: coords.lng };
                    break;
                  }
                }
 
-               if (foundCache) {
-                 newDestinations.push(foundCache);
+               // If no match, we fallback to Geocoder, but we still group them by whatever the Geocoder returns
+               if (matchedRegion) {
+                 if (!regionMap.has(matchedRegion.id)) {
+                   regionMap.set(matchedRegion.id, matchedRegion);
+                 }
+                 t.mapRegionId = matchedRegion.id; // Assign tour to this region
                } else {
-                 // Fallback to Google Geocoder for completely unknown regions
                  try {
+                   // Fallback: Geocode the raw location but strip it to a city/area level if possible
                    const result = await new Promise((resolve) => {
-                     geocoder.geocode({ address: `${loc}, Bali, Indonesia` }, (results, status) => {
+                     geocoder.geocode({ address: `${t.locationRaw}, Bali, Indonesia` }, (results, status) => {
                        if (status === 'OK' && results[0]) {
+                         // Find the locality/sublocality name to use as a region
+                         let areaName = t.locationRaw;
+                         for (const comp of results[0].address_components) {
+                            if (comp.types.includes("locality") || comp.types.includes("sublocality") || comp.types.includes("administrative_area_level_3")) {
+                               areaName = comp.short_name;
+                               break;
+                            }
+                         }
+                         const areaId = areaName.toLowerCase();
                          resolve({
-                           id: loc,
-                           name: loc,
+                           id: areaId,
+                           name: areaName,
                            lat: results[0].geometry.location.lat(),
                            lng: results[0].geometry.location.lng()
                          });
@@ -212,13 +224,19 @@ function MapInterface() {
                        }
                      });
                    });
-                   if (result) newDestinations.push(result);
+                   if (result) {
+                     if (!regionMap.has(result.id)) {
+                       regionMap.set(result.id, result);
+                     }
+                     t.mapRegionId = result.id;
+                   }
                  } catch (e) {
-                   console.error("Geocoding error for", loc, e);
+                   console.error("Geocoding error for", t.locationRaw, e);
                  }
                }
              }
-             setDynamicDestinations(newDestinations);
+             setDynamicDestinations(Array.from(regionMap.values()));
+             setDbTours([...mappedTours]); // Update with mapRegionId attached
            }
         }
       } catch (err) {
@@ -245,7 +263,7 @@ function MapInterface() {
   const showTours = activeMode !== "Transport";
 
   const displayedTours = selectedRegion 
-    ? dbTours.filter(t => t.locationRaw === selectedRegion) 
+    ? dbTours.filter(t => t.mapRegionId === selectedRegion) 
     : dbTours;
 
   return (
