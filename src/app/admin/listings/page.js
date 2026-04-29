@@ -45,9 +45,10 @@ export default function AdminListings() {
          if (data) {
          const grouped = { Tour: [], Activities: [], Transport: [] };
          data.forEach(d => {
+            const serviceType = d.data?.originalService || d.type;
             const frontendItem = {
                id: d.id,
-               service: d.type,
+               service: serviceType,
                title: d.title,
                location: d.location,
                price: d.price,
@@ -139,7 +140,7 @@ export default function AdminListings() {
 
     const dbPayload = {
        id: id,
-       type: service,
+       type: service === 'Activities' ? 'Tour' : service,
        title: title || "Untitled",
        location: location || "Bali",
        price: parseInt(price) || 0,
@@ -150,7 +151,10 @@ export default function AdminListings() {
        status: status,
        image: image,
        company_name: company || null,
-       data: nestedData
+       data: {
+         ...nestedData,
+         originalService: service === 'Activities' ? 'Activities' : undefined
+       }
     };
 
     const { error } = await supabase.from('listings').upsert(dbPayload);
