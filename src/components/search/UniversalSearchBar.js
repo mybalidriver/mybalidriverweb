@@ -9,8 +9,7 @@ import { Map, Bus, Sparkles, Car } from "lucide-react";
 const services = [
   { id: "tours", label: "Tours", icon: Map },
   { id: "transport", label: "Transport", icon: Bus },
-  { id: "activities", label: "Activities", icon: Sparkles },
-  { id: "carRental", label: "Car Rental", icon: Car },
+  { id: "activities", label: "Activities", icon: Sparkles }
 ];
 
 const UniversalSearchBar = () => {

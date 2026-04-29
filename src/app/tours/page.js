@@ -60,20 +60,23 @@ export default async function Tours() {
               <SidebarFilter 
                 title="Category" 
                 options={[
-                  { label: "Nature & Adventure", count: 42 },
-                  { label: "Culture & Temples", count: 28 },
-                  { label: "Island Hopping", count: 15 },
-                  { label: "Water Sports", count: 34 },
+                  { label: "Adventure", count: 24 },
+                  { label: "Water", count: 18 },
+                  { label: "Nature", count: 32 },
+                  { label: "Culture", count: 15 },
                 ]} 
               />
               
               <SidebarFilter 
                 title="Location" 
                 options={[
-                  { label: "Ubud", count: 56 },
-                  { label: "Nusa Penida", count: 23 },
-                  { label: "Uluwatu", count: 19 },
-                  { label: "Kintamani / Mount Batur", count: 12 },
+                  { label: "Ubud", count: 45 },
+                  { label: "Nusa Penida", count: 12 },
+                  { label: "Kuta", count: 18 },
+                  { label: "Seminyak", count: 14 },
+                  { label: "Canggu", count: 22 },
+                  { label: "Uluwatu", count: 15 },
+                  { label: "Bedugul", count: 8 },
                 ]} 
               />
 

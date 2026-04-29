@@ -23,7 +23,7 @@ const LOCATION_CACHE = {
   'bedugul': { lat: -8.2833, lng: 115.1667 },
   'lovina': { lat: -8.1611, lng: 115.0256 },
   'amed': { lat: -8.3364, lng: 115.6514 },
-  'ulun danu': { lat: -8.51909, lng: 115.26325 } // Mapped to Ubud per user request
+  'ulun danu': { lat: -8.2833, lng: 115.1667 } // Mapped to Bedugul per user request
 };
 
 const CATEGORIES = ["Tour", "Transport", "Activities"];

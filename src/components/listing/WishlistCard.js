@@ -62,7 +62,7 @@ export default function WishlistCard({ item, linkTo }) {
              <div className="flex items-center gap-1 bg-[#F8F9FA] px-2.5 py-1 rounded-lg border border-white">
                <Star size={11} strokeWidth={3} className="fill-[#F59E0B] text-[#F59E0B]" />
                <span className="text-[11px] font-black text-[#1C1C1E]">{item.rating || 4.8}</span>
-               <span className="text-[10px] font-bold text-gray-400">({item.reviews || 100})</span>
+               <span className="text-[10px] font-bold text-gray-400">({item.reviews || 0})</span>
              </div>
           </div>
         </div>
