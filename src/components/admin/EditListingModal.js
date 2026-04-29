@@ -188,7 +188,8 @@ export default function EditListingModal({ item, activeTab, onClose, onSave }) {
        if (tourPricingType === "Per Group") finalItem.price = groupPrice;
        else {
           finalItem.tourTiers = tourTiers;
-          finalItem.price = tourTiers[0]?.price || ""; // Fallback
+          const validTier = tourTiers.find(t => t.price && t.price.toString().trim() !== "");
+          finalItem.price = validTier ? validTier.price : ""; // Fallback to first valid tier
        }
        finalItem.hasAllInclusive = hasAllInclusive;
        if (hasAllInclusive) {

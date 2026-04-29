@@ -404,7 +404,13 @@ export default function AdminListings() {
         ) : (
           /* Regular Grid for All Other Tabs */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {currentListings.map(item => (
+            {currentListings.map(item => {
+              let displayPrice = item.price;
+              if ((!displayPrice || displayPrice === 0) && item.tourTiers && Array.isArray(item.tourTiers)) {
+                 const validTier = item.tourTiers.find(t => t.price && t.price.toString().trim() !== "");
+                 if (validTier) displayPrice = validTier.price;
+              }
+              return (
             <div key={item.id} className="bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] group hover:shadow-[0_8px_40px_rgb(0,0,0,0.08)] transition-all flex flex-col">
               {/* Image Section */}
               <div className="relative h-48 w-full overflow-hidden shrink-0">
@@ -453,7 +459,7 @@ export default function AdminListings() {
                 <div className="mt-auto flex flex-col sm:flex-row items-start sm:items-end justify-between border-t border-gray-50 pt-4 gap-3 sm:gap-0">
                   <div className="w-full sm:w-auto">
                     <div className="font-black text-[18px] text-primary mb-0.5 tracking-tight">
-                       {item.price > 1000 ? `IDR ${Number(item.price).toLocaleString('id-ID')}` : `IDR ${(item.price * 15000).toLocaleString('id-ID')}`}
+                       {displayPrice > 1000 ? `IDR ${Number(displayPrice).toLocaleString('id-ID')}` : `IDR ${(displayPrice * 15000).toLocaleString('id-ID')}`}
                     </div>
                     <div className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">
                        / {item.pricingType === "Per Group" ? 'GROUP' : 'PERSON'}
@@ -490,7 +496,7 @@ export default function AdminListings() {
                 </div>
               </div>
             </div>
-            ))}
+            )})}
           </div>
         )}
 
