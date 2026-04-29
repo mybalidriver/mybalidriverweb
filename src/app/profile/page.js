@@ -1,12 +1,43 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { User, Settings, HelpCircle, LogOut, ChevronRight, Bell, CalendarCheck, Heart, CircleUser, Briefcase } from "lucide-react";
 import Link from "next/link";
-import { useSession, signOut, signIn } from "next-auth/react";
+import { supabase } from "@/lib/supabase";
 
 export default function ProfilePage() {
-  const { data: session, status } = useSession();
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user || null);
+      setLoading(false);
+    };
+    
+    checkUser();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleGoogleLogin = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/profile`,
+      },
+    });
+    if (error) console.error("Login failed:", error.message);
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+  };
 
   const menuItems = [
     { icon: User, label: "Personal Information", path: "/profile/personal-info" },
@@ -16,17 +47,17 @@ export default function ProfilePage() {
     { icon: Briefcase, label: "Become a Partner", path: "#", desktopHide: true },
   ];
 
-  if (status === "loading") {
+  if (loading) {
     return <div className="min-h-[100dvh] bg-[#F8FAFC] flex items-center justify-center font-bold text-primary animate-pulse">Loading...</div>;
   }
 
-  if (!session) {
+  if (!user) {
     return (
       <div className="min-h-[100dvh] bg-[#F8FAFC] pb-32 font-sans font-medium flex flex-col items-center justify-center px-6 text-center">
         <CircleUser size={64} className="text-gray-300 mb-6" />
         <h1 className="text-2xl font-extrabold text-primary mb-3">Profile</h1>
         <p className="text-text-secondary text-sm mb-8">Sign in to view your profile, manage bookings, and access your wishlist.</p>
-        <button onClick={() => signIn('google')} className="w-full max-w-sm flex items-center justify-center gap-2 p-4 bg-primary text-white font-bold rounded-full shadow-md active:scale-95 transition-transform">
+        <button onClick={handleGoogleLogin} className="w-full max-w-sm flex items-center justify-center gap-2 p-4 bg-primary text-white font-bold rounded-full shadow-md active:scale-95 transition-transform">
           Sign In with Google
         </button>
       </div>
@@ -40,11 +71,11 @@ export default function ProfilePage() {
         
         <div className="flex items-center gap-5">
           <div className="w-20 h-20 bg-accent rounded-full border-4 border-white shadow-md flex items-center justify-center overflow-hidden">
-            <img src={session.user?.image || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80"} referrerPolicy="no-referrer" alt="Profile" className="w-full h-full object-cover" />
+            <img src={user?.user_metadata?.avatar_url || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80"} referrerPolicy="no-referrer" alt="Profile" className="w-full h-full object-cover" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-primary">{session.user?.name || "Guest User"}</h2>
-            <p className="text-text-secondary text-sm mt-0.5">{session.user?.email || ""}</p>
+            <h2 className="text-xl font-bold text-primary">{user?.user_metadata?.full_name || "Guest User"}</h2>
+            <p className="text-text-secondary text-sm mt-0.5">{user?.email || ""}</p>
             <div className="bg-primary text-white text-[11px] font-bold px-2.5 py-1 rounded-md inline-block mt-2">
               Premium Member
             </div>
@@ -75,7 +106,7 @@ export default function ProfilePage() {
           })}
         </div>
 
-        <button onClick={() => signOut()} className="w-full mt-8 flex items-center justify-center gap-2 p-5 bg-white text-red-500 font-bold rounded-3xl shadow-sm border border-border transition-colors hover:bg-red-50 active:bg-red-100">
+        <button onClick={handleLogout} className="w-full mt-8 flex items-center justify-center gap-2 p-5 bg-white text-red-500 font-bold rounded-3xl shadow-sm border border-border transition-colors hover:bg-red-50 active:bg-red-100">
           <LogOut size={20} />
           <span>Log Out</span>
         </button>
