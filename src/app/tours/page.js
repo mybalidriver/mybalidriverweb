@@ -34,6 +34,23 @@ export default async function Tours() {
 
   const displayTours = tours || [];
 
+  const categoryCounts = { "Adventure": 0, "Water": 0, "Nature": 0, "Culture": 0 };
+  const locationCounts = { "Ubud": 0, "Nusa Penida": 0, "Kuta": 0, "Seminyak": 0, "Canggu": 0, "Uluwatu": 0, "Bedugul": 0 };
+
+  displayTours.forEach(tour => {
+     const cat = tour.category || tour.data?.category;
+     if (cat && categoryCounts[cat] !== undefined) categoryCounts[cat]++;
+     
+     const locRaw = (tour.location || tour.data?.location || "").toLowerCase();
+     if (locRaw.includes('ubud')) locationCounts["Ubud"]++;
+     else if (locRaw.includes('nusa penida')) locationCounts["Nusa Penida"]++;
+     else if (locRaw.includes('kuta') && !locRaw.includes('kuta sel') && !locRaw.includes('kuta utara')) locationCounts["Kuta"]++;
+     else if (locRaw.includes('seminyak')) locationCounts["Seminyak"]++;
+     else if (locRaw.includes('canggu')) locationCounts["Canggu"]++;
+     else if (locRaw.includes('uluwatu')) locationCounts["Uluwatu"]++;
+     else if (locRaw.includes('bedugul') || locRaw.includes('ulun danu')) locationCounts["Bedugul"]++;
+  });
+
   return (
     <div className="w-full bg-background min-h-screen pt-24 pb-20">
       <div className="container mx-auto px-4 lg:max-w-7xl">
@@ -60,23 +77,23 @@ export default async function Tours() {
               <SidebarFilter 
                 title="Category" 
                 options={[
-                  { label: "Adventure", count: 24 },
-                  { label: "Water", count: 18 },
-                  { label: "Nature", count: 32 },
-                  { label: "Culture", count: 15 },
+                  { label: "Adventure", count: categoryCounts["Adventure"] },
+                  { label: "Water", count: categoryCounts["Water"] },
+                  { label: "Nature", count: categoryCounts["Nature"] },
+                  { label: "Culture", count: categoryCounts["Culture"] },
                 ]} 
               />
               
               <SidebarFilter 
                 title="Location" 
                 options={[
-                  { label: "Ubud", count: 45 },
-                  { label: "Nusa Penida", count: 12 },
-                  { label: "Kuta", count: 18 },
-                  { label: "Seminyak", count: 14 },
-                  { label: "Canggu", count: 22 },
-                  { label: "Uluwatu", count: 15 },
-                  { label: "Bedugul", count: 8 },
+                  { label: "Ubud", count: locationCounts["Ubud"] },
+                  { label: "Nusa Penida", count: locationCounts["Nusa Penida"] },
+                  { label: "Kuta", count: locationCounts["Kuta"] },
+                  { label: "Seminyak", count: locationCounts["Seminyak"] },
+                  { label: "Canggu", count: locationCounts["Canggu"] },
+                  { label: "Uluwatu", count: locationCounts["Uluwatu"] },
+                  { label: "Bedugul", count: locationCounts["Bedugul"] },
                 ]} 
               />
 

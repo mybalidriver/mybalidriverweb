@@ -281,9 +281,11 @@ export default function Home() {
 
   const currentCategories = getCategoriesForService(activeService);
 
+  const isValidService = (t) => t.service === activeService || (activeService === "Tour" && t.service === "Activities");
+
   let filteredTours = activeCat === "All" 
-    ? allListings.filter(t => t.service === activeService) 
-    : allListings.filter(t => t.service === activeService && (
+    ? allListings.filter(isValidService) 
+    : allListings.filter(t => isValidService(t) && (
         t.category === activeCat || 
         t.spaSetting === activeCat || 
         (activeCat === "Day Spa" && t.spaSetting === "Real Spa")
@@ -849,7 +851,7 @@ export default function Home() {
         <section id="categories-section" className="px-6 mb-8 mt-2">
           <div className="flex justify-between items-end mb-4">
             <h2 className="text-[20px] font-bold text-primary">Categories</h2>
-            <span className="text-sm font-semibold text-text-secondary">See more</span>
+            <Link href={activeService === "Tour" ? "/tours" : activeService === "Transport" ? "/map" : "/esim"} className="text-sm font-semibold text-text-secondary hover:text-text-primary cursor-pointer transition-colors">See more</Link>
           </div>
           <div className="flex justify-center w-full overflow-hidden">
             <div className="bg-[#cce823] rounded-[32px] p-1.5 shadow-[0_4px_20px_rgba(204,232,35,0.3)] w-fit max-w-full mx-auto">
