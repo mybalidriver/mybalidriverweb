@@ -18,30 +18,30 @@ export const viewport = {
 
 export const metadata = {
   title: {
-    default: "Bobby Bali Guide | The #1 Best Tours & Private Drivers in Bali",
-    template: "%s | Bobby Bali Guide"
+    default: "MyBaliDriver | Premium Bali Private Drivers & Bespoke Tours",
+    template: "%s | MyBaliDriver"
   },
-  description: "Experience the ultimate Bali vacation with the island's #1 rated private drivers, bespoke tours, and premium activities. Book secure, local, and unforgettable adventures from Ubud to Nusa Penida.",
-  keywords: ["Bali Tours", "Bali Private Driver", "Best Bali Itinerary", "Nusa Penida Tour", "Ubud Tour", "Bali Transport", "Bali Activities", "Bali Vacation Packages"],
-  authors: [{ name: "Bobby Bali Guide" }],
-  creator: "Bobby Bali Guide",
-  publisher: "Bobby Bali Guide",
+  description: "Discover the true beauty of Bali with MyBaliDriver. We provide premium private car charters, experienced local guides, and bespoke tour packages tailored to your perfect itinerary. Explore Ubud, Nusa Penida, and beyond with comfort and reliability.",
+  keywords: ["Bali Private Driver", "Hire Driver in Bali", "Bali Car Charter", "Premium Bali Tours", "Ubud Day Tour", "Nusa Penida Tour Package", "Bali Airport Transfer", "Custom Bali Itinerary", "Local Bali Guide"],
+  authors: [{ name: "MyBaliDriver" }],
+  creator: "MyBaliDriver",
+  publisher: "MyBaliDriver",
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
   openGraph: {
-    title: "Bobby Bali Guide | The #1 Best Tours & Private Drivers in Bali",
-    description: "Experience the ultimate Bali vacation with the island's #1 rated private drivers, bespoke tours, and premium activities.",
-    url: "https://www.bobbybaliguide.com",
-    siteName: "Bobby Bali Guide",
+    title: "MyBaliDriver | Premium Bali Private Drivers & Bespoke Tours",
+    description: "Discover the true beauty of Bali with MyBaliDriver. We provide premium private car charters, experienced local guides, and bespoke tour packages.",
+    url: "https://www.mybalidriver.com",
+    siteName: "MyBaliDriver",
     images: [
       {
         url: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=1200&q=80",
         width: 1200,
         height: 630,
-        alt: "Beautiful Bali Landscape",
+        alt: "Premium Bali Tour Experience",
       },
     ],
     locale: "en_US",
@@ -60,8 +60,8 @@ export const metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Bobby Bali Guide | The #1 Best Tours & Private Drivers in Bali",
-    description: "Experience the ultimate Bali vacation with the island's #1 rated private drivers, bespoke tours, and premium activities.",
+    title: "MyBaliDriver | Premium Bali Private Drivers & Bespoke Tours",
+    description: "Discover the true beauty of Bali with MyBaliDriver. We provide premium private car charters, experienced local guides, and bespoke tour packages.",
     images: ["https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=1200&q=80"],
   },
 };
