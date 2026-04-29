@@ -158,11 +158,8 @@ export default function AdminDashboard() {
 
       {/* Modern Bookings Table */}
       <div className="bg-white rounded-3xl border border-[#E8EAEF] shadow-[0_4px_20px_rgba(0,0,0,0.03)] overflow-hidden">
-        <div className="px-6 py-5 border-b border-[#E8EAEF] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <Activity size={20} className="text-[#1C1C1E]" strokeWidth={2.5} />
-            <h3 className="font-black text-lg text-[#1C1C1E]">Recent Bookings Log</h3>
-          </div>
+        
+        <div className="flex justify-end p-4 border-b border-[#E8EAEF]">
           <button onClick={fetchBookings} className="text-sm font-extrabold text-[#1C1C1E] hover:text-gray-500 flex items-center gap-1 transition-colors">
              Refresh Data <ChevronRight size={16} strokeWidth={3} />
           </button>
@@ -268,14 +265,33 @@ export default function AdminDashboard() {
                <div className="mb-6 p-4 bg-[#F8F9FA] rounded-2xl border border-[#E8EAEF]">
                  <p className="text-[10px] font-extrabold text-[#1C1C1E] uppercase tracking-widest mb-3">Customer Form Details</p>
                  <div className="space-y-3">
-                   {Object.entries(selectedBooking.details).map(([key, value]) => (
-                     <div key={key} className="flex flex-col">
-                       <span className="text-[10px] font-bold text-gray-500 uppercase leading-tight mb-1">{key.replace(/_/g, ' ')}</span>
+                   {Object.entries(selectedBooking.details).map(([key, value]) => {
+                     if (key === 'image' || key === 'isWishlist') return null;
+                     
+                     let displayValue = value;
+                     if (typeof value === 'object') {
+                       displayValue = JSON.stringify(value);
+                     } else if (key === 'duration' && value) {
+                       displayValue = `${value} Hours`; // formatting duration to be real data
+                     }
+                     
+                     return (
+                       <div key={key} className="flex flex-col">
+                         <span className="text-[10px] font-bold text-gray-500 uppercase leading-tight mb-1">{key.replace(/_/g, ' ')}</span>
+                         <span className="text-[14px] font-extrabold text-[#1C1C1E] leading-tight break-words">
+                            {displayValue || '-'}
+                         </span>
+                       </div>
+                     );
+                   })}
+                   {(!selectedBooking.details || !selectedBooking.details.special_requests) && (
+                     <div className="flex flex-col">
+                       <span className="text-[10px] font-bold text-gray-500 uppercase leading-tight mb-1">SPECIAL REQUESTS</span>
                        <span className="text-[14px] font-extrabold text-[#1C1C1E] leading-tight break-words">
-                          {typeof value === 'object' ? JSON.stringify(value) : value}
+                          None specified
                        </span>
                      </div>
-                   ))}
+                   )}
                  </div>
                </div>
              )}
