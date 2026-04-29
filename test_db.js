@@ -1,13 +1,10 @@
-import { createClient } from '@supabase/supabase-js';
-import dotenv from 'dotenv';
-dotenv.config({ path: '.env.local' });
-
+const { createClient } = require('@supabase/supabase-js');
+require('dotenv').config({ path: '.env.local' });
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
-
-async function check() {
-  const { data, error } = await supabase.from('listings').select('*').eq('service', 'Tour').limit(1);
-  console.log(JSON.stringify(data, null, 2));
+async function test() {
+  const { data, error } = await supabase.from('favorites').select('*').limit(1);
+  console.log("Favorites table:", error ? error.message : "Exists!");
 }
-check();
+test();

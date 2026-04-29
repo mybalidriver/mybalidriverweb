@@ -1,20 +1,53 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Heart, Search } from "lucide-react";
 import WishlistCard from "@/components/listing/WishlistCard";
+import { useSession, signIn } from "next-auth/react";
+import { supabase } from "@/lib/supabase";
 
 export default function FavoritesPage() {
+  const { data: session, status } = useSession();
+  const [favorites, setFavorites] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   // Clear persistent cache on mount so new payload data works in admin (Dev hack only)
-  React.useEffect(() => {
+  useEffect(() => {
     localStorage.removeItem("bali_bookings");
     localStorage.removeItem("bali_dashboard");
   }, []);
 
-  const favorites = [
-    { id: '1', service: 'Tour', title: 'Mount Batur Sunrise Trekking & Hot Springs', location: 'Kintamani', rating: 4.8, reviews: 215, price: 35, date: 'Starts 2:00 AM', category: 'Adventure', image: 'https://images.unsplash.com/photo-1577717903315-1691ae25ab3f?auto=format&fit=crop&w=800&q=80' },
-    { id: 'm4', service: 'Massage', title: 'Couples Luxury Spa Experience', location: 'Nusa Dua', rating: 5.0, reviews: 42, price: 150, date: 'Booking required', category: 'Real Spa', image: 'https://images.unsplash.com/photo-1552693673-1bf958298935?auto=format&fit=crop&w=800&q=80', badge: 'Luxury' },
-  ];
+  useEffect(() => {
+    if (status === "unauthenticated") {
+       signIn('google');
+    } else if (session?.user?.email) {
+       fetchFavorites(session.user.email);
+    }
+  }, [session, status]);
+
+  const fetchFavorites = async (email) => {
+     try {
+       const { data, error } = await supabase
+         .from('bookings')
+         .select('*')
+         .eq('category', 'Wishlist')
+         .eq('details->>customer_email', email)
+         .order('created_at', { ascending: false });
+       
+       if (data) {
+          const parsedFavorites = data.map(b => b.details?.item).filter(Boolean);
+          setFavorites(parsedFavorites);
+       }
+     } catch (err) {
+       console.error("Failed to fetch favorites:", err);
+     } finally {
+       setLoading(false);
+     }
+  };
+
+  if (status === "loading" || loading) {
+     return <div className="min-h-[100dvh] flex items-center justify-center bg-[#F8FAFC]"><div className="w-8 h-8 rounded-full border-4 border-gray-200 border-t-primary animate-spin"></div></div>;
+  }
 
   return (
     <div className="min-h-[100dvh] bg-[#F8FAFC] pb-32 font-sans">
@@ -30,11 +63,21 @@ export default function FavoritesPage() {
           />
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {favorites.map((tour) => (
-            <WishlistCard key={tour.id} item={tour} linkTo={`/tours/${tour.id}`} />
-          ))}
-        </div>
+        {favorites.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+             <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+               <Heart size={32} className="text-gray-300" />
+             </div>
+             <h3 className="text-xl font-bold text-primary mb-2">No saved trips yet</h3>
+             <p className="text-gray-500 font-medium">When you see a trip you like, click the heart icon to save it here.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {favorites.map((tour) => (
+              <WishlistCard key={tour.id} item={tour} linkTo={`/tours/${tour.id}`} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

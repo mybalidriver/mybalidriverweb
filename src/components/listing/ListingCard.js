@@ -1,8 +1,72 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Heart, Star } from "lucide-react";
 import Link from "next/link";
+import { useSession, signIn } from "next-auth/react";
+import { supabase } from "@/lib/supabase";
 
 export default function ListingCard({ item, linkTo }) {
+  const { data: session } = useSession();
+  const [isSaved, setIsSaved] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    if (session?.user?.email && item?.id) {
+       const checkSaved = async () => {
+          const { data } = await supabase
+            .from('bookings')
+            .select('id')
+            .eq('category', 'Wishlist')
+            .eq('details->>customer_email', session.user.email)
+            .eq('details->item->>id', item.id)
+            .single();
+          if (data) setIsSaved(true);
+       };
+       checkSaved();
+    }
+  }, [session, item]);
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!session?.user) {
+      signIn('google');
+      return;
+    }
+    
+    if (isSaving || !item) return;
+    setIsSaving(true);
+    
+    try {
+      if (isSaved) {
+        await supabase
+          .from('bookings')
+          .delete()
+          .eq('category', 'Wishlist')
+          .eq('details->>customer_email', session.user.email)
+          .eq('details->item->>id', item.id);
+        setIsSaved(false);
+      } else {
+        await supabase.from('bookings').insert({
+          id: `FAV-${Date.now()}`,
+          customer_name: session.user.name || session.user.email,
+          contact_info: session.user.email,
+          service_name: item.title,
+          booking_date: new Date().toISOString().split('T')[0],
+          amount: item.price || 0,
+          status: 'Saved',
+          category: 'Wishlist',
+          details: { customer_email: session.user.email, item: item, image: item.image }
+        });
+        setIsSaved(true);
+      }
+    } catch (err) {
+      console.error("Save failed", err);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const getFormattedPrice = (rawPrice) => {
     const p = Number(rawPrice);
     return Math.floor(p > 1000 ? p : p * 1000);
@@ -55,8 +119,11 @@ export default function ListingCard({ item, linkTo }) {
           )}
 
           {/* Heart Favorite Button */}
-          <button className="absolute top-4 right-4 w-[36px] h-[36px] bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-[#A48F7A] shadow-sm z-10 transition-all active:scale-90 hover:bg-white hover:text-red-500">
-            <Heart size={18} strokeWidth={2.5} />
+          <button 
+            onClick={handleSave} 
+            className="absolute top-4 right-4 w-[36px] h-[36px] bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-[#A48F7A] shadow-sm z-10 transition-all active:scale-90 hover:bg-white hover:text-red-500"
+          >
+            <Heart size={18} strokeWidth={2.5} className={isSaved ? "text-red-500 fill-red-500" : ""} />
           </button>
         </div>
         
@@ -120,8 +187,11 @@ export default function ListingCard({ item, linkTo }) {
         )}
 
         {/* Heart Favorite Button */}
-        <button className="absolute top-4 right-4 w-[36px] h-[36px] bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-text-secondary/80 shadow-sm z-10 transition-all group-hover:opacity-100 active:scale-90 hover:bg-white hover:text-red-500">
-          <Heart size={18} strokeWidth={2.5} />
+        <button 
+          onClick={handleSave} 
+          className="absolute top-4 right-4 w-[36px] h-[36px] bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-text-secondary/80 shadow-sm z-10 transition-all group-hover:opacity-100 active:scale-90 hover:bg-white hover:text-red-500"
+        >
+          <Heart size={18} strokeWidth={2.5} className={isSaved ? "text-red-500 fill-red-500" : ""} />
         </button>
       </div>
       

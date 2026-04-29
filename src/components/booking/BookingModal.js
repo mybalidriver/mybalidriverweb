@@ -168,7 +168,8 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
         duration: formData.duration,
         pickup_location: formData.pickupLocation.name,
         dropoff_location: formData.dropoffLocation.name,
-        customer_email: session?.user?.email || null
+        customer_email: session?.user?.email || null,
+        image: serviceData?.image || null
       }
     }).then(({ error }) => {
       if (error) console.error("Failed to save booking to Supabase:", error);

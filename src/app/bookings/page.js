@@ -141,13 +141,15 @@ export default function BookingsPage() {
               let fallbackImage = "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=800&q=80";
               if (b.category === "Spa") fallbackImage = "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=800&q=80";
               if (b.category === "Transport") fallbackImage = "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=800&q=80";
+              
+              const imageToDisplay = details.image || fallbackImage;
 
               return (
               <div key={b.id} className="flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: `${index * 100}ms` }}>
                 
                 {/* Image Section */}
-                <div className="relative w-full aspect-[4/3] rounded-3xl overflow-hidden group">
-                  <img src={fallbackImage} alt={b.service_name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                <div className="relative w-full aspect-[4/3] rounded-3xl overflow-hidden group bg-gray-100">
+                  <img src={imageToDisplay} alt={b.service_name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                   
                   {/* Status Badge Over Image */}
                   <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full inline-flex items-center gap-1.5 shadow-sm">

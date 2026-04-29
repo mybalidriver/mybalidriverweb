@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import ListingCard from "@/components/listing/ListingCard";
 import BookingModal from "@/components/booking/BookingModal";
+import { useSession, signIn } from "next-auth/react";
+import { supabase } from "@/lib/supabase";
 
 
 
@@ -21,6 +23,9 @@ export default function TourDetail({ params }) {
   const [spaDuration, setSpaDuration] = useState('min60');
   const [scooterDuration, setScooterDuration] = useState('daily');
   const [selectedPackage, setSelectedPackage] = useState('Standard');
+  const { data: session } = useSession();
+  const [isSaved, setIsSaved] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const getMultiplierPrice = (rawPrice) => {
     const p = Number(rawPrice);
@@ -135,10 +140,78 @@ export default function TourDetail({ params }) {
           
           setTourData(frontendObj);
           setDesktopPax(calculatedMinPax);
-       }
-    };
-    fetchDetail();
-  }, [resolvedParams.id]);
+           
+           // Check if saved
+           if (session?.user?.email) {
+              const { data: savedItem } = await supabase
+                .from('bookings')
+                .select('id')
+                .eq('category', 'Wishlist')
+                .eq('details->>customer_email', session.user.email)
+                .eq('details->item->>id', resolvedParams.id)
+                .single();
+              if (savedItem) setIsSaved(true);
+           }
+        }
+     };
+     fetchDetail();
+  }, [resolvedParams.id, session]);
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: tourData?.title || 'Discovering Bali',
+          url: window.location.href,
+        });
+      } catch (err) {
+        console.error("Share failed", err);
+      }
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      alert("Link copied to clipboard!");
+    }
+  };
+
+  const handleSave = async () => {
+    if (!session?.user) {
+      signIn('google');
+      return;
+    }
+    if (isSaving || !tourData) return;
+    setIsSaving(true);
+    
+    try {
+      if (isSaved) {
+        // Remove from wishlist
+        await supabase
+          .from('bookings')
+          .delete()
+          .eq('category', 'Wishlist')
+          .eq('details->>customer_email', session.user.email)
+          .eq('details->item->>id', tourData.id);
+        setIsSaved(false);
+      } else {
+        // Add to wishlist using bookings table
+        await supabase.from('bookings').insert({
+          id: `FAV-${Date.now()}`,
+          customer_name: session.user.name || session.user.email,
+          contact_info: session.user.email,
+          service_name: tourData.title,
+          booking_date: new Date().toISOString().split('T')[0],
+          amount: tourData.price,
+          status: 'Saved',
+          category: 'Wishlist',
+          details: { customer_email: session.user.email, item: tourData, image: tourData.images[0] }
+        });
+        setIsSaved(true);
+      }
+    } catch (err) {
+      console.error("Save failed", err);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const tabs = ["About this activity", "Experience", "Itinerary", "Important information"];
 
@@ -171,11 +244,11 @@ export default function TourDetail({ params }) {
             <ChevronLeft size={24} className="text-primary pr-0.5" strokeWidth={2.5} />
           </button>
           <div className="flex gap-3 pointer-events-auto">
-            <button className="w-10 h-10 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center shadow-sm hover:bg-white transition-colors">
+            <button onClick={handleShare} className="w-10 h-10 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center shadow-sm hover:bg-white transition-colors">
               <Share size={20} className="text-primary" strokeWidth={2.5} />
             </button>
-            <button className="w-10 h-10 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center shadow-sm hover:bg-white transition-colors">
-              <Heart size={20} className="text-primary" strokeWidth={2.5} />
+            <button onClick={handleSave} className="w-10 h-10 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center shadow-sm hover:bg-white transition-colors">
+              <Heart size={20} className={isSaved ? "text-red-500 fill-red-500" : "text-primary"} strokeWidth={2.5} />
             </button>
           </div>
         </div>
@@ -191,11 +264,11 @@ export default function TourDetail({ params }) {
             Back
           </button>
           <div className="flex items-center gap-4">
-            <button className="flex items-center gap-2 text-[14px] font-bold text-primary hover:text-text-secondary transition-colors">
+            <button onClick={handleShare} className="flex items-center gap-2 text-[14px] font-bold text-primary hover:text-text-secondary transition-colors">
               <Share size={18} strokeWidth={2.5} /> Share
             </button>
-            <button className="flex items-center gap-2 text-[14px] font-bold text-primary hover:text-text-secondary transition-colors">
-              <Heart size={18} strokeWidth={2.5} /> Save
+            <button onClick={handleSave} className="flex items-center gap-2 text-[14px] font-bold text-primary hover:text-text-secondary transition-colors">
+              <Heart size={18} strokeWidth={2.5} className={isSaved ? "text-red-500 fill-red-500" : ""} /> {isSaved ? "Saved" : "Save"}
             </button>
           </div>
         </div>
@@ -637,7 +710,8 @@ export default function TourDetail({ params }) {
             allInclusiveSurcharge: tourData.allInclusiveSurcharge,
             hasAllInclusive: tourData.hasAllInclusive,
             allInclusiveTiers: tourData.allInclusiveTiers,
-            minPax: tourData.minPax || 1
+            minPax: tourData.minPax || 1,
+            image: tourData.images[0]
          }} 
         initialPax={desktopPax}
         initialDate={desktopDate}
