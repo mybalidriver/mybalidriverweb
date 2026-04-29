@@ -125,6 +125,19 @@ export default function AdminListings() {
     }
   };
 
+  const handleChangeCategory = async (item, newCategory) => {
+    const { supabase } = await import('@/lib/supabase');
+    const { error } = await supabase.from('listings').update({ category: newCategory }).eq('id', item.id);
+    if (!error) {
+       setListingsData(prev => ({
+         ...prev,
+         [activeTab]: prev[activeTab].map(i => i.id === item.id ? { ...i, category: newCategory } : i)
+       }));
+    } else {
+       alert("Error updating category: " + error.message);
+    }
+  };
+
   const handlePreview = (item) => {
     window.open(`/tours/${item.id}`, '_blank');
   };
@@ -421,8 +434,11 @@ export default function AdminListings() {
                 </div>
                 
                 <div className="absolute top-3 right-3 shadow-sm rounded-full overflow-hidden">
-                   <select className="appearance-none bg-white font-extrabold text-[#F9703E] text-[10px] pl-3 pr-7 py-1.5 uppercase tracking-wider outline-none cursor-pointer focus:ring-0">
-                      <option value={item.category}>{item.category}</option>
+                   <select 
+                      value={item.category} 
+                      onChange={(e) => handleChangeCategory(item, e.target.value)}
+                      className="appearance-none bg-white font-extrabold text-[#F9703E] text-[10px] pl-3 pr-7 py-1.5 uppercase tracking-wider outline-none cursor-pointer focus:ring-0"
+                   >
                       <option value="Adventure">ADVENTURE</option>
                       <option value="Water">WATER</option>
                       <option value="Nature">NATURE</option>

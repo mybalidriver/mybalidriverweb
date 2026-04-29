@@ -43,7 +43,7 @@ const services = [
 ];
 
 const getCategoriesForService = (service) => {
-  if (service === "Tour") {
+  if (service === "Tour" || service === "Activities") {
     return [
       { id: "All", icon: Compass },
       { id: "Adventure", icon: Mountain },
