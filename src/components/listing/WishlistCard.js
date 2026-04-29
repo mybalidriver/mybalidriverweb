@@ -4,8 +4,9 @@ import Link from "next/link";
 
 export default function WishlistCard({ item, linkTo }) {
   let basePriceToUse = item.price;
-  if ((!basePriceToUse || basePriceToUse == 0) && item.tourTiers && item.tourTiers.length > 0) {
-      const validTiers = item.tourTiers.filter(t => t.price && Number(String(t.price).replace(/[^0-9]/g, '')) > 0);
+  if ((!basePriceToUse || basePriceToUse == 0)) {
+      const tiersToUse = (item.tourTiers && item.tourTiers.length > 0) ? item.tourTiers : ((item.allInclusiveTiers && item.allInclusiveTiers.length > 0) ? item.allInclusiveTiers : []);
+      const validTiers = tiersToUse.filter(t => t.price && Number(String(t.price).replace(/[^0-9]/g, '')) > 0);
       if (validTiers.length > 0) {
           validTiers.sort((a, b) => Number(a.pax) - Number(b.pax));
           basePriceToUse = Number(String(validTiers[0].price).replace(/[^0-9]/g, '')) / Number(validTiers[0].pax);

@@ -5,7 +5,7 @@ const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function test() {
-  const { data, error } = await supabase.from('listings').select('title, price, duration, data').limit(1);
-  console.log(JSON.stringify(data, null, 2));
+  const { data, error } = await supabase.from('bookings').select('*').eq('details->>isWishlist', 'true');
+  console.log("Eq Result:", { data, error });
 }
 test();

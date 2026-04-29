@@ -384,8 +384,9 @@ export default function AdminListings() {
                                    <div className="text-[13px] font-semibold text-gray-500">
                                       {(() => {
                                          let dp = item.price;
-                                         if ((!dp || Number(String(dp).replace(/[^0-9]/g, '')) === 0) && item.tourTiers && Array.isArray(item.tourTiers)) {
-                                            const vt = item.tourTiers.find(t => t.price && Number(String(t.price).replace(/[^0-9]/g, '')) > 0);
+                                         if (!dp || Number(String(dp).replace(/[^0-9]/g, '')) === 0) {
+                                            const tiersToUse = (item.tourTiers && item.tourTiers.length > 0) ? item.tourTiers : ((item.allInclusiveTiers && item.allInclusiveTiers.length > 0) ? item.allInclusiveTiers : []);
+                                            const vt = tiersToUse.find(t => t.price && Number(String(t.price).replace(/[^0-9]/g, '')) > 0);
                                             if (vt) dp = vt.price;
                                          }
                                          const cdp = Number(String(dp || 0).replace(/[^0-9]/g, ''));
@@ -429,8 +430,9 @@ export default function AdminListings() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {currentListings.map(item => {
               let displayPrice = item.price;
-              if ((!displayPrice || Number(String(displayPrice).replace(/[^0-9]/g, '')) === 0) && item.tourTiers && Array.isArray(item.tourTiers)) {
-                 const validTier = item.tourTiers.find(t => t.price && Number(String(t.price).replace(/[^0-9]/g, '')) > 0);
+              if (!displayPrice || Number(String(displayPrice).replace(/[^0-9]/g, '')) === 0) {
+                 const tiersToUse = (item.tourTiers && item.tourTiers.length > 0) ? item.tourTiers : ((item.allInclusiveTiers && item.allInclusiveTiers.length > 0) ? item.allInclusiveTiers : []);
+                 const validTier = tiersToUse.find(t => t.price && Number(String(t.price).replace(/[^0-9]/g, '')) > 0);
                  if (validTier) displayPrice = validTier.price;
               }
               const cleanDisplayPrice = Number(String(displayPrice || 0).replace(/[^0-9]/g, ''));
