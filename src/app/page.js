@@ -246,7 +246,7 @@ export default function Home() {
       if (data) {
          const publicItems = data.map(d => ({
            id: d.id,
-           service: d.type,
+           service: d.data?.originalService || d.type,
            title: d.title,
            location: d.location,
            price: d.price,
