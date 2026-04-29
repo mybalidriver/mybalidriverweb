@@ -22,7 +22,8 @@ const LOCATION_CACHE = {
   'nusa dua': { lat: -8.8061, lng: 115.2268 },
   'bedugul': { lat: -8.2833, lng: 115.1667 },
   'lovina': { lat: -8.1611, lng: 115.0256 },
-  'amed': { lat: -8.3364, lng: 115.6514 }
+  'amed': { lat: -8.3364, lng: 115.6514 },
+  'ulun danu': { lat: -8.51909, lng: 115.26325 } // Mapped to Ubud per user request
 };
 
 const CATEGORIES = ["Tour", "Transport", "Activities"];
@@ -165,12 +166,23 @@ function MapInterface() {
            // Parse Tours with Smart Logic Mapping
            const tours = data.filter(d => d.type === 'Tour' || d.type === 'Activities');
            const mappedTours = tours.map(t => {
+              let basePrice = t.price || t.data?.price;
+              if (!basePrice || basePrice == 0) {
+                 const tiers = (t.data?.tourTiers?.length > 0) ? t.data.tourTiers : ((t.data?.allInclusiveTiers?.length > 0) ? t.data.allInclusiveTiers : []);
+                 const valid = tiers.filter(tr => tr.price && Number(String(tr.price).replace(/[^0-9]/g, '')) > 0);
+                 if (valid.length > 0) {
+                    valid.sort((a, b) => Number(a.pax) - Number(b.pax));
+                    basePrice = Number(String(valid[0].price).replace(/[^0-9]/g, '')) / (Number(valid[0].pax) || 1);
+                 }
+              }
+              const cleanPrice = Number(String(basePrice || 0).replace(/[^0-9]/g, ''));
+              
               return {
                  id: t.id,
-                 locationRaw: t.location || "Bali",
-                 price: t.price,
-                 name: t.title,
-                 image: t.image || 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=400&q=80'
+                 locationRaw: t.location || t.data?.location || "Bali",
+                 price: cleanPrice > 1000 ? cleanPrice : cleanPrice * 15000,
+                 name: t.title || t.data?.title,
+                 image: t.image || t.data?.images?.[0] || t.data?.gallery?.[0] || 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=400&q=80'
               };
            });
 
