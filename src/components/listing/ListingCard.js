@@ -57,7 +57,7 @@ export default function ListingCard({ item, linkTo }) {
           booking_date: new Date().toISOString().split('T')[0],
           amount: "0",
           status: 'Pending',
-          category: item.category || 'Tour',
+          category: 'Tour',
           details: { customer_email: session.user.email, item: item, image: item.image, isWishlist: true }
         });
         setIsSaved(true);

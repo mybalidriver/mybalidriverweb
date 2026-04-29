@@ -175,7 +175,7 @@ function MapInterface() {
            });
 
            // 1. Instant local cache matching (no API required)
-           const regionMap = new Map();
+           const regionMap = new globalThis.Map();
            const unknownTours = [];
 
            for (const t of mappedTours) {

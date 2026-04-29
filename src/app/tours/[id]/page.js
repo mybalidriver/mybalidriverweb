@@ -201,7 +201,7 @@ export default function TourDetail({ params }) {
           booking_date: new Date().toISOString().split('T')[0],
           amount: "0",
           status: 'Pending',
-          category: tourData.category || 'Tour',
+          category: 'Tour',
           details: { customer_email: session.user.email, item: tourData, image: tourData.images[0], isWishlist: true }
         });
         setIsSaved(true);
