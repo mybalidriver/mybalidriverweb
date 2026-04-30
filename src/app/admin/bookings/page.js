@@ -349,16 +349,9 @@ export default function BookingsManagement() {
                    <p className="text-[10px] font-extrabold text-[#1C1C1E] uppercase tracking-widest mb-4 flex items-center gap-1.5"><Newspaper size={12}/> Form Details</p>
                    <div className="grid grid-cols-2 gap-4">
                      {Object.entries(selectedBooking.details).map(([key, value]) => {
-                        if (key.toLowerCase() === 'image') return null; // Hide the long supabase image link
+                        if (key.toLowerCase() === 'image' || key.toLowerCase() === 'duration') return null; // Hide image and duration
                         
                         let displayValue = typeof value === 'object' ? JSON.stringify(value) : value;
-                        
-                        // Enhance Duration
-                        if (key.toLowerCase() === 'duration' && !isNaN(displayValue)) {
-                          const isSpa = activeTab === 'Spa & Wellness';
-                          const unit = isSpa ? 'Hour' : 'Day';
-                          displayValue = `${displayValue} ${Number(displayValue) > 1 ? unit + 's' : unit}`;
-                        }
 
                         // Determine if it should span full width
                         const isLongValue = String(displayValue).length > 20 || key.toLowerCase().includes('location') || key.toLowerCase().includes('email') || key.toLowerCase().includes('message');

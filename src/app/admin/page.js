@@ -267,13 +267,11 @@ export default function AdminDashboard() {
                  <p className="text-[10px] font-extrabold text-[#1C1C1E] uppercase tracking-widest mb-3">Customer Form Details</p>
                  <div className="space-y-3">
                    {Object.entries(selectedBooking.details).map(([key, value]) => {
-                     if (key === 'image' || key === 'isWishlist') return null;
+                     if (key.toLowerCase() === 'image' || key.toLowerCase() === 'iswishlist' || key.toLowerCase() === 'duration') return null;
                      
                      let displayValue = value;
                      if (typeof value === 'object') {
                        displayValue = JSON.stringify(value);
-                     } else if (key === 'duration' && value) {
-                       displayValue = `${value} Hours`; // formatting duration to be real data
                      }
                      
                      return (
