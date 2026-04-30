@@ -9,6 +9,7 @@ import ListingCard from "@/components/listing/ListingCard";
 import BookingModal from "@/components/booking/BookingModal";
 import { useSession, signIn } from "next-auth/react";
 import { supabase } from "@/lib/supabase";
+import { generateSlug } from "@/lib/utils";
 
 
 
@@ -783,7 +784,7 @@ export default function TourDetailClient({ tourData, slug, relatedTours }) {
           <div className="flex overflow-x-auto no-scrollbar gap-4 pb-4 md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-6 snap-x snap-mandatory">
             {relatedTours.map((item) => (
               <div key={item.id} className="w-[260px] md:w-auto shrink-0 snap-start">
-                 <ListingCard item={item} />
+                 <ListingCard item={item} linkTo={`/tours/${generateSlug(item.title)}`} />
               </div>
             ))}
           </div>
