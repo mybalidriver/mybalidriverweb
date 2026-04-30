@@ -75,38 +75,27 @@ function AdminLoginScreen({ onLogin }) {
 
 export default function AdminLayout({ children }) {
   const pathname = usePathname();
+  
+  // All Hooks MUST be at the top level before any early returns
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  
+  const [customAvatar, setCustomAvatar] = useState(null);
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [showInstallModal, setShowInstallModal] = useState(false);
+
   React.useEffect(() => {
     if (localStorage.getItem("admin_auth") === "true") {
       setIsAuthenticated(true);
     }
     setIsChecking(false);
   }, []);
-  
-  if (isChecking) {
-    return (
-      <div className="fixed inset-0 bg-[#F8F9FA] z-[200] flex flex-col items-center justify-center gap-4">
-         <div className="w-10 h-10 border-4 border-gray-200 border-t-[#D9FB41] rounded-full animate-spin"></div>
-      </div>
-    );
-  }
 
-  if (!isAuthenticated) {
-    return <AdminLoginScreen onLogin={() => setIsAuthenticated(true)} />;
-  }
-
-  const handleLogout = () => {
-    localStorage.removeItem("admin_auth");
-    setIsAuthenticated(false);
-  };
-
-  const [customAvatar, setCustomAvatar] = useState(null);
-  const [deferredPrompt, setDeferredPrompt] = useState(null);
-  const [showInstallModal, setShowInstallModal] = useState(false);
+  React.useEffect(() => {
+    const saved = localStorage.getItem("admin_avatar");
+    if (saved) setCustomAvatar(saved);
+  }, []);
 
   React.useEffect(() => {
     const handleBeforeInstallPrompt = (e) => {
@@ -120,6 +109,25 @@ export default function AdminLayout({ children }) {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     };
   }, []);
+
+  // Early returns (MUST be after all hooks)
+  if (isChecking) {
+    return (
+      <div className="fixed inset-0 bg-[#F8F9FA] z-[200] flex flex-col items-center justify-center gap-4">
+         <div className="w-10 h-10 border-4 border-gray-200 border-t-[#D9FB41] rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <AdminLoginScreen onLogin={() => setIsAuthenticated(true)} />;
+  }
+
+  // Handlers
+  const handleLogout = () => {
+    localStorage.removeItem("admin_auth");
+    setIsAuthenticated(false);
+  };
 
   const handleInstallClick = async () => {
     if (deferredPrompt) {
@@ -147,11 +155,6 @@ export default function AdminLayout({ children }) {
       reader.readAsDataURL(file);
     }
   };
-
-  React.useEffect(() => {
-    const saved = localStorage.getItem("admin_avatar");
-    if (saved) setCustomAvatar(saved);
-  }, []);
 
   const navLinks = [
     { name: "Dashboard", href: "/admin", icon: Home },
