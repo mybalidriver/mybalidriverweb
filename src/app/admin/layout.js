@@ -23,6 +23,11 @@ export default function AdminLayout({ children }) {
   const [showInstallModal, setShowInstallModal] = useState(false);
 
   React.useEffect(() => {
+    // Register Service Worker to satisfy PWA installation requirements
+    if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW registration failed:', err));
+    }
+
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
