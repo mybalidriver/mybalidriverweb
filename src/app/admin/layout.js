@@ -257,7 +257,7 @@ export default function AdminLayout({ children }) {
                   title="Upload Admin Logo"
                 />
                 <div className="hidden sm:block text-right pointer-events-none">
-                  <p className="text-sm font-extrabold text-[#1C1C1E]">{session?.user?.name || "Adrian Bali"}</p>
+                  <p className="text-sm font-extrabold text-[#1C1C1E]">Bobby Bali</p>
                   <p className="text-[11px] text-gray-500 font-bold tracking-tight">Super Administrator</p>
                 </div>
                 <div className="flex items-center gap-2 pointer-events-none">
@@ -268,10 +268,8 @@ export default function AdminLayout({ children }) {
                     </div>
                     {customAvatar ? (
                        <img src={customAvatar} alt="Admin" className="w-full h-full object-cover relative z-0" />
-                    ) : session?.user?.image ? (
-                        <img src={session.user.image} referrerPolicy="no-referrer" alt="Admin" className="w-full h-full object-cover relative z-0" />
                     ) : (
-                        <img src="https://ui-avatars.com/api/?name=Adrian&background=1C1C1E&color=D9FB41" alt="User" className="w-full h-full object-cover relative z-0" />
+                        <img src="https://ui-avatars.com/api/?name=Bobby+Bali&background=1C1C1E&color=D9FB41" alt="User" className="w-full h-full object-cover relative z-0" />
                     )}
                   </div>
                   <ChevronDown size={14} className="text-gray-400 group-hover:text-[#1C1C1E] transition-colors" />
@@ -332,7 +330,7 @@ export default function AdminLayout({ children }) {
                {/* Profile Info */}
                <div className="flex flex-col items-center gap-3">
                  <div className="relative group cursor-pointer">
-                   <img src={customAvatar || session?.user?.image || "https://ui-avatars.com/api/?name=Admin&background=random"} alt="Avatar" className="w-20 h-20 rounded-full object-cover border-4 border-[#F8F9FA] shadow-sm transition-transform group-hover:scale-105" />
+                   <img src={customAvatar || "https://ui-avatars.com/api/?name=Bobby+Bali&background=1C1C1E&color=D9FB41"} alt="Avatar" className="w-20 h-20 rounded-full object-cover border-4 border-[#F8F9FA] shadow-sm transition-transform group-hover:scale-105" />
                    <div className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] font-bold">Edit</div>
                    <input type="file" accept="image/*" onChange={handleAvatarUpload} className="absolute inset-0 opacity-0 cursor-pointer" />
                  </div>
