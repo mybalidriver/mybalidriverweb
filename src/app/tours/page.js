@@ -3,6 +3,7 @@ import ListingCard from "@/components/listing/ListingCard";
 import UniversalSearchBar from "@/components/search/UniversalSearchBar";
 import { Filter, ChevronDown, Check } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { generateSlug } from "@/lib/utils";
 
 export const dynamic = 'force-dynamic';
 
@@ -118,7 +119,7 @@ export default async function Tours() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {displayTours.map(tour => (
-                <ListingCard key={tour.id} item={tour} linkTo={`/tours/${tour.id}`} />
+                <ListingCard key={tour.id} item={tour} linkTo={`/tours/${generateSlug(tour.title)}`} />
               ))}
             </div>
             

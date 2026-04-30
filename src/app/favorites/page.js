@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Heart, Search } from "lucide-react";
 import WishlistCard from "@/components/listing/WishlistCard";
 import { useSession, signIn } from "next-auth/react";
+import { generateSlug } from "@/lib/utils";
 import { supabase } from "@/lib/supabase";
 
 export default function FavoritesPage() {
@@ -74,7 +75,7 @@ export default function FavoritesPage() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {favorites.map((tour) => (
-              <WishlistCard key={tour.id} item={tour} linkTo={`/tours/${tour.id}`} />
+              <WishlistCard key={tour.id} item={tour} linkTo={`/tours/${generateSlug(tour.title)}`} />
             ))}
           </div>
         )}

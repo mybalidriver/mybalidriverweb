@@ -11,15 +11,13 @@ import { supabase } from "@/lib/supabase";
 
 
 
-export default function TourDetail({ params }) {
+export default function TourDetailClient({ tourData, slug }) {
   const router = useRouter();
-  const resolvedParams = React.use(params);
   const [activeTab, setActiveTab] = useState("About this activity");
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
-  const [desktopPax, setDesktopPax] = useState(1);
+  const [desktopPax, setDesktopPax] = useState(tourData?.minPax || 1);
   const [desktopDate, setDesktopDate] = useState("");
   const [modalStartStep, setModalStartStep] = useState(1);
-  const [tourData, setTourData] = useState(null);
   const [spaDuration, setSpaDuration] = useState('min60');
   const [scooterDuration, setScooterDuration] = useState('daily');
   const [selectedPackage, setSelectedPackage] = useState('Standard');
@@ -91,71 +89,20 @@ export default function TourDetail({ params }) {
   };
 
   React.useEffect(() => {
-    const fetchDetail = async () => {
-       const { supabase } = await import('@/lib/supabase');
-       const { data, error } = await supabase.from('listings').select('*').eq('id', resolvedParams.id).single();
-       if (data) {
-          const frontendObj = {
-             id: data.id,
-             service: data.type,
-             title: data.title,
-             location: data.location,
-             price: data.price,
-             duration: data.duration,
-             category: data.category,
-             rating: data.rating,
-             reviews: data.reviews,
-             status: data.status,
-             image: data.image,
-             company: data.company_name,
-             ...(data.data || {})
-          };
-
-          const defaultImg = "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80";
-          const coverImg = frontendObj.image || defaultImg;
-          const validGallery = (frontendObj.gallery || []).filter(img => img && img.trim() !== "");
-          
-          const fallbackGallery = [
-             "https://images.unsplash.com/photo-1537956965359-7573183d1f57?auto=format&fit=crop&w=800&q=80", // Ubud Monkey Forest
-             "https://images.unsplash.com/photo-1577717903315-1691ae25ab3f?auto=format&fit=crop&w=800&q=80", // Mount Batur
-             "https://images.unsplash.com/photo-1554481923-a6918bd997bc?auto=format&fit=crop&w=800&q=80", // Nusa Penida
-             "https://images.unsplash.com/photo-1610486829777-66a96e949cb3?auto=format&fit=crop&w=800&q=80"  // Gates of Heaven
-          ];
-
-          let allImages = [coverImg, ...validGallery];
-          if (allImages.length < 5) {
-             const needed = 5 - allImages.length;
-             allImages = [...allImages, ...fallbackGallery.slice(0, needed)];
-          }
-          frontendObj.images = allImages;
-          
-          let calculatedMinPax = 1;
-          if (frontendObj.pricingType === "Per Person" && frontendObj.tourTiers && frontendObj.tourTiers.length > 0) {
-             const validTiers = frontendObj.tourTiers.filter(t => t.price && Number(t.price) > 0);
-             if (validTiers.length > 0) {
-                calculatedMinPax = Math.min(...validTiers.map(t => Number(t.pax)));
-             }
-          }
-          frontendObj.minPax = calculatedMinPax;
-          
-          setTourData(frontendObj);
-          setDesktopPax(calculatedMinPax);
-           
-           // Check if saved
-           if (session?.user?.email) {
-              const { data: savedItem } = await supabase
-                .from('bookings')
-                .select('id')
-                .eq('details->>isWishlist', 'true')
-                .eq('details->>customer_email', session.user.email)
-                .eq('details->item->>id', resolvedParams.id)
-                .single();
-              if (savedItem) setIsSaved(true);
-           }
-        }
-     };
-     fetchDetail();
-  }, [resolvedParams.id, session]);
+    const checkSaved = async () => {
+      if (session?.user?.email && tourData?.id) {
+         const { data: savedItem } = await supabase
+           .from('bookings')
+           .select('id')
+           .eq('details->>isWishlist', 'true')
+           .eq('details->>customer_email', session.user.email)
+           .eq('details->item->>id', tourData.id)
+           .single();
+         if (savedItem) setIsSaved(true);
+      }
+    };
+    checkSaved();
+  }, [tourData?.id, session]);
 
   const handleShare = async () => {
     if (navigator.share) {

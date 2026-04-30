@@ -12,6 +12,7 @@ import EditListingModal from "../../../components/admin/EditListingModal";
 import EditCompanyModal from "../../../components/admin/EditCompanyModal";
 import ReviewModal from "../../../components/admin/ReviewModal";
 import HeroSettingsModal from "../../../components/admin/HeroSettingsModal";
+import { generateSlug } from "@/lib/utils";
 
 export default function AdminListings() {
   const [activeTab, setActiveTab] = useState("Tour");
@@ -139,7 +140,7 @@ export default function AdminListings() {
   };
 
   const handlePreview = (item) => {
-    window.open(`/tours/${item.id}`, '_blank');
+    window.open(`/tours/${generateSlug(item.title)}`, '_blank');
   };
 
   const handleSaveItem = async (updatedItem) => {

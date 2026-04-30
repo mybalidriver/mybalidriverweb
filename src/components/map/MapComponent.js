@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { APIProvider, Map, AdvancedMarker, useMap, useMapsLibrary } from "@vis.gl/react-google-maps";
 import { Search, MapPin, Navigation, SlidersHorizontal, ChevronDown } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { generateSlug } from "@/lib/utils";
 
 // Formatter for IDR
 const formatIDR = (num) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
@@ -458,7 +459,7 @@ function MapInterface() {
         <div className="absolute bottom-[96px] left-0 right-0 z-10 w-full animate-in slide-in-from-bottom-10 fade-in duration-300 pointer-events-none">
           <div className="flex overflow-x-auto snap-x snap-mandatory no-scrollbar px-6 gap-4 pb-4 pointer-events-auto">
             {displayedTours.map((tour) => (
-              <div key={tour.id} onClick={() => router.push(`/tours/${tour.id}`)} className="snap-center shrink-0 w-[calc(100vw-64px)] max-w-[320px] bg-white/95 backdrop-blur-md rounded-3xl p-4 shadow-xl flex gap-4 items-center border border-white/50 cursor-pointer active:scale-[0.98] transition-transform">
+              <div key={tour.id} onClick={() => router.push(`/tours/${generateSlug(tour.name)}`)} className="snap-center shrink-0 w-[calc(100vw-64px)] max-w-[320px] bg-white/95 backdrop-blur-md rounded-3xl p-4 shadow-xl flex gap-4 items-center border border-white/50 cursor-pointer active:scale-[0.98] transition-transform">
                 <img src={tour.image} alt={tour.name} className="w-20 h-20 rounded-2xl object-cover shrink-0 shadow-sm" />
                 <div className="flex-1 flex flex-col justify-center overflow-hidden">
                   <h3 className="font-bold text-[15px] leading-tight text-primary mb-1 truncate">{tour.name}</h3>
