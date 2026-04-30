@@ -80,7 +80,7 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
     const sTitle = serviceData?.title?.toUpperCase() || "UNKNOWN";
     const divider = "━━━━━━━━━━━━━━━━━━━━━━";
     
-    let messageDetails = `*TROVE EXPERIENCE BOOKING*\n${divider}\n*BOOKING ID:* #${bookingId}\n*SERVICE:* ${sType}\n*TITLE:* ${sTitle}\n${divider}\n*NAME:* ${formData.name}\n*WHATSAPP:* ${formData.phone}\n*DATE:* ${formData.date}`;
+    let messageDetails = `*MYBALIDRIVER BOOKING*\n${divider}\n*BOOKING ID:* #${bookingId}\n*SERVICE:* ${sType}\n*TITLE:* ${sTitle}\n${divider}\n*NAME:* ${formData.name}\n*WHATSAPP:* ${formData.phone}\n*DATE:* ${formData.date}`;
     
     if (serviceData?.type === "tour" || serviceData?.type === "activities") {
       messageDetails += `\n*PACKAGE:* ${localPackage}`;
@@ -88,18 +88,18 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
     
     if (serviceData?.type === "tour") {
       messageDetails += `\n*GUESTS:* ${formData.guests} Pax\n*PICKUP:* ${formData.pickupLocation.name}`;
-      if (formData.pickupLocation.url) messageDetails += `\n*MAPS:* ${formData.pickupLocation.url}`;
+      if (formData.pickupLocation.name) messageDetails += `\n*MAPS:* https://maps.google.com/?q=${encodeURIComponent(formData.pickupLocation.name)}`;
     } else if (serviceData?.type === "spa") {
       messageDetails += `\n*TIME:* ${formData.time}\n*GUESTS:* ${formData.guests} Pax\n*LOCATION:* ${formData.pickupLocation.name}`;
-      if (formData.pickupLocation.url) messageDetails += `\n*MAPS:* ${formData.pickupLocation.url}`;
+      if (formData.pickupLocation.name) messageDetails += `\n*MAPS:* https://maps.google.com/?q=${encodeURIComponent(formData.pickupLocation.name)}`;
     } else if (serviceData?.type === "scooter") {
       messageDetails += `\n*DURATION:* ${formData.duration} Days\n*DELIVERY LOC:* ${formData.pickupLocation.name}`;
-      if (formData.pickupLocation.url) messageDetails += `\n*MAPS:* ${formData.pickupLocation.url}`;
+      if (formData.pickupLocation.name) messageDetails += `\n*MAPS:* https://maps.google.com/?q=${encodeURIComponent(formData.pickupLocation.name)}`;
     } else if (serviceData?.type === "transport") {
       messageDetails += `\n*TIME:* ${formData.time}\n*PASSENGERS:* ${formData.guests} Pax\n*PICKUP:* ${formData.pickupLocation.name}`;
-      if (formData.pickupLocation.url) messageDetails += `\n*MAPS:* ${formData.pickupLocation.url}`;
+      if (formData.pickupLocation.name) messageDetails += `\n*MAPS:* https://maps.google.com/?q=${encodeURIComponent(formData.pickupLocation.name)}`;
       messageDetails += `\n*DROPOFF:* ${formData.dropoffLocation.name}`;
-      if (formData.dropoffLocation.url) messageDetails += `\n*DESTINATION MAPS:* ${formData.dropoffLocation.url}`;
+      if (formData.dropoffLocation.name) messageDetails += `\n*DESTINATION MAPS:* https://maps.google.com/?q=${encodeURIComponent(formData.dropoffLocation.name)}`;
     }
 
     let total = 0;
