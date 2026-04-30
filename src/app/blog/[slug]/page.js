@@ -8,12 +8,63 @@ import { generateSlug } from '@/lib/utils';
 
 const formatContent = (htmlOrText) => {
   if (!htmlOrText) return '<p>No content available for this article yet.</p>';
-  if (/<[a-z][\s\S]*>/i.test(htmlOrText)) {
+  
+  // If it already contains explicit structural HTML, trust the user's formatting
+  if (/<(p|h[1-6]|ul|ol|div|br)[^>]*>/i.test(htmlOrText)) {
     return htmlOrText;
   }
-  return htmlOrText.split(/\n\s*\n/).map(p => {
-     return `<p>${p.replace(/\n/g, '<br/>')}</p>`;
-  }).join('');
+
+  // SMART AUTO-FORMATTER FOR PASTE
+  let html = '';
+  let inList = false;
+  
+  // Convert basic markdown bold to HTML
+  let processedText = htmlOrText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  
+  // Split by newlines, preserving intention but ignoring pure empty lines
+  const lines = processedText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+
+  lines.forEach((line, index) => {
+    // Detect List Items (bullets or numbers)
+    const listMatch = line.match(/^([-*]|\d+\.)\s+(.*)$/);
+    
+    if (listMatch) {
+      if (!inList) {
+        html += '<ul>';
+        inList = true;
+      }
+      let content = listMatch[2];
+      // Automatically bold text before a colon in a list item (common ChatGPT output)
+      content = content.replace(/^([^:]+):/, '<strong>$1:</strong>');
+      html += `<li>${content}</li>`;
+      return; // Skip the rest of the loop for this line
+    } else if (inList) {
+      html += '</ul>';
+      inList = false;
+    }
+
+    // Clean line for evaluation
+    const cleanLine = line.replace(/<\/?strong>/g, '');
+    
+    // Detect Headings (Short, no ending punctuation, OR entirely wrapped in bold)
+    const isBoldedLine = line.startsWith('<strong>') && line.endsWith('</strong>');
+    const isShortNoPunctuation = cleanLine.length < 80 && !/[.,;!?]$/.test(cleanLine) && cleanLine.split(' ').length > 1;
+    const isHeading = isShortNoPunctuation || isBoldedLine;
+    
+    if (isHeading) {
+      if (index === 0 || html.indexOf('<h2') === -1) {
+        html += `<h2>${cleanLine}</h2>`; // First heading is H2
+      } else {
+        html += `<h3>${cleanLine}</h3>`; // Subsequent headings are H3
+      }
+    } else {
+      html += `<p>${line}</p>`; // Standard paragraph
+    }
+  });
+
+  if (inList) html += '</ul>';
+
+  return html;
 };
 
 export async function generateMetadata({ params }) {
