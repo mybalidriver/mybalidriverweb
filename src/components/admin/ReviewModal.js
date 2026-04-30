@@ -4,15 +4,30 @@ import React, { useState } from "react";
 import { X, Star, Trash2, MessageSquare, AlertCircle } from "lucide-react";
 
 export default function ReviewModal({ item, onClose }) {
-  // Generate mock reviews based on the item provided
-  const [reviews, setReviews] = useState([
-    { id: 101, user: "Sarah Jenkins", rating: 5, date: "2 Days Ago", comment: "Absolutely incredible experience! Everything was perfectly managed and the guide was fantastic.", isHidden: false },
-    { id: 102, user: "Michael Chen", rating: 4, date: "1 Week Ago", comment: "Really great time, highly recommended but the pickup was a bit late.", isHidden: false },
-    { id: 103, user: "Elena Rostova", rating: 2, date: "2 Weeks Ago", comment: "The weather ruined it and I couldn't get a refund. Poor customer service.", isHidden: false },
-  ]);
+  const [reviews, setReviews] = useState(item.data?.reviewsList || []);
+  const [isDeleting, setIsDeleting] = useState(null);
 
-  const handleDelete = (id) => {
-    setReviews(reviews.filter(r => r.id !== id));
+  const handleDelete = async (reviewId) => {
+    if (isDeleting) return;
+    if (!confirm("Are you sure you want to delete this review?")) return;
+    
+    setIsDeleting(reviewId);
+    try {
+      const res = await fetch('/api/admin/reviews', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ listingId: item.id, reviewId })
+      });
+      if (res.ok) {
+        setReviews(reviews.filter(r => r.id !== reviewId));
+      } else {
+        alert("Failed to delete review");
+      }
+    } catch (err) {
+      alert("Network error");
+    } finally {
+      setIsDeleting(null);
+    }
   };
 
   return (
@@ -65,7 +80,7 @@ export default function ReviewModal({ item, onClose }) {
                     <div className="flex justify-between items-start mb-1">
                        <div>
                          <h4 className="font-extrabold text-sm text-primary">{review.user}</h4>
-                         <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{review.date}</span>
+                         <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{new Date(review.date).toLocaleDateString()}</span>
                        </div>
                        
                        {/* Rating Stars */}
@@ -96,7 +111,8 @@ export default function ReviewModal({ item, onClose }) {
                      <button 
                        onClick={() => handleDelete(review.id)}
                        title="Remove Review"
-                       className="w-8 h-8 rounded-full bg-red-50 hover:bg-red-100 flex items-center justify-center text-red-500 transition-colors"
+                       disabled={isDeleting === review.id}
+                       className="w-8 h-8 rounded-full bg-red-50 hover:bg-red-100 flex items-center justify-center text-red-500 transition-colors disabled:opacity-50"
                      >
                        <Trash2 size={14} />
                      </button>

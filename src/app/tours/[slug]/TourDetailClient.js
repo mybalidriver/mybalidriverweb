@@ -25,6 +25,15 @@ export default function TourDetailClient({ tourData, slug }) {
   const [isSaved, setIsSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
+  // Reviews State
+  const [reviewName, setReviewName] = useState("");
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState("");
+  const [reviewCode, setReviewCode] = useState("");
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [reviewMessage, setReviewMessage] = useState({ type: '', text: '' });
+  const [localReviews, setLocalReviews] = useState(tourData?.reviewsList || []);
+
   const getMultiplierPrice = (rawPrice) => {
     const p = Number(rawPrice);
     if (!p) return 0;
@@ -160,7 +169,49 @@ export default function TourDetailClient({ tourData, slug }) {
     }
   };
 
-  const tabs = ["About this activity", "Experience", "Itinerary", "Important information"];
+  const handleSubmitReview = async (e) => {
+    e.preventDefault();
+    if (!reviewName.trim() || !reviewComment.trim() || !reviewCode.trim()) {
+      setReviewMessage({ type: 'error', text: 'Please fill in all fields.' });
+      return;
+    }
+    
+    setIsSubmittingReview(true);
+    setReviewMessage({ type: '', text: '' });
+
+    try {
+      const res = await fetch('/api/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: tourData.id,
+          name: reviewName,
+          rating: reviewRating,
+          comment: reviewComment,
+          accessCode: reviewCode
+        })
+      });
+
+      const data = await res.json();
+      
+      if (!res.ok) {
+        setReviewMessage({ type: 'error', text: data.error || 'Failed to submit review.' });
+      } else {
+        setReviewMessage({ type: 'success', text: 'Review submitted successfully!' });
+        setLocalReviews([...localReviews, data.newReview]);
+        setReviewName("");
+        setReviewComment("");
+        setReviewCode("");
+        setReviewRating(5);
+      }
+    } catch (err) {
+      setReviewMessage({ type: 'error', text: 'Network error. Please try again later.' });
+    } finally {
+      setIsSubmittingReview(false);
+    }
+  };
+
+  const tabs = ["About this activity", "Experience", "Itinerary", "Important information", "Reviews"];
 
   if (!tourData) {
      return (
@@ -424,6 +475,107 @@ export default function TourDetailClient({ tourData, slug }) {
                      </ul>
                   </div>
                 ) : null}
+              </div>
+            )}
+
+            {activeTab === "Reviews" && (
+              <div className="animate-in fade-in duration-300">
+                <h3 className="font-bold text-[22px] md:text-[24px] text-primary mb-6">Customer Reviews</h3>
+                
+                {/* Review Form */}
+                <div className="bg-[#fdfbf7] p-6 rounded-2xl border border-gray-100 mb-8 shadow-sm">
+                   <h4 className="font-bold text-[18px] text-primary mb-4">Leave a Review</h4>
+                   
+                   {reviewMessage.text && (
+                     <div className={`p-3 rounded-xl mb-4 text-sm font-bold ${reviewMessage.type === 'success' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
+                       {reviewMessage.text}
+                     </div>
+                   )}
+
+                   <form onSubmit={handleSubmitReview} className="space-y-4">
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                       <div>
+                         <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Your Name</label>
+                         <input 
+                           type="text" 
+                           required 
+                           className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-primary transition-colors"
+                           value={reviewName}
+                           onChange={(e) => setReviewName(e.target.value)}
+                         />
+                       </div>
+                       <div>
+                         <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Access Code</label>
+                         <input 
+                           type="text" 
+                           required 
+                           placeholder="MBD-123"
+                           className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-primary transition-colors"
+                           value={reviewCode}
+                           onChange={(e) => setReviewCode(e.target.value)}
+                         />
+                       </div>
+                     </div>
+                     
+                     <div>
+                       <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Rating</label>
+                       <div className="flex gap-1">
+                         {[1, 2, 3, 4, 5].map(star => (
+                           <button 
+                             key={star} 
+                             type="button" 
+                             onClick={() => setReviewRating(star)}
+                             className="focus:outline-none"
+                           >
+                             <Star size={24} className={star <= reviewRating ? "fill-[#F59E0B] text-[#F59E0B]" : "fill-gray-200 text-gray-200"} />
+                           </button>
+                         ))}
+                       </div>
+                     </div>
+
+                     <div>
+                       <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Comment</label>
+                       <textarea 
+                         required 
+                         rows={4}
+                         className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-primary transition-colors resize-none"
+                         value={reviewComment}
+                         onChange={(e) => setReviewComment(e.target.value)}
+                       ></textarea>
+                     </div>
+
+                     <button 
+                       type="submit" 
+                       disabled={isSubmittingReview}
+                       className="px-6 py-3 bg-primary text-white font-bold rounded-xl active:scale-95 transition-transform disabled:opacity-50"
+                     >
+                       {isSubmittingReview ? "Submitting..." : "Submit Review"}
+                     </button>
+                   </form>
+                </div>
+
+                {/* Display Live Reviews */}
+                <div className="space-y-4">
+                   <h4 className="font-bold text-[18px] text-primary mb-4">All Reviews ({localReviews.length})</h4>
+                   {localReviews.length === 0 ? (
+                     <p className="text-gray-500 text-sm font-medium italic">No reviews yet. Be the first to leave one!</p>
+                   ) : (
+                     [...localReviews].reverse().map(review => (
+                       <div key={review.id} className="border-b border-gray-100 pb-4 last:border-0">
+                         <div className="flex items-center justify-between mb-2">
+                            <span className="font-bold text-primary">{review.user}</span>
+                            <span className="text-xs font-bold text-gray-400">{new Date(review.date).toLocaleDateString()}</span>
+                         </div>
+                         <div className="flex items-center gap-0.5 mb-2">
+                           {[...Array(5)].map((_, i) => (
+                             <Star key={i} size={12} className={i < review.rating ? "fill-[#F59E0B] text-[#F59E0B]" : "fill-gray-200 text-gray-200"} />
+                           ))}
+                         </div>
+                         <p className="text-sm font-medium text-text-secondary leading-relaxed">{review.comment}</p>
+                       </div>
+                     ))
+                   )}
+                </div>
               </div>
             )}
           </div>

@@ -75,12 +75,20 @@ export default function ListingCard({ item, linkTo }) {
   };
 
   let basePriceToUse = item.price;
-  if ((!basePriceToUse || basePriceToUse == 0)) {
-      const tiersToUse = (item.tourTiers && item.tourTiers.length > 0) ? item.tourTiers : ((item.allInclusiveTiers && item.allInclusiveTiers.length > 0) ? item.allInclusiveTiers : []);
+  if (!basePriceToUse || basePriceToUse == 0) {
+      const dataObj = item.data || {};
+      const tiersToUse = (dataObj.tourTiers && dataObj.tourTiers.length > 0) ? dataObj.tourTiers : ((dataObj.allInclusiveTiers && dataObj.allInclusiveTiers.length > 0) ? dataObj.allInclusiveTiers : []);
       const validTiers = tiersToUse.filter(t => t.price && Number(String(t.price).replace(/[^0-9]/g, '')) > 0);
       if (validTiers.length > 0) {
           validTiers.sort((a, b) => Number(a.pax) - Number(b.pax));
-          basePriceToUse = Number(String(validTiers[0].price).replace(/[^0-9]/g, '')) / Number(validTiers[0].pax);
+          const minTier = validTiers[0];
+          let priceNum = Number(String(minTier.price).replace(/[^0-9]/g, ''));
+          if (dataObj.pricingType !== "Per Group") {
+             priceNum = priceNum / (Number(minTier.pax) || 1);
+          }
+          basePriceToUse = priceNum;
+      } else if (dataObj.allInclusiveSurcharge) {
+          basePriceToUse = Number(String(dataObj.allInclusiveSurcharge).replace(/[^0-9]/g, ''));
       }
   }
 
