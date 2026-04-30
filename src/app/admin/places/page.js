@@ -55,34 +55,56 @@ export default function SEOPlacesManagement() {
     }
   ];
 
-  useEffect(() => {
-    const saved = localStorage.getItem("bali_places_v3");
-    if (saved) {
-      setPlaces(JSON.parse(saved));
-    } else {
-      setPlaces(initialPlaces);
-      localStorage.setItem("bali_places_v3", JSON.stringify(initialPlaces));
+  const fetchBlogs = async () => {
+    try {
+      const res = await fetch('/api/admin/blogs');
+      if (res.ok) {
+        const data = await res.json();
+        setPlaces(data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch blogs:", error);
+    } finally {
+      setIsLoaded(true);
     }
-    setIsLoaded(true);
+  };
+
+  useEffect(() => {
+    fetchBlogs();
   }, []);
 
-  const savePlaces = (newData) => {
-    setPlaces(newData);
-    localStorage.setItem("bali_places_v3", JSON.stringify(newData));
-  };
-
-  const handleStatusChange = (id, newStatus) => {
-    const updated = places.map(p => p.id === id ? { ...p, status: newStatus } : p);
-    savePlaces(updated);
+  const handleStatusChange = async (id, newStatus) => {
     setOpenDropdown(null);
-  };
-
-  const handleDelete = (id) => {
-    if (confirm("Permanently delete this blog/place entry? It will impact SEO.")) {
-      const updated = places.filter(p => p.id !== id);
-      savePlaces(updated);
+    try {
+      const res = await fetch('/api/admin/blogs', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, status: newStatus })
+      });
+      if (res.ok) {
+        setPlaces(places.map(p => p.id === id ? { ...p, status: newStatus } : p));
+      } else {
+        alert("Failed to update status");
+      }
+    } catch (err) {
+      alert("Network error");
     }
+  };
+
+  const handleDelete = async (id) => {
     setOpenDropdown(null);
+    if (confirm("Permanently delete this blog/place entry? It will impact SEO.")) {
+      try {
+        const res = await fetch(`/api/admin/blogs?id=${id}`, { method: 'DELETE' });
+        if (res.ok) {
+          setPlaces(places.filter(p => p.id !== id));
+        } else {
+          alert("Failed to delete");
+        }
+      } catch (err) {
+        alert("Network error");
+      }
+    }
   };
 
   const handleImageUpload = (e) => {
@@ -107,13 +129,11 @@ export default function SEOPlacesManagement() {
     });
   };
 
-
-
   const openEditModal = (place) => {
     setEditingPlace(place);
     setFormData({ 
-       title: place.title, location: place.location, category: place.category, 
-       slug: place.slug, meta: place.meta || "", status: place.status, 
+       title: place.title || "", location: place.location || "", category: place.category || "Beach", 
+       slug: place.slug || "", meta: place.meta || "", status: place.status || "Draft", 
        image: place.image || "", images: place.images || [], content: place.content || ""
     });
     setIsModalOpen(true);
@@ -126,18 +146,42 @@ export default function SEOPlacesManagement() {
     setIsModalOpen(true);
   };
 
-  const handleSaveModal = () => {
-    if (editingPlace) {
-      const updated = places.map(p => p.id === editingPlace.id ? { ...p, ...formData } : p);
-      savePlaces(updated);
-    } else {
-      const newPlace = {
-        ...formData,
-        id: `PLC-${Math.floor(100 + Math.random() * 900)}`,
-        views: "0",
-        slug: `/blog/${formData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`
-      };
-      savePlaces([newPlace, ...places]);
+  const handleSaveModal = async () => {
+    // Generate a default slug if empty
+    const payload = { ...formData };
+    if (!payload.slug || payload.slug === '/blog/') {
+      payload.slug = `/blog/${payload.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+    }
+
+    try {
+      if (editingPlace) {
+        payload.id = editingPlace.id;
+        const res = await fetch('/api/admin/blogs', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok) {
+          const updatedRecord = await res.json();
+          setPlaces(places.map(p => p.id === editingPlace.id ? updatedRecord : p));
+        } else {
+          alert("Failed to update article");
+        }
+      } else {
+        const res = await fetch('/api/admin/blogs', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok) {
+          const newRecord = await res.json();
+          setPlaces([newRecord, ...places]);
+        } else {
+          alert("Failed to create article");
+        }
+      }
+    } catch (err) {
+      alert("Network error");
     }
     setIsModalOpen(false);
   };
