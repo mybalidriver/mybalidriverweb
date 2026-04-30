@@ -117,10 +117,6 @@ export default async function BlogDetail({ params }) {
                     <span>{post.location}</span>
                  </div>
                  <div className="flex items-center gap-1.5 backdrop-blur-sm bg-black/20 px-3 py-1.5 rounded-full border border-white/10">
-                    <Eye size={14} className="text-gray-300" />
-                    <span>{post.views || '0'} reads</span>
-                 </div>
-                 <div className="flex items-center gap-1.5 backdrop-blur-sm bg-black/20 px-3 py-1.5 rounded-full border border-white/10">
                     <Calendar size={14} className="text-gray-300" />
                     <span>{new Date(post.created_at).toLocaleDateString()}</span>
                  </div>

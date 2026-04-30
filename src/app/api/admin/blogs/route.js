@@ -42,8 +42,7 @@ export async function POST(req) {
       category: body.category,
       location: body.location,
       status: body.status || 'Draft',
-      image: body.image,
-      views: '0'
+      image: body.image
     };
 
     const { data, error } = await supabase

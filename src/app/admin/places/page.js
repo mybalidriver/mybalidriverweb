@@ -14,6 +14,26 @@ export default function SEOPlacesManagement() {
   const [isSaving, setIsSaving] = useState(false);
   const [editingPlace, setEditingPlace] = useState(null);
   const [formData, setFormData] = useState({ title: "", location: "", category: "Beach", slug: "", meta: "", status: "Published", image: "", images: [], content: "" });
+  const textareaRef = React.useRef(null);
+
+  const insertFormat = (formatStart, formatEnd = '') => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = formData.content || '';
+    const selectedText = text.substring(start, end);
+    
+    const newText = text.substring(0, start) + formatStart + selectedText + formatEnd + text.substring(end);
+    
+    setFormData(prev => ({...prev, content: newText}));
+    
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(start + formatStart.length, end + formatStart.length);
+    }, 0);
+  };
 
   const initialPlaces = [
     { 
@@ -381,20 +401,24 @@ export default function SEOPlacesManagement() {
                    <div className="w-full h-[300px] bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm flex flex-col mb-6">
                       {/* Rich Text Editor Toolbar Mock */}
                       <div className="h-10 bg-gray-50 border-b border-gray-200 flex items-center px-3 gap-2 shrink-0">
-                         <button className="w-6 h-6 rounded flex items-center justify-center hover:bg-gray-200 font-bold text-sm text-gray-600">B</button>
-                         <button className="w-6 h-6 rounded flex items-center justify-center hover:bg-gray-200 font-serif italic text-sm text-gray-600">I</button>
-                         <button className="w-6 h-6 rounded flex items-center justify-center hover:bg-gray-200 underline text-sm text-gray-600">U</button>
+                         <button type="button" onClick={() => insertFormat('<strong>', '</strong>')} className="w-6 h-6 rounded flex items-center justify-center hover:bg-gray-200 font-bold text-sm text-gray-600">B</button>
+                         <button type="button" onClick={() => insertFormat('<em>', '</em>')} className="w-6 h-6 rounded flex items-center justify-center hover:bg-gray-200 font-serif italic text-sm text-gray-600">I</button>
+                         <button type="button" onClick={() => insertFormat('<u>', '</u>')} className="w-6 h-6 rounded flex items-center justify-center hover:bg-gray-200 underline text-sm text-gray-600">U</button>
                          <div className="w-px h-4 bg-gray-300 mx-1"></div>
-                         <button className="h-6 px-2 rounded flex items-center justify-center hover:bg-gray-200 font-bold text-xs text-gray-600">H1</button>
-                         <button className="h-6 px-2 rounded flex items-center justify-center hover:bg-gray-200 font-bold text-xs text-gray-600">H2</button>
-                         <button className="h-6 px-2 rounded flex items-center justify-center hover:bg-gray-200 font-bold text-xs text-gray-600">H3</button>
+                         <button type="button" onClick={() => insertFormat('<h2>', '</h2>')} className="h-6 px-2 rounded flex items-center justify-center hover:bg-gray-200 font-bold text-xs text-gray-600">H1</button>
+                         <button type="button" onClick={() => insertFormat('<h3>', '</h3>')} className="h-6 px-2 rounded flex items-center justify-center hover:bg-gray-200 font-bold text-xs text-gray-600">H2</button>
+                         <button type="button" onClick={() => insertFormat('<h4>', '</h4>')} className="h-6 px-2 rounded flex items-center justify-center hover:bg-gray-200 font-bold text-xs text-gray-600">H3</button>
                          <div className="w-px h-4 bg-gray-300 mx-1"></div>
-                         <button className="w-6 h-6 rounded flex items-center justify-center hover:bg-gray-200 text-gray-600"><ImageIcon size={14}/></button>
+                         <button type="button" onClick={() => {
+                            const url = prompt("Enter image URL:");
+                            if(url) insertFormat(`<img src="${url}" alt="Image" class="w-full rounded-2xl my-4" />`);
+                         }} className="w-6 h-6 rounded flex items-center justify-center hover:bg-gray-200 text-gray-600"><ImageIcon size={14}/></button>
                       </div>
                       
                       <textarea 
+                         ref={textareaRef}
                          className="flex-1 w-full p-4 resize-none outline-none text-[13px] text-gray-700 font-medium leading-relaxed font-sans placeholder:text-gray-400 focus:bg-[#FAFAFA]"
-                         placeholder="Write your article body here... Use Markdown or HTML for structure."
+                         placeholder="Write your article body here... Select text and use the toolbar to format."
                          value={formData.content || ''}
                          onChange={(e) => setFormData(prev => ({...prev, content: e.target.value}))}
                       ></textarea>
