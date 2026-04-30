@@ -17,46 +17,68 @@ const formatContent = (htmlOrText) => {
   // SMART AUTO-FORMATTER FOR PASTE
   let html = '';
   let inList = false;
+  let expectList = false;
   
   // Convert basic markdown bold to HTML
   let processedText = htmlOrText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
   
-  // Split by newlines, preserving intention but ignoring pure empty lines
-  const lines = processedText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  // Split by newlines, keep empty lines to detect paragraph breaks!
+  const lines = processedText.split('\n').map(l => l.trim());
 
   lines.forEach((line, index) => {
-    // Detect List Items (bullets or numbers)
+    if (line.length === 0) {
+       // A blank line breaks an implicit list
+       if (inList && expectList) expectList = false;
+       return;
+    }
+
+    // Detect explicit List Items (bullets or numbers)
     const listMatch = line.match(/^([-*]|\d+\.)\s+(.*)$/);
     
+    // Clean line for evaluation
+    const cleanLine = line.replace(/<\/?strong>/g, '');
+    const isBoldedLine = line.startsWith('<strong>') && line.endsWith('</strong>');
+
+    let isListItem = false;
+    let content = line;
+
     if (listMatch) {
+      isListItem = true;
+      content = listMatch[2];
+    } else if (expectList && !isBoldedLine) {
+      isListItem = true;
+    }
+
+    if (isListItem) {
       if (!inList) {
-        html += '<ul>';
+        // Use a beautiful custom styled list
+        html += '<ul class="space-y-3 my-6 pl-2">';
         inList = true;
       }
-      let content = listMatch[2];
-      // Automatically bold text before a colon in a list item (common ChatGPT output)
+      // Automatically bold text before a colon in a list item
       content = content.replace(/^([^:]+):/, '<strong>$1:</strong>');
-      html += `<li>${content}</li>`;
-      return; // Skip the rest of the loop for this line
+      html += `<li class="flex items-start gap-3"><div class="mt-2.5 w-1.5 h-1.5 rounded-full bg-accent shrink-0"></div><span class="flex-1">${content}</span></li>`;
+      return; 
     } else if (inList) {
       html += '</ul>';
       inList = false;
     }
-
-    // Clean line for evaluation
-    const cleanLine = line.replace(/<\/?strong>/g, '');
-    
-    // Detect Headings: ONLY explicitly bolded lines become headings to prevent false positives
-    const isBoldedLine = line.startsWith('<strong>') && line.endsWith('</strong>');
     
     if (isBoldedLine) {
       if (index === 0 || html.indexOf('<h2') === -1) {
-        html += `<h2>${cleanLine}</h2>`; // First heading is H2
+        html += `<h2>${cleanLine}</h2>`; 
       } else {
-        html += `<h3>${cleanLine}</h3>`; // Subsequent headings are H3
+        html += `<h3>${cleanLine}</h3>`; 
       }
+      expectList = false; // Reset implicit list detection
     } else {
-      html += `<p>${line}</p>`; // Standard paragraph
+      if (cleanLine.endsWith(':')) {
+         expectList = true; // The next lines are an implicit list!
+         html += `<p class="font-bold text-xl text-primary mt-8 mb-4">${line}</p>`;
+      } else {
+         expectList = false;
+         html += `<p>${line}</p>`; 
+      }
     }
   });
 
