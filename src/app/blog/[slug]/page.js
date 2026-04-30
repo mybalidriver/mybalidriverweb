@@ -46,12 +46,10 @@ const formatContent = (htmlOrText) => {
     // Clean line for evaluation
     const cleanLine = line.replace(/<\/?strong>/g, '');
     
-    // Detect Headings (Short, no ending punctuation, OR entirely wrapped in bold)
+    // Detect Headings: ONLY explicitly bolded lines become headings to prevent false positives
     const isBoldedLine = line.startsWith('<strong>') && line.endsWith('</strong>');
-    const isShortNoPunctuation = cleanLine.length < 80 && !/[.,;!?]$/.test(cleanLine) && cleanLine.split(' ').length > 1;
-    const isHeading = isShortNoPunctuation || isBoldedLine;
     
-    if (isHeading) {
+    if (isBoldedLine) {
       if (index === 0 || html.indexOf('<h2') === -1) {
         html += `<h2>${cleanLine}</h2>`; // First heading is H2
       } else {
@@ -66,6 +64,8 @@ const formatContent = (htmlOrText) => {
 
   return html;
 };
+
+export const revalidate = 3600; // Cache this page for 1 hour to ensure lightning fast load times
 
 export async function generateMetadata({ params }) {
   const resolvedParams = await params;
