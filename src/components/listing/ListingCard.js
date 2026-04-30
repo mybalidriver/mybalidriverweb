@@ -83,6 +83,9 @@ export default function ListingCard({ item, linkTo }) {
           validTiers.sort((a, b) => Number(a.pax) - Number(b.pax));
           const minTier = validTiers[0];
           let priceNum = Number(String(minTier.price).replace(/[^0-9]/g, ''));
+          if (dataObj.pricingType !== "Per Group") {
+             priceNum = priceNum / (Number(minTier.pax) || 1);
+          }
           basePriceToUse = priceNum;
       } else if (dataObj.allInclusiveSurcharge) {
           basePriceToUse = Number(String(dataObj.allInclusiveSurcharge).replace(/[^0-9]/g, ''));
