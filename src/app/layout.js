@@ -17,12 +17,14 @@ export const viewport = {
 };
 
 export const metadata = {
+  metadataBase: new URL("https://www.bobbybaliguide.com"),
+  applicationName: "MyBaliDriver",
   title: {
-    default: "MyBaliDriver | Premium Bali Private Drivers & Bespoke Tours",
+    default: "MyBaliDriver | Best Private Drivers & Premium Tours in Bali",
     template: "%s | MyBaliDriver"
   },
-  description: "Discover the true beauty of Bali with MyBaliDriver. We provide premium private car charters, experienced local guides, and bespoke tour packages tailored to your perfect itinerary. Explore Ubud, Nusa Penida, and beyond with comfort and reliability.",
-  keywords: ["Bali Private Driver", "Hire Driver in Bali", "Bali Car Charter", "Premium Bali Tours", "Ubud Day Tour", "Nusa Penida Tour Package", "Bali Airport Transfer", "Custom Bali Itinerary", "Local Bali Guide"],
+  description: "Experience the best of Bali and Ubud with MyBaliDriver. Top-rated private car charters, experienced local guides, and bespoke luxury tour packages. Book your unforgettable Bali adventure today!",
+  keywords: ["Bali Private Driver", "Hire Driver in Bali", "Bali Car Charter", "Premium Bali Tours", "Ubud Day Tour", "Nusa Penida Tour Package", "Bali Airport Transfer", "Custom Bali Itinerary", "Local Bali Guide", "Best Driver in Ubud"],
   authors: [{ name: "MyBaliDriver" }],
   creator: "MyBaliDriver",
   publisher: "MyBaliDriver",
@@ -32,9 +34,9 @@ export const metadata = {
     telephone: false,
   },
   openGraph: {
-    title: "MyBaliDriver | Premium Bali Private Drivers & Bespoke Tours",
-    description: "Discover the true beauty of Bali with MyBaliDriver. We provide premium private car charters, experienced local guides, and bespoke tour packages.",
-    url: "https://www.mybalidriver.com",
+    title: "MyBaliDriver | Best Private Drivers & Premium Tours in Bali",
+    description: "Experience the best of Bali and Ubud with MyBaliDriver. Top-rated private car charters, experienced local guides, and bespoke luxury tour packages.",
+    url: "https://www.bobbybaliguide.com",
     siteName: "MyBaliDriver",
     images: [
       {
@@ -60,15 +62,29 @@ export const metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "MyBaliDriver | Premium Bali Private Drivers & Bespoke Tours",
-    description: "Discover the true beauty of Bali with MyBaliDriver. We provide premium private car charters, experienced local guides, and bespoke tour packages.",
+    title: "MyBaliDriver | Best Private Drivers & Premium Tours in Bali",
+    description: "Experience the best of Bali and Ubud with MyBaliDriver. Top-rated private car charters, experienced local guides, and bespoke luxury tour packages.",
     images: ["https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=1200&q=80"],
   },
 };
 
 export default function RootLayout({ children }) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "MyBaliDriver",
+    "alternateName": ["My Bali Driver", "Bobby Bali Guide"],
+    "url": "https://www.bobbybaliguide.com/"
+  };
+
   return (
     <html lang="en">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body className={`${inter.className} ${playfair.variable} min-h-screen flex flex-col bg-background selection:bg-accent selection:text-primary pb-24 md:pb-0`}>
         <AuthProvider>
           <GoogleTranslate />
