@@ -81,12 +81,29 @@ export default function AdminLayout({ children }) {
     }
   };
 
+  const [latestBookingId, setLatestBookingId] = useState(null);
+
+  React.useEffect(() => {
+    // Initial fetch to get the baseline latest booking ID so it doesn't trigger on mount
+    fetch('/api/admin/bookings/latest')
+      .then(res => res.json())
+      .then(data => {
+        if (data?.id) setLatestBookingId(data.id);
+      })
+      .catch(err => console.error("Failed initial fetch", err));
+  }, []);
+
   React.useEffect(() => {
     if (!notificationsEnabled) return;
     
-    const channel = supabase
-      .channel('schema-db-changes')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'bookings' }, (payload) => {
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch('/api/admin/bookings/latest');
+        const data = await res.json();
+        
+        if (data?.id && latestBookingId && data.id !== latestBookingId) {
+          setLatestBookingId(data.id);
+          
           let src = sounds[notificationSound];
           if (notificationSound === 'custom' && customSoundUrl) src = customSoundUrl;
           if (src) {
@@ -95,21 +112,25 @@ export default function AdminLayout({ children }) {
           }
           if (typeof window !== "undefined" && window.Notification && Notification.permission === 'granted') {
              new Notification('New Booking Received!', {
-               body: `${payload.new?.service_name || 'A new tour'} was booked.`,
+               body: `${data.service_name || 'A new tour'} was booked.`,
                icon: '/icon.jpg'
              });
           }
-      })
-      .subscribe();
+        } else if (data?.id && !latestBookingId) {
+          // just set it if we missed the initial load
+          setLatestBookingId(data.id);
+        }
+      } catch (err) {
+        console.error("Failed polling for bookings", err);
+      }
+    }, 5000); // Check every 5 seconds
       
     if (typeof window !== "undefined" && window.Notification && Notification.permission === 'default') {
        Notification.requestPermission();
     }
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [notificationsEnabled, notificationSound, customSoundUrl]);
+    return () => clearInterval(interval);
+  }, [notificationsEnabled, notificationSound, customSoundUrl, latestBookingId]);
 
   const handleAvatarUpload = (e) => {
     const file = e.target.files?.[0];

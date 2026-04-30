@@ -15,42 +15,41 @@ export default function BookingsManagement() {
   useEffect(() => {
     fetchBookings();
     
-    const channel = supabase
-      .channel('bookings_changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'bookings' }, (payload) => {
-        fetchBookings();
-      })
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    // Fallback to polling instead of Realtime listener to safely bypass RLS
+    const interval = setInterval(fetchBookings, 10000);
+    return () => clearInterval(interval);
   }, []);
 
   const fetchBookings = async () => {
-    const { data, error } = await supabase.from('bookings').select('*').order('created_at', { ascending: false });
+    try {
+      const res = await fetch('/api/admin/bookings');
+      if (!res.ok) throw new Error('Failed to fetch bookings');
+      const data = await res.json();
     
-    if (!error && data) {
-      const grouped = { Tour: [], Activities: [], Transport: [] };
-      data.forEach(b => {
-         const mapped = {
-            id: b.id,
-            user: b.customer_name,
-            contact: b.contact_info,
-            tour: b.service_name,
-            date: b.booking_date,
-            amount: b.amount,
-            status: b.status,
-            details: b.details,
-            category: b.category
-         };
-         if (grouped[b.category]) {
-            grouped[b.category].push(mapped);
-         } else {
-            grouped[b.category] = [mapped];
-         }
-      });
-      setBookings(grouped);
+      if (data) {
+        const grouped = { Tour: [], Activities: [], Transport: [] };
+        data.forEach(b => {
+           const mapped = {
+              id: b.id,
+              user: b.customer_name,
+              contact: b.contact_info,
+              tour: b.service_name,
+              date: b.booking_date,
+              amount: b.amount,
+              status: b.status,
+              details: b.details,
+              category: b.category
+           };
+           if (grouped[b.category]) {
+              grouped[b.category].push(mapped);
+           } else {
+              grouped[b.category] = [mapped];
+           }
+        });
+        setBookings(grouped);
+      }
+    } catch (err) {
+      console.error(err);
     }
     setIsLoaded(true);
   };
@@ -66,7 +65,11 @@ export default function BookingsManagement() {
         setSelectedBooking({...selectedBooking, status: newStatus});
     }
     
-    await supabase.from('bookings').update({ status: newStatus }).eq('id', bookingId);
+    await fetch('/api/admin/bookings', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: bookingId, status: newStatus })
+    });
   };
 
   const handleDelete = async (bookingId) => {
@@ -79,7 +82,11 @@ export default function BookingsManagement() {
       setSelectedBooking(null);
       setOpenDropdown(null);
       
-      await supabase.from('bookings').delete().eq('id', bookingId);
+      await fetch('/api/admin/bookings', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: bookingId })
+      });
     }
   };
 
