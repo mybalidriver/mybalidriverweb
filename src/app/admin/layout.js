@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { 
   Calendar, MapPin, Settings, LogOut, 
-  Briefcase, Users, Newspaper, Home, Menu, X, Bell, Search, ChevronDown, Activity
+  Briefcase, Users, Newspaper, Home, Menu, X, Bell, Search, ChevronDown, Activity, Smartphone
 } from "lucide-react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
@@ -153,6 +153,9 @@ export default function AdminLayout({ children }) {
 
         {/* System Settings */}
         <div className="p-5 border-t border-[#E8EAEF] flex flex-col gap-1">
+           <button onClick={() => alert("To install the MyBaliDriver Admin App on your phone:\n\n🍏 iOS (iPhone/iPad):\n1. Open this page in Safari\n2. Tap the 'Share' icon at the bottom\n3. Tap 'Add to Home Screen'\n\n🤖 Android:\n1. Open this page in Chrome\n2. Tap the 3-dot menu at the top right\n3. Tap 'Install app' or 'Add to Home screen'")} className="flex items-center gap-3 px-4 py-3 w-full text-left rounded-xl text-sm font-bold text-[#1C1C1E] bg-[#D9FB41] hover:bg-[#C5E838] transition-all mb-2 shadow-sm">
+              <Smartphone size={18} /> Download Mobile App
+            </button>
            <button onClick={() => setIsSettingsOpen(true)} className="flex items-center gap-3 px-4 py-3 w-full text-left rounded-xl text-sm font-bold text-gray-500 hover:text-[#1C1C1E] hover:bg-[#F8F9FA] transition-all">
               <Settings size={18} /> Account Settings
             </button>

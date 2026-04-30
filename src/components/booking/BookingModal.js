@@ -151,31 +151,34 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
 
     const waUrl = `https://wa.me/6285174119423?text=${encodeURIComponent(messageDetails)}`;
     
-    // Fire and forget Supabase insert to avoid async popup blocker issues
-    supabase.from('bookings').insert({
-      id: bookingId,
-      customer_name: formData.name,
-      contact_info: formData.phone,
-      service_name: sTitle,
-      booking_date: formData.date,
-      amount: formatIDR(total),
-      status: 'Pending',
-      category: serviceData?.type === "tour" ? "Tour" : serviceData?.type === "transport" ? "Transport" : "Activities",
-      details: {
-        guests: formData.guests,
-        package: localPackage,
-        time: formData.time,
-        duration: formData.duration,
-        pickup_location: formData.pickupLocation.name,
-        dropoff_location: formData.dropoffLocation.name,
-        customer_email: session?.user?.email || null,
-        image: serviceData?.image || null
-      }
-    }).then(({ error }) => {
+    try {
+      // Await the insert so it completes before navigating away
+      const { error } = await supabase.from('bookings').insert({
+        id: bookingId,
+        customer_name: formData.name,
+        contact_info: formData.phone,
+        service_name: sTitle,
+        booking_date: formData.date,
+        amount: formatIDR(total),
+        status: 'Pending',
+        category: serviceData?.type === "tour" ? "Tour" : serviceData?.type === "transport" ? "Transport" : "Activities",
+        details: {
+          guests: formData.guests,
+          package: localPackage,
+          time: formData.time,
+          duration: formData.duration,
+          pickup_location: formData.pickupLocation.name,
+          dropoff_location: formData.dropoffLocation.name,
+          customer_email: session?.user?.email || null,
+          image: serviceData?.image || null
+        }
+      });
       if (error) console.error("Failed to save booking to Supabase:", error);
-    });
+    } catch (err) {
+      console.error("Booking save error:", err);
+    }
 
-    window.location.href = waUrl; // Use location.href for safer mobile redirect
+    window.location.href = waUrl;
     onClose();
   };
 
