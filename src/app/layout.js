@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import BottomNav from "@/components/navigation/BottomNav";
 import AuthProvider from "@/components/providers/AuthProvider";
 import GoogleTranslate from "@/components/GoogleTranslate";
+import { SpeedInsights } from '@vercel/speed-insights/next';
 const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600", "700", "800"] });
 const playfair = Playfair_Display({ subsets: ["latin"], weight: ["400", "500", "600", "700", "800"], variable: '--font-playfair' });
 
@@ -103,6 +104,7 @@ export default function RootLayout({ children }) {
             <Footer />
           </div>
         </AuthProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
