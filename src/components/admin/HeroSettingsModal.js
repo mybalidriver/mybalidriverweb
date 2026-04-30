@@ -14,6 +14,7 @@ export default function HeroSettingsModal({ onClose }) {
     campaignIgLink2: ""
   });
   const [isUploading, setIsUploading] = useState(false);
+  const [originalVideo, setOriginalVideo] = useState("");
 
   useEffect(() => {
     fetchSettings();
@@ -25,6 +26,7 @@ export default function HeroSettingsModal({ onClose }) {
       if (error && error.code !== 'PGRST116') throw error; // PGRST116 is 'not found'
       
       if (data) {
+        setOriginalVideo(data.campaign_video || "");
         setSettings({
           campaignVideo: data.campaign_video || "",
           campaignYoutubeLink: data.campaign_youtube_link || "",
@@ -78,6 +80,11 @@ export default function HeroSettingsModal({ onClose }) {
       });
 
       if (error) throw error;
+
+      if (originalVideo && originalVideo !== settings.campaignVideo) {
+         const { deleteSupabaseFiles } = await import('@/lib/supabase');
+         await deleteSupabaseFiles([originalVideo]);
+      }
 
       // Dispatch custom event to sync with other components
       window.dispatchEvent(new Event("homepage_hero_settings_changed"));

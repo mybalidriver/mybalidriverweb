@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X, Calendar, MapPin, Users, Phone, User, Clock, ArrowRight, ChevronLeft, Minus, Plus, Check } from "lucide-react";
+import { X, Calendar, MapPin, Users, Phone, User, Clock, ArrowRight, ChevronLeft, Minus, Plus, Check, Info } from "lucide-react";
 import WeeklyCalendar from "./WeeklyCalendar";
 import LocationAutocomplete from "./LocationAutocomplete";
 import { APIProvider } from "@vis.gl/react-google-maps";
@@ -345,6 +345,14 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
                      </div>
                    </div>
                 )}
+
+                 {/* VW Notification */}
+                 {serviceData?.title?.toLowerCase().includes('vw') && parseInt(formData.guests) > 3 && (
+                   <div className="bg-amber-50 border border-amber-200 p-3 rounded-xl flex items-start gap-3 animate-in fade-in slide-in-from-top-2 mt-1 shadow-sm">
+                     <div className="bg-amber-100 p-1.5 rounded-full shrink-0"><Info className="text-amber-600" size={16} strokeWidth={2.5} /></div>
+                     <p className="text-[12px] font-bold text-amber-800 leading-snug pt-0.5">A classic VW Safari fits max 3 passengers. Your group will get multiple cars to travel in a fun convoy!</p>
+                   </div>
+                 )}
 
                 {/* Duration (Scooter) */}
                 {(serviceData?.type === "scooter") && (

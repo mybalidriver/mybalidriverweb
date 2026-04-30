@@ -101,9 +101,21 @@ export default function AdminListings() {
 
   const handleDelete = async (item) => {
     if (confirm(`Are you sure you want to delete "${item.title}"?`)) {
-       const { supabase } = await import('@/lib/supabase');
+       const { supabase, deleteSupabaseFiles } = await import('@/lib/supabase');
+       
+       const urlsToDelete = [];
+       if (item.image) urlsToDelete.push(item.image);
+       if (item.gallery && Array.isArray(item.gallery)) {
+         item.gallery.forEach(url => {
+           if (url) urlsToDelete.push(url);
+         });
+       }
+
        const { error } = await supabase.from('listings').delete().eq('id', item.id);
        if (!error) {
+         if (urlsToDelete.length > 0) {
+           await deleteSupabaseFiles(urlsToDelete);
+         }
          setListingsData(prev => ({
            ...prev,
            [activeTab]: prev[activeTab].filter(i => i.id !== item.id)
@@ -144,7 +156,22 @@ export default function AdminListings() {
   };
 
   const handleSaveItem = async (updatedItem) => {
-    const { supabase } = await import('@/lib/supabase');
+    const { supabase, deleteSupabaseFiles } = await import('@/lib/supabase');
+    
+    const oldItem = listingsData[activeTab].find(i => i.id === updatedItem.id);
+    const urlsToDelete = [];
+    if (oldItem) {
+       if (oldItem.image && oldItem.image !== updatedItem.image) {
+          urlsToDelete.push(oldItem.image);
+       }
+       if (oldItem.gallery && Array.isArray(oldItem.gallery)) {
+          oldItem.gallery.forEach(url => {
+             if (url && (!updatedItem.gallery || !updatedItem.gallery.includes(url))) {
+                urlsToDelete.push(url);
+             }
+          });
+       }
+    }
     
     // Deconstruct for Supabase schema
     const { 
@@ -175,6 +202,10 @@ export default function AdminListings() {
     if (error) {
        alert("Error saving safely to database: " + error.message);
        return;
+    }
+
+    if (urlsToDelete.length > 0) {
+       await deleteSupabaseFiles(urlsToDelete);
     }
 
     setListingsData(prev => {

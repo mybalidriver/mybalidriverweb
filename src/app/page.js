@@ -5,6 +5,7 @@ import { TreePine, Umbrella, Mountain, Droplets, Search, Plane, Building, Buildi
 import { TourIcon, SpaIcon, TransportIcon, ScooterIcon, ThinSparklesIcon, TowelsIcon, LotusIcon, CreattieTourIcon, CreattieSpaIcon, CreattieScooterIcon, CreattieTransportIcon, CreattieEsimIcon, AirbnbTourIcon, AirbnbSpaIcon, AirbnbScooterIcon, AirbnbTransportIcon, AirbnbEsimIcon } from "@/components/icons/CategoryIcons";
 import ListingCard from "@/components/listing/ListingCard";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { generateSlug } from "@/lib/utils";
@@ -574,7 +575,7 @@ export default function Home() {
               ) : camp.campaignVideo && idx === 0 && !isDesktop ? (
                 <video ref={camp.isHeroSlide ? heroMediaRef : null} src={camp.campaignVideo} autoPlay loop playsInline className="absolute inset-0 w-full h-full object-cover pointer-events-none" />
               ) : (
-                <img src={camp.image} alt={camp.badge} className="absolute inset-0 w-full h-full object-cover" />
+                <Image src={camp.image} alt={camp.badge || "Campaign Image"} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-[#1C1C1E] via-[#1C1C1E]/40 to-transparent z-0" />
               
@@ -684,7 +685,7 @@ export default function Home() {
               ) : camp.campaignVideo && idx === 0 && isDesktop ? (
                  <video ref={camp.isHeroSlide ? heroMediaRef : null} src={camp.campaignVideo} autoPlay loop playsInline className={`absolute inset-0 w-full h-full object-cover transition-transform duration-[20s] ease-linear ${idx === currentCampIdx ? 'scale-110' : 'scale-100'} pointer-events-none`} />
               ) : (
-                 <img src={camp.image} alt={camp.badge} className={`absolute inset-0 w-full h-full object-cover transition-transform duration-[20s] ease-linear ${idx === currentCampIdx ? 'scale-110' : 'scale-100'}`} />
+                 <Image src={camp.image} alt={camp.badge || "Hero Image"} priority={idx === 0} fill sizes="100vw" className={`object-cover transition-transform duration-[20s] ease-linear ${idx === currentCampIdx ? 'scale-110' : 'scale-100'}`} />
               )}
               
               {/* Gradient Overlays */}
@@ -823,7 +824,7 @@ export default function Home() {
           <div className="flex overflow-x-auto no-scrollbar gap-5 px-6 pb-6 snap-x snap-mandatory hide-scroll">
             {displayPopularTrips.length > 0 ? displayPopularTrips.map((trip) => (
               <Link href={`/tours/${generateSlug(trip.title)}`} key={trip.id} className="block relative w-[240px] md:w-[280px] aspect-[4/5] rounded-[28px] overflow-hidden shadow-soft shrink-0 snap-start group border border-border bg-white">
-                <img src={trip.image} className="absolute inset-0 w-full h-full object-cover transition-transform duration-[8s] ease-out group-hover:scale-110" alt={trip.title} />
+                <Image src={trip.image} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover transition-transform duration-[8s] ease-out group-hover:scale-110" alt={trip.title || "Trip Image"} />
 
                 {/* Heart Button */}
                 <button className="absolute top-4 right-4 w-[34px] h-[34px] bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-gray-400 shadow-xl z-10 transition-transform active:scale-95 hover:text-red-500 hover:scale-110">
@@ -920,7 +921,7 @@ export default function Home() {
           <div className="flex overflow-x-auto no-scrollbar gap-4 pb-4 md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-6 snap-x snap-mandatory">
             {recommendedPlaces.map((place, index) => (
               <Link href={place.slug || "#"} key={place.id} className={`block relative rounded-[32px] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.06)] group cursor-pointer border border-border shrink-0 snap-center ${index === 0 ? 'w-[85vw] md:w-auto md:col-span-2 aspect-[4/3] md:aspect-[2/1]' : 'w-[200px] md:w-auto aspect-[3/4] md:aspect-square'}`}>
-                <img src={place.image || 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?w=800'} alt={place.title} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                <Image src={place.image || 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?w=800'} alt={place.title || "Place Image"} fill sizes="(max-width: 768px) 50vw, 20vw" className="object-cover transition-transform duration-700 group-hover:scale-105" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
                 
                 {/* Top Badge */}

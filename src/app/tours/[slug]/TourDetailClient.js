@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { ChevronLeft, Share, Heart, Star, Calendar, Clock, Plane, Building, Utensils, User, Bus, ArrowRight, MoreVertical, CheckCircle2, Languages, Car, Minus, Plus } from "lucide-react";
+import { ChevronLeft, Share, Heart, Star, Calendar, Clock, Plane, Building, Utensils, User, Bus, ArrowRight, MoreVertical, CheckCircle2, Languages, Car, Minus, Plus, Info } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import ListingCard from "@/components/listing/ListingCard";
 import BookingModal from "@/components/booking/BookingModal";
@@ -11,7 +12,7 @@ import { supabase } from "@/lib/supabase";
 
 
 
-export default function TourDetailClient({ tourData, slug }) {
+export default function TourDetailClient({ tourData, slug, relatedTours }) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("About this activity");
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
@@ -233,7 +234,7 @@ export default function TourDetailClient({ tourData, slug }) {
         <div className="flex overflow-x-auto snap-x snap-mandatory h-full no-scrollbar">
           {tourData.images.map((img, idx) => (
              <div key={idx} className="min-w-full h-full snap-center relative">
-               <img src={img} alt={`${tourData.title} Image ${idx + 1}`} className="w-full h-full object-cover" />
+               <Image src={img} alt={`${tourData.title || "Tour"} Image ${idx + 1}`} fill sizes="100vw" className="object-cover" />
                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
                <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-transparent"></div>
              </div>
@@ -284,12 +285,12 @@ export default function TourDetailClient({ tourData, slug }) {
              }}
           >
             <div className="col-span-2 row-span-2 relative group overflow-hidden cursor-pointer">
-              <img src={tourData.images[0]} alt="Hero Main" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              <Image src={tourData.images[0]} alt="Hero Main" fill priority sizes="(max-width: 768px) 100vw, 50vw" className="object-cover transition-transform duration-700 group-hover:scale-105" />
               <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors"></div>
             </div>
             {tourData.images.slice(1).map((img, idx) => (
               <div key={idx} className="relative group overflow-hidden cursor-pointer">
-                 <img src={img} alt={`Gallery ${idx + 1}`} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-95 group-hover:opacity-100" />
+                 <Image src={img} alt={`Gallery ${idx + 1}`} fill sizes="(max-width: 768px) 50vw, 25vw" className="object-cover transition-transform duration-700 group-hover:scale-105 opacity-95 group-hover:opacity-100" />
                  <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors"></div>
               </div>
             ))}
@@ -731,6 +732,13 @@ export default function TourDetailClient({ tourData, slug }) {
                  </div>
                </div>
 
+               {tourData?.title?.toLowerCase().includes('vw') && desktopPax > 3 && (
+                 <div className="bg-amber-50 border border-amber-200 p-3 rounded-xl flex items-start gap-3 animate-in fade-in slide-in-from-top-2 mb-6 shadow-sm">
+                   <div className="bg-amber-100 p-1.5 rounded-full shrink-0"><Info className="text-amber-600" size={16} strokeWidth={2.5} /></div>
+                   <p className="text-[12px] font-bold text-amber-800 leading-snug pt-0.5">A classic VW Safari fits max 3 passengers. Your group will get multiple cars to travel in a fun convoy!</p>
+                 </div>
+               )}
+
                <div className="flex items-center justify-between mb-6 px-1">
                  <span className="font-bold text-primary text-[16px]">Total</span>
                  <span className="font-extrabold text-primary text-[24px]">IDR {getTotalPrice().toLocaleString('id-ID')}</span>
@@ -767,6 +775,20 @@ export default function TourDetailClient({ tourData, slug }) {
           
         </div>
       </div>
+
+      {/* Related Tours Section */}
+      {relatedTours && relatedTours.length > 0 && (
+        <div className="max-w-7xl mx-auto px-5 lg:px-8 py-12 md:py-16 border-t border-gray-100">
+          <h2 className="text-2xl font-black text-primary mb-6">You Might Also Like</h2>
+          <div className="flex overflow-x-auto no-scrollbar gap-4 pb-4 md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-6 snap-x snap-mandatory">
+            {relatedTours.map((item) => (
+              <div key={item.id} className="w-[260px] md:w-auto shrink-0 snap-start">
+                 <ListingCard item={item} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Floating Bottom Booking Bar (Mobile Only) */}
       <div className="md:hidden fixed bottom-0 left-0 w-full bg-white z-40 px-5 pt-3.5 pb-[calc(env(safe-area-inset-bottom)+16px)] shadow-[0_-10px_40px_rgba(0,0,0,0.08)] border-t border-border">

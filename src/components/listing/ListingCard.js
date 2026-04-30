@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Heart, Star } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { useSession, signIn } from "next-auth/react";
 import { supabase } from "@/lib/supabase";
 
@@ -113,10 +114,12 @@ export default function ListingCard({ item, linkTo }) {
         {/* Spa Image Section */}
         <div className="relative w-full aspect-[4/3] overflow-hidden bg-[#E8E6DF] shrink-0">
           {item.image ? (
-            <img 
+            <Image 
               src={item.image} 
-              className="absolute inset-0 w-full h-full object-cover transition-transform duration-[12s] ease-out group-hover:scale-110 opacity-95 group-hover:opacity-100 mix-blend-multiply" 
-              alt={item.title} 
+              alt={item.title || "Spa Image"}
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              className="object-cover transition-transform duration-[12s] ease-out group-hover:scale-110 opacity-95 group-hover:opacity-100 mix-blend-multiply" 
             />
           ) : (
             <div className="absolute inset-0 bg-[#E8E6DF] w-full h-full"></div>
@@ -185,11 +188,15 @@ export default function ListingCard({ item, linkTo }) {
       
       {/* Image Section */}
       <div className="relative w-full aspect-[4/3] overflow-hidden bg-[#F4F4F6] shrink-0">
-        <img 
-          src={item.image} 
-          className="absolute inset-0 w-full h-full object-cover transition-transform duration-[10s] ease-out group-hover:scale-110" 
-          alt={item.title} 
-        />
+        {item.image && (
+          <Image 
+            src={item.image} 
+            alt={item.title || "Tour Image"}
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className="object-cover transition-transform duration-[10s] ease-out group-hover:scale-110" 
+          />
+        )}
         
         {/* Badge */}
         {item.badge && (

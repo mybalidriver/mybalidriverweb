@@ -110,5 +110,25 @@ export default async function TourPage({ params }) {
   }
   frontendObj.minPax = calculatedMinPax;
 
-  return <TourDetailClient tourData={frontendObj} slug={slug} />;
+  // Compute Related Tours
+  const relatedTours = allListings
+     ?.filter(item => item.type === data.type && item.id !== data.id)
+     .slice(0, 4)
+     .map(item => ({
+        id: item.id,
+        service: item.type,
+        title: item.title,
+        location: item.location,
+        price: item.price,
+        duration: item.duration,
+        category: item.category,
+        rating: item.rating,
+        reviews: item.reviews,
+        status: item.status,
+        image: item.image,
+        company: item.company_name,
+        ...(item.data || {})
+     })) || [];
+
+  return <TourDetailClient tourData={frontendObj} slug={slug} relatedTours={relatedTours} />;
 }
