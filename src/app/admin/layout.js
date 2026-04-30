@@ -16,7 +16,10 @@ function AdminLoginScreen({ onLogin }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (email.trim().toLowerCase() === "bobbybaliguide@gmail.com" && password.trim() === "Poiuytrewq123.") {
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanPassword = password.trim();
+    
+    if (cleanEmail === "bobbybaliguide@gmail.com" && (cleanPassword === "Poiuytrewq123" || cleanPassword === "Poiuytrewq123.")) {
       localStorage.setItem("admin_auth", "true");
       onLogin();
     } else {
