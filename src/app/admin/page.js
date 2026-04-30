@@ -22,12 +22,9 @@ export default function AdminDashboard() {
   const fetchBookings = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('bookings')
-        .select('*')
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
+      const res = await fetch('/api/admin/bookings');
+      if (!res.ok) throw new Error('Failed to fetch bookings');
+      const data = await res.json();
       setAllBookings(data || []);
     } catch (err) {
       console.error("Failed to fetch bookings", err);
@@ -38,12 +35,16 @@ export default function AdminDashboard() {
 
   const handleConfirmBooking = async (id) => {
     try {
-      const { error } = await supabase
-        .from('bookings')
-        .update({ status: 'Confirmed' })
-        .eq('id', id);
+      const res = await fetch('/api/admin/bookings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, status: 'Confirmed' })
+      });
       
-      if (error) throw error;
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || 'Failed to update booking');
+      }
       
       // Update local state
       setAllBookings(prev => prev.map(b => b.id === id ? { ...b, status: 'Confirmed' } : b));
