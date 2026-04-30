@@ -91,7 +91,7 @@ export default function HeroSettingsModal({ onClose }) {
     <div className="fixed inset-0 z-[200] flex items-center justify-center font-sans px-4">
       <div className="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onClick={onClose} />
 
-      <div className="relative w-full max-w-lg bg-gray-50 rounded-3xl shadow-2xl flex flex-col overflow-hidden transform transition-transform animate-scaleIn z-10">
+      <div className="relative w-full max-w-lg bg-gray-50 rounded-3xl shadow-2xl flex flex-col overflow-hidden transform transition-transform animate-scaleIn z-10 max-h-[90dvh]">
         
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-5 bg-white border-b border-gray-100 shrink-0">
@@ -105,7 +105,7 @@ export default function HeroSettingsModal({ onClose }) {
         </div>
 
         {/* Body */}
-        <div className="p-6 space-y-6">
+        <div className="p-6 space-y-6 overflow-y-auto">
           <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm space-y-4">
              <h3 className="font-extrabold text-primary text-sm uppercase tracking-widest flex items-center gap-2 mb-4">
                 <Camera size={18} className="text-accent" /> Media Background

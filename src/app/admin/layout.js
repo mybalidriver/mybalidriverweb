@@ -158,7 +158,7 @@ export default function AdminLayout({ children }) {
         </header>
 
         {/* Dynamic Nested Content */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto pb-28 lg:pb-0">
           {children}
         </div>
 
