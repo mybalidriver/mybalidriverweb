@@ -149,7 +149,7 @@ export default function BookingModal({ isOpen, onClose, serviceData, initialPax 
       
       messageDetails += `\n${divider}\n*TOTAL ESTIMATE:* ${formatIDR(total)}`;
 
-    const waUrl = `https://wa.me/6285174119423?text=${encodeURIComponent(messageDetails)}`;
+    const waUrl = `https://wa.me/6282247819449?text=${encodeURIComponent(messageDetails)}`;
     
     try {
       // Await the insert so it completes before navigating away

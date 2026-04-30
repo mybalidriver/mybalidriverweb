@@ -11,10 +11,23 @@ import { usePathname } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
 export default function AdminLayout({ children }) {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  
+  // Enforce Authentication
+  if (status === "loading") {
+    return <div className="fixed inset-0 bg-[#F8F9FA] z-[200] flex items-center justify-center"><div className="w-10 h-10 border-4 border-gray-200 border-t-[#D9FB41] rounded-full animate-spin"></div></div>;
+  }
+  
+  if (status === "unauthenticated") {
+    if (typeof window !== "undefined") {
+      window.location.href = "/api/auth/signin?callbackUrl=/admin";
+    }
+    return <div className="fixed inset-0 bg-[#F8F9FA] z-[200] flex items-center justify-center text-sm font-bold text-gray-500">Redirecting to Secure Login...</div>;
+  }
+
   const [customAvatar, setCustomAvatar] = useState(null);
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showInstallModal, setShowInstallModal] = useState(false);
