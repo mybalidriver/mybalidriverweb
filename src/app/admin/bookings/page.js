@@ -251,7 +251,11 @@ export default function BookingsManagement() {
                 </button>
               </div>
             </div>
-            <div className="grid grid-cols-7 gap-px bg-[#E8EAEF] border border-[#E8EAEF] rounded-xl overflow-hidden">
+            <div className="w-full overflow-x-auto no-scrollbar pb-2">
+              <div 
+                className="grid gap-px bg-[#E8EAEF] border border-[#E8EAEF] rounded-xl overflow-hidden min-w-[500px]"
+                style={{ gridTemplateColumns: 'repeat(7, minmax(45px, 1fr))', gridAutoColumns: 'minmax(45px, auto)' }}
+              >
               {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
                 <div key={day} className="bg-[#F8F9FA] text-center py-3 text-[10px] font-black uppercase text-gray-500 tracking-widest">
                   {day}
@@ -278,11 +282,11 @@ export default function BookingsManagement() {
                      }
                   });
                   days.push(
-                    <div key={`day-${i}`} className="bg-white min-h-[100px] p-2 border-t border-transparent hover:border-blue-500 transition-colors">
-                      <span className={`text-xs font-bold inline-block w-6 h-6 text-center leading-6 rounded-full mb-1 ${dayBookings.length > 0 ? 'bg-primary text-white' : 'text-gray-400'}`}>{i}</span>
-                      <div className="flex flex-col gap-1 mt-1">
+                    <div key={`day-${i}`} className="bg-white min-h-[100px] p-2 border-t border-transparent hover:border-blue-500 transition-colors flex flex-col">
+                      <span className={`text-xs font-bold inline-block w-6 h-6 text-center leading-6 rounded-full mb-1 shrink-0 ${dayBookings.length > 0 ? 'bg-primary text-white' : 'text-gray-400'}`}>{i}</span>
+                      <div className="flex flex-col gap-1 mt-1 flex-1">
                         {dayBookings.slice(0, 3).map((bk, idx) => (
-                          <div key={idx} onClick={() => setSelectedBooking(bk)} className={`text-[9px] font-bold p-1.5 rounded-md truncate cursor-pointer hover:bg-opacity-80 
+                          <div key={idx} onClick={() => setSelectedBooking(bk)} className={`text-[9px] font-bold p-1.5 rounded-md cursor-pointer hover:bg-opacity-80 break-words whitespace-normal leading-tight
                             ${bk.status === 'Confirmed' ? 'bg-[#D9FB41] text-[#1C1C1E]' : 'bg-[#F8F9FA] text-[#1C1C1E]'}`}>
                             {bk.user}
                           </div>
@@ -296,6 +300,7 @@ export default function BookingsManagement() {
                 }
                 return days;
               })()}
+              </div>
             </div>
           </div>
         )}

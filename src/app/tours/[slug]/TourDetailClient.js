@@ -31,6 +31,7 @@ export default function TourDetailClient({ tourData, slug }) {
   const [reviewComment, setReviewComment] = useState("");
   const [reviewCode, setReviewCode] = useState("");
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [expandedReviews, setExpandedReviews] = useState({});
   const [reviewMessage, setReviewMessage] = useState({ type: '', text: '' });
   const [localReviews, setLocalReviews] = useState(tourData?.reviewsList || []);
 
@@ -605,7 +606,17 @@ export default function TourDetailClient({ tourData, slug }) {
                                <Star key={i} size={12} className={i < review.rating ? "fill-[#F59E0B] text-[#F59E0B]" : "fill-gray-200 text-gray-200"} />
                              ))}
                            </div>
-                           <p className="text-sm font-medium text-gray-600 leading-relaxed line-clamp-4">{review.comment}</p>
+                           <div className="relative">
+                             <p className={`text-sm font-medium text-gray-600 leading-relaxed ${expandedReviews[review.id] ? '' : 'line-clamp-4'}`}>{review.comment}</p>
+                             {review.comment && review.comment.length > 150 && (
+                               <button 
+                                 onClick={() => setExpandedReviews(prev => ({...prev, [review.id]: !prev[review.id]}))}
+                                 className="text-primary text-xs font-bold mt-1 hover:underline"
+                               >
+                                 {expandedReviews[review.id] ? 'Read less' : 'Read more'}
+                               </button>
+                             )}
+                           </div>
                          </div>
                        ))}
                      </div>
