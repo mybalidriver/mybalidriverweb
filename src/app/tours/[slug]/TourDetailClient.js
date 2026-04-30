@@ -309,7 +309,15 @@ export default function TourDetailClient({ tourData, slug }) {
                 <div className="flex items-center gap-1">
                   <Star size={16} className={tourData.service === "Spa" ? "fill-[#C1A88A] text-[#C1A88A]" : "fill-accent text-accent"} />
                   <span className={`font-bold text-[15px] ${tourData.service === "Spa" ? "text-[#3d3730]" : "text-primary"}`}>{Number(tourData.rating).toFixed(1)}</span>
-                  <span className="text-text-secondary text-[13px] underline cursor-pointer hover:text-text-primary">({tourData.reviews || 0} reviews)</span>
+                  <span 
+                    onClick={() => {
+                      setActiveTab("Reviews");
+                      document.getElementById("tour-details-tabs")?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                    className="text-text-secondary text-[13px] underline cursor-pointer hover:text-text-primary"
+                  >
+                    ({tourData.reviews || 0} reviews)
+                  </span>
                 </div>
                 <div className="w-1 h-1 bg-gray-300 rounded-full"></div>
                 <span className={`font-medium text-[14px] hover:underline cursor-pointer ${tourData.service === "Spa" ? "text-[#C1A88A]" : "text-text-secondary"}`}>{tourData.location}</span>
@@ -317,7 +325,7 @@ export default function TourDetailClient({ tourData, slug }) {
             </div>
             
             {/* Scrollable Tabs */}
-            <div className="flex overflow-x-auto no-scrollbar gap-2 mb-8 -mx-6 px-6 md:mx-0 md:px-0">
+            <div id="tour-details-tabs" className="flex overflow-x-auto no-scrollbar gap-2 mb-8 -mx-6 px-6 md:mx-0 md:px-0 scroll-mt-24">
               {tabs.map((tab) => {
                 const isActive = activeTab === tab;
                 return (
@@ -509,7 +517,7 @@ export default function TourDetailClient({ tourData, slug }) {
                          <input 
                            type="text" 
                            required 
-                           placeholder="MBD-123"
+                           placeholder="Enter access code"
                            className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-primary transition-colors"
                            value={reviewCode}
                            onChange={(e) => setReviewCode(e.target.value)}
