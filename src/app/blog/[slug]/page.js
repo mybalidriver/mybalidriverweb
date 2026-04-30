@@ -20,14 +20,31 @@ export default function BlogDetail() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // We expect slug to match the database `slug` which was populated as `/blog/some-slug`
-    const saved = localStorage.getItem("bali_places_v3");
-    if (saved) {
-      const places = JSON.parse(saved);
-      const found = places.find(p => p.slug === `/blog/${slug}` || p.slug === `blog/${slug}` || p.slug === slug);
-      setPost(found);
-    }
-    setLoading(false);
+    const fetchPost = async () => {
+      try {
+        const { createClient } = await import('@supabase/supabase-js');
+        const supabase = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+        );
+        
+        // Try exact match with different prefixes
+        const { data, error } = await supabase
+          .from('blogs')
+          .select('*')
+          .or(`slug.eq.${slug},slug.eq./blog/${slug},slug.eq.blog/${slug}`)
+          .single();
+          
+        if (data) {
+          setPost(data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch post:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPost();
   }, [slug]);
 
   if (loading) {
@@ -127,7 +144,7 @@ export default function BlogDetail() {
       {/* Meta Summary Bottom */}
       <div className="max-w-4xl mx-auto px-6 md:px-12 mt-12 pt-8 border-t border-border">
          <h4 className="font-bold text-primary mb-2">Description</h4>
-         <p className="text-sm font-medium text-text-secondary italic">"{post.meta || 'No description available.'}"</p>
+         <p className="text-sm font-medium text-text-secondary italic">"{post.meta_description || 'No description available.'}"</p>
       </div>
 
     </main>
