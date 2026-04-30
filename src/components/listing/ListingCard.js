@@ -76,16 +76,13 @@ export default function ListingCard({ item, linkTo }) {
 
   let basePriceToUse = item.price;
   if (!basePriceToUse || basePriceToUse == 0) {
-      const dataObj = item.data || {};
+      const dataObj = item.data || item || {};
       const tiersToUse = (dataObj.tourTiers && dataObj.tourTiers.length > 0) ? dataObj.tourTiers : ((dataObj.allInclusiveTiers && dataObj.allInclusiveTiers.length > 0) ? dataObj.allInclusiveTiers : []);
       const validTiers = tiersToUse.filter(t => t.price && Number(String(t.price).replace(/[^0-9]/g, '')) > 0);
       if (validTiers.length > 0) {
           validTiers.sort((a, b) => Number(a.pax) - Number(b.pax));
           const minTier = validTiers[0];
           let priceNum = Number(String(minTier.price).replace(/[^0-9]/g, ''));
-          if (dataObj.pricingType !== "Per Group") {
-             priceNum = priceNum / (Number(minTier.pax) || 1);
-          }
           basePriceToUse = priceNum;
       } else if (dataObj.allInclusiveSurcharge) {
           basePriceToUse = Number(String(dataObj.allInclusiveSurcharge).replace(/[^0-9]/g, ''));

@@ -317,6 +317,7 @@ export default function Home() {
     badge: t.campaignLabel !== undefined ? t.campaignLabel : "Featured Deal",
     image: t.image || "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80",
     targetId: t.id,
+    originalTitle: t.title,
     campaignVideo: t.campaignVideo,
     campaignYoutubeLink: t.campaignYoutubeLink,
     campaignRecommendation: t.campaignRecommendation,
@@ -648,7 +649,7 @@ export default function Home() {
                   <h3 className="text-[26px] sm:text-[32px] font-extrabold text-white leading-[1.05] mb-2 font-sans tracking-tight whitespace-pre-line drop-shadow-lg">{camp.title}</h3>
                   <p className="text-white/90 text-[13px] sm:text-[15px] font-medium mb-4 leading-snug drop-shadow-md">{camp.subtitle}</p>
                   
-                  <Link href={camp.targetId ? `/tours/${generateSlug(camp.title)}` : "#"} className="bg-white text-primary px-6 py-3 rounded-full font-bold text-[14px] shadow-xl active:scale-95 transition-transform flex items-center justify-center pointer-events-auto">
+                  <Link href={camp.targetId ? `/tours/${generateSlug(camp.originalTitle || camp.title)}` : "#"} className="bg-white text-primary px-6 py-3 rounded-full font-bold text-[14px] shadow-xl active:scale-95 transition-transform flex items-center justify-center pointer-events-auto">
                     View Detail
                   </Link>
                 </div>
@@ -745,7 +746,7 @@ export default function Home() {
                      {camp.location || "BALI, INDONESIA"}
                   </span>
                   
-                  <Link href={camp.targetId ? `/tours/${generateSlug(camp.title)}` : "#"} className="inline-flex items-center gap-3 px-8 py-4 rounded-[32px] border border-white/30 bg-black/40 backdrop-blur-md text-white font-bold text-[13px] tracking-[0.1em] uppercase hover:bg-white/20 transition-all hover:scale-105 active:scale-95 shadow-xl">
+                  <Link href={camp.targetId ? `/tours/${generateSlug(camp.originalTitle || camp.title)}` : "#"} className="inline-flex items-center gap-3 px-8 py-4 rounded-[32px] border border-white/30 bg-black/40 backdrop-blur-md text-white font-bold text-[13px] tracking-[0.1em] uppercase hover:bg-white/20 transition-all hover:scale-105 active:scale-95 shadow-xl">
                     Explore Experience <ArrowUpRight size={18} strokeWidth={2.5} />
                   </Link>
                 </div>
