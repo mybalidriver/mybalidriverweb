@@ -11,6 +11,7 @@ export default function SEOPlacesManagement() {
   
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [editingPlace, setEditingPlace] = useState(null);
   const [formData, setFormData] = useState({ title: "", location: "", category: "Beach", slug: "", meta: "", status: "Published", image: "", images: [], content: "" });
 
@@ -135,7 +136,7 @@ export default function SEOPlacesManagement() {
     setEditingPlace(place);
     setFormData({ 
        title: place.title || "", location: place.location || "", category: place.category || "Beach", 
-       slug: place.slug || "", meta: place.meta || "", status: place.status || "Draft", 
+       slug: place.slug || "", meta: place.meta_description || "", status: place.status || "Draft", 
        image: place.image || "", images: place.images || [], content: place.content || ""
     });
     setIsModalOpen(true);
@@ -155,6 +156,7 @@ export default function SEOPlacesManagement() {
       payload.slug = `/blog/${payload.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
     }
 
+    setIsSaving(true);
     try {
       if (editingPlace) {
         payload.id = editingPlace.id;
@@ -167,7 +169,8 @@ export default function SEOPlacesManagement() {
           const updatedRecord = await res.json();
           setPlaces(places.map(p => p.id === editingPlace.id ? updatedRecord : p));
         } else {
-          alert("Failed to update article");
+          const errData = await res.json().catch(() => ({}));
+          alert(`Failed to update article: ${errData.error || res.statusText}`);
         }
       } else {
         const res = await fetch('/api/admin/blogs', {
@@ -179,11 +182,14 @@ export default function SEOPlacesManagement() {
           const newRecord = await res.json();
           setPlaces([newRecord, ...places]);
         } else {
-          alert("Failed to create article");
+          const errData = await res.json().catch(() => ({}));
+          alert(`Failed to create article: ${errData.error || res.statusText}`);
         }
       }
     } catch (err) {
-      alert("Network error");
+      alert(`Network error: ${err.message}`);
+    } finally {
+      setIsSaving(false);
     }
     setIsModalOpen(false);
   };
@@ -425,8 +431,17 @@ export default function SEOPlacesManagement() {
                  </select>
                </div>
                <div className="flex gap-3 text-right">
-                 <button onClick={() => setIsModalOpen(false)} className="px-6 py-2 bg-white text-gray-600 font-bold border border-gray-200 shadow-sm rounded-xl hover:bg-gray-50 transition-colors">Cancel</button>
-                 <button onClick={handleSaveModal} className="px-6 py-2 bg-primary text-white font-bold shadow-md rounded-xl hover:bg-primary/95 transition-colors">Save Article</button>
+                 <button onClick={() => setIsModalOpen(false)} disabled={isSaving} className="px-6 py-2 bg-white text-gray-600 font-bold border border-gray-200 shadow-sm rounded-xl hover:bg-gray-50 transition-colors disabled:opacity-50">Cancel</button>
+                 <button onClick={handleSaveModal} disabled={isSaving} className="px-6 py-2 bg-primary text-white font-bold shadow-md rounded-xl hover:bg-primary/95 transition-colors disabled:opacity-70 flex items-center gap-2">
+                   {isSaving ? (
+                     <>
+                       <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                       <span>Saving...</span>
+                     </>
+                   ) : (
+                     <span>Save Article</span>
+                   )}
+                 </button>
                </div>
              </div>
 
