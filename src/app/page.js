@@ -267,14 +267,20 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const saved = localStorage.getItem("bali_places_v3");
-    if (saved) {
-      setRecommendedPlaces(JSON.parse(saved).filter(p => p.status === 'Published'));
-    } else {
-      const initialPlaces = [];
-      setRecommendedPlaces(initialPlaces);
-      localStorage.setItem("bali_places_v3", JSON.stringify(initialPlaces));
-    }
+    const fetchBlogs = async () => {
+      const { supabase } = await import('@/lib/supabase');
+      const { data, error } = await supabase
+        .from('blogs')
+        .select('*')
+        .eq('status', 'Published')
+        .order('created_at', { ascending: false })
+        .limit(4);
+        
+      if (data) {
+        setRecommendedPlaces(data);
+      }
+    };
+    fetchBlogs();
   }, []);
 
   const nextCamp = () => setCurrentCampIdx((prev) => (prev + 1) % campaigns.length);
