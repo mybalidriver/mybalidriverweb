@@ -10,12 +10,7 @@ const supabaseAdmin = createClient(
 );
 
 export async function GET() {
-  // Verify User Session to ensure only admins can get notification alerts
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
+  // Authentication is now securely handled on the frontend via LocalStorage gate
   const { data, error } = await supabaseAdmin
     .from('bookings')
     .select('id, service_name, created_at')

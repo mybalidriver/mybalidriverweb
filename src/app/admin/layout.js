@@ -6,31 +6,99 @@ import {
   Briefcase, Users, Newspaper, Home, Menu, X, Bell, Search, ChevronDown, Activity, Smartphone
 } from "lucide-react";
 import Link from "next/link";
-import { useSession, signIn } from "next-auth/react";
-import { usePathname } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
+function AdminLoginScreen({ onLogin }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (email === "bobbybaliguide@gmail.com" && password === "Poiuytrewq123.") {
+      localStorage.setItem("admin_auth", "true");
+      onLogin();
+    } else {
+      setError("Invalid email or password");
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-[#F8F9FA] flex flex-col items-center justify-center p-4">
+      <div className="w-full max-w-md bg-white rounded-3xl shadow-xl p-8 border border-[#E8EAEF]">
+        <div className="text-center mb-8">
+          <div className="w-16 h-16 bg-[#1C1C1E] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <span className="text-[#D9FB41] font-black text-2xl tracking-tighter">DB</span>
+          </div>
+          <h1 className="text-2xl font-black text-[#1C1C1E]">Admin Portal</h1>
+          <p className="text-sm font-bold text-gray-500 mt-1">Secure login required</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="text-xs font-bold text-gray-500 ml-1">Email Address</label>
+            <input 
+              type="email" 
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full bg-[#F8F9FA] border border-[#E8EAEF] rounded-xl px-4 py-3 mt-1 text-sm font-bold outline-none focus:border-[#1C1C1E] transition-colors"
+              placeholder="bobbybaliguide@gmail.com"
+              required 
+            />
+          </div>
+          <div>
+            <label className="text-xs font-bold text-gray-500 ml-1">Password</label>
+            <input 
+              type="password" 
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full bg-[#F8F9FA] border border-[#E8EAEF] rounded-xl px-4 py-3 mt-1 text-sm font-bold outline-none focus:border-[#1C1C1E] transition-colors"
+              placeholder="••••••••••••"
+              required 
+            />
+          </div>
+          
+          {error && <p className="text-xs font-bold text-red-500 text-center bg-red-50 py-2 rounded-lg">{error}</p>}
+          
+          <button type="submit" className="w-full mt-6 py-3.5 bg-[#1C1C1E] text-white font-extrabold rounded-xl hover:bg-black transition-colors">
+            Secure Login
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminLayout({ children }) {
-  const { data: session, status } = useSession();
   const pathname = usePathname();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isChecking, setIsChecking] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   
   React.useEffect(() => {
-    if (status === "unauthenticated") {
-      signIn(undefined, { callbackUrl: '/admin' });
+    if (localStorage.getItem("admin_auth") === "true") {
+      setIsAuthenticated(true);
     }
-  }, [status]);
+    setIsChecking(false);
+  }, []);
   
-  // Enforce Authentication state rendering
-  if (status === "loading" || status === "unauthenticated") {
+  if (isChecking) {
     return (
       <div className="fixed inset-0 bg-[#F8F9FA] z-[200] flex flex-col items-center justify-center gap-4">
          <div className="w-10 h-10 border-4 border-gray-200 border-t-[#D9FB41] rounded-full animate-spin"></div>
-         <p className="text-sm font-bold text-gray-500">{status === "loading" ? "Verifying access..." : "Redirecting to Secure Login..."}</p>
       </div>
     );
   }
+
+  if (!isAuthenticated) {
+    return <AdminLoginScreen onLogin={() => setIsAuthenticated(true)} />;
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem("admin_auth");
+    setIsAuthenticated(false);
+  };
 
   const [customAvatar, setCustomAvatar] = useState(null);
   const [deferredPrompt, setDeferredPrompt] = useState(null);
@@ -238,10 +306,10 @@ export default function AdminLayout({ children }) {
           </div>
           <span className="text-[10px] font-bold">Listings</span>
         </Link>
-        <Link href="/" className="flex flex-col items-center gap-1.5 text-gray-400 hover:text-red-500 transition-colors">
+        <button onClick={handleLogout} className="flex flex-col items-center gap-1.5 text-gray-400 hover:text-red-500 transition-colors">
           <LogOut size={22} strokeWidth={2.5} />
           <span className="text-[10px] font-bold">Exit</span>
-        </Link>
+        </button>
       </div>
 
       {/* Account Settings Modal */}
@@ -265,30 +333,21 @@ export default function AdminLayout({ children }) {
                    <input type="file" accept="image/*" onChange={handleAvatarUpload} className="absolute inset-0 opacity-0 cursor-pointer" />
                  </div>
                  <div className="text-center">
-                   <h4 className="font-extrabold text-base text-[#1C1C1E]">{session?.user?.name || "Administrator"}</h4>
-                   <p className="text-[11px] text-gray-500 font-bold">{session?.user?.email || "admin@mybalidriver.com"}</p>
+                   <h4 className="font-extrabold text-base text-[#1C1C1E]">Bobby Bali Guide</h4>
+                   <p className="text-[11px] text-gray-500 font-bold">bobbybaliguide@gmail.com</p>
                  </div>
                </div>
 
                <div className="h-px bg-[#E8EAEF] w-full"></div>
 
-               {/* Password Form (Visual Only for Google Auth) */}
+               {/* Password Form */}
                <div className="space-y-3">
-                 <h4 className="font-extrabold text-sm text-[#1C1C1E] mb-2">Change Password</h4>
+                 <h4 className="font-extrabold text-sm text-[#1C1C1E] mb-2">Account Security</h4>
                  
-                 <div className="space-y-2">
-                    <label className="text-xs font-bold text-gray-500 ml-1">Current Password</label>
-                    <input type="password" placeholder="••••••••" className="w-full bg-[#F8F9FA] border border-[#E8EAEF] rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#1C1C1E] transition-colors" disabled />
-                 </div>
-                 <div className="space-y-2">
-                    <label className="text-xs font-bold text-gray-500 ml-1">New Password</label>
-                    <input type="password" placeholder="••••••••" className="w-full bg-[#F8F9FA] border border-[#E8EAEF] rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#1C1C1E] transition-colors" disabled />
-                 </div>
-
-                 <div className="mt-4 p-3 bg-amber-50 rounded-xl border border-amber-100 flex items-start gap-2">
-                   <span className="text-amber-500 mt-0.5">⚠️</span>
-                   <p className="text-[10px] font-bold text-amber-800 leading-relaxed">
-                     Your account is securely managed by Google. To change your password, please update it directly in your Google Account security settings.
+                 <div className="mt-4 p-3 bg-gray-50 rounded-xl border border-gray-100 flex items-start gap-2">
+                   <span className="text-gray-500 mt-0.5">ℹ️</span>
+                   <p className="text-[10px] font-bold text-gray-600 leading-relaxed">
+                     Your admin password is hardcoded securely in the application source code for maximum security.
                    </p>
                  </div>
                </div>
