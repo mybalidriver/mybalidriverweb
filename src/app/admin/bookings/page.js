@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Search, Calendar, PackageOpen, MoreVertical, CheckCircle, Clock, XCircle, Trash2, X, Users } from "lucide-react";
+import { Search, Calendar, PackageOpen, MoreVertical, CheckCircle, Clock, XCircle, Trash2, X, Users, Newspaper } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 export default function BookingsManagement() {
