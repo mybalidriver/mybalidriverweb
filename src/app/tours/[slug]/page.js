@@ -1,6 +1,8 @@
 import { supabase } from "@/lib/supabase";
 import TourDetailClient from "./TourDetailClient";
 import { generateSlug } from "@/lib/utils";
+import StructuredData from "@/components/seo/StructuredData";
+import { getSeoDescription, generateTourJsonLd } from "@/lib/seo";
 
 export async function generateMetadata({ params }) {
   const resolvedParams = await params;
@@ -21,13 +23,14 @@ export async function generateMetadata({ params }) {
 
   const defaultImg = "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80";
   const coverImg = listing.image || defaultImg;
+  const optimizedDescription = getSeoDescription(listing.data?.description || listing.data?.highlights || "");
 
   return {
     title: `${listing.title} | Discovering Bali`,
-    description: listing.data?.description?.substring(0, 160) || "Book your premium Bali experience with Discovering Bali.",
+    description: optimizedDescription,
     openGraph: {
       title: listing.title,
-      description: listing.data?.description?.substring(0, 160) || "Book your premium Bali experience with Discovering Bali.",
+      description: optimizedDescription,
       images: [
         {
           url: coverImg,
@@ -40,7 +43,7 @@ export async function generateMetadata({ params }) {
     twitter: {
       card: 'summary_large_image',
       title: listing.title,
-      description: listing.data?.description?.substring(0, 160) || "Book your premium Bali experience with Discovering Bali.",
+      description: optimizedDescription,
       images: [coverImg],
     },
   };
@@ -130,5 +133,12 @@ export default async function TourPage({ params }) {
         ...(item.data || {})
      })) || [];
 
-  return <TourDetailClient tourData={frontendObj} slug={slug} relatedTours={relatedTours} />;
+  const jsonLd = generateTourJsonLd(frontendObj);
+
+  return (
+    <>
+      <StructuredData data={jsonLd} />
+      <TourDetailClient tourData={frontendObj} slug={slug} relatedTours={relatedTours} />
+    </>
+  );
 }
