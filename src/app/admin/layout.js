@@ -13,6 +13,9 @@ export default function AdminLayout({ children }) {
   const { data: session } = useSession();
   const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [notificationSound, setNotificationSound] = useState('chime');
   const [customAvatar, setCustomAvatar] = useState(null);
 
   const handleAvatarUpload = (e) => {
@@ -36,8 +39,7 @@ export default function AdminLayout({ children }) {
     { name: "Dashboard", href: "/admin", icon: Home },
     { name: "Manage Bookings", href: "/admin/bookings", icon: Calendar },
     { name: "Products & Tours", href: "/admin/listings", icon: MapPin },
-    { name: "Content & SEO", href: "/admin/places", icon: Newspaper },
-    { name: "Partner Network", href: "/admin/partners", icon: Briefcase }
+    { name: "Content & SEO", href: "/admin/places", icon: Newspaper }
   ];
 
   return (
@@ -48,22 +50,22 @@ export default function AdminLayout({ children }) {
         <div className="fixed inset-0 bg-[#1C1C1E]/60 z-40 lg:hidden backdrop-blur-sm" onClick={() => setIsSidebarOpen(false)} />
       )}
 
-      {/* Native Aesthetic Sidebar - Deep Dark */}
-      <aside className={`fixed lg:static inset-y-0 left-0 w-[260px] bg-[#1C1C1E] text-white z-50 flex flex-col transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'} shadow-2xl lg:shadow-none`}>
+      {/* Native Aesthetic Sidebar - Light */}
+      <aside className={`fixed lg:static inset-y-0 left-0 w-[260px] bg-white border-r border-[#E8EAEF] text-[#1C1C1E] z-50 flex flex-col transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'} shadow-2xl lg:shadow-none`}>
         
         {/* Brand Header */}
-        <div className="h-20 px-6 border-b border-white/5 flex items-center justify-between shrink-0">
+        <div className="h-20 px-6 border-b border-[#E8EAEF] flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-             <div className="w-8 h-8 rounded-lg bg-[#D9FB41] flex items-center justify-center text-[#1C1C1E] font-black text-xl tracking-tighter">DB</div>
-             <span className="font-extrabold text-lg tracking-tight">Admin<span className="font-medium opacity-60">Portal</span></span>
+             <img src="/icon.jpg" alt="Logo" className="w-8 h-8 rounded-lg object-cover border border-[#E8EAEF]" />
+             <span className="font-extrabold text-lg tracking-tight">Admin<span className="font-medium text-gray-500">Portal</span></span>
           </div>
-          <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden p-1 text-gray-400 hover:text-white transition-colors">
+          <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden p-1 text-gray-400 hover:text-[#1C1C1E] transition-colors">
             <X size={20} />
           </button>
         </div>
 
         {/* Global Action Button - Lime Accent with Dark Text */}
-        <div className="p-5 border-b border-white/5">
+        <div className="p-5 border-b border-[#E8EAEF]">
           <Link href="/admin/listings" className="w-full flex items-center justify-center gap-2 bg-[#D9FB41] hover:bg-[#C5E838] text-[#1C1C1E] py-3 rounded-xl font-extrabold text-sm transition-all shadow-[0_4px_20px_rgba(217,251,65,0.15)] active:scale-95">
              Create New Product
           </Link>
@@ -81,9 +83,9 @@ export default function AdminLayout({ children }) {
                   key={link.name}
                   href={link.href} 
                   onClick={() => setIsSidebarOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${isActive ? 'bg-[#D9FB41] text-[#1C1C1E]' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${isActive ? 'bg-[#D9FB41] text-[#1C1C1E]' : 'text-gray-500 hover:text-[#1C1C1E] hover:bg-[#F8F9FA]'}`}
                 >
-                  <Icon size={18} strokeWidth={isActive ? 2.5 : 2} className={isActive ? 'text-[#1C1C1E]' : 'text-gray-500'} />
+                  <Icon size={18} strokeWidth={isActive ? 2.5 : 2} className={isActive ? 'text-[#1C1C1E]' : 'text-gray-400'} />
                   {link.name}
                 </Link>
               );
@@ -92,11 +94,11 @@ export default function AdminLayout({ children }) {
         </div>
 
         {/* System Settings */}
-        <div className="p-5 border-t border-white/5 flex flex-col gap-1">
-           <button className="flex items-center gap-3 px-4 py-3 w-full text-left rounded-xl text-sm font-bold text-gray-400 hover:text-white hover:bg-white/5 transition-all">
+        <div className="p-5 border-t border-[#E8EAEF] flex flex-col gap-1">
+           <button onClick={() => setIsSettingsOpen(true)} className="flex items-center gap-3 px-4 py-3 w-full text-left rounded-xl text-sm font-bold text-gray-500 hover:text-[#1C1C1E] hover:bg-[#F8F9FA] transition-all">
               <Settings size={18} /> Account Settings
             </button>
-            <Link href="/" className="flex items-center gap-3 px-4 py-3 w-full text-left rounded-xl text-sm font-bold text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all">
+            <Link href="/" className="flex items-center gap-3 px-4 py-3 w-full text-left rounded-xl text-sm font-bold text-red-500 hover:text-red-600 hover:bg-red-50 transition-all">
               <LogOut size={18} /> Exit Admin Dashboard
             </Link>
         </div>
@@ -192,6 +194,57 @@ export default function AdminLayout({ children }) {
           <span className="text-[10px] font-bold">Exit</span>
         </Link>
       </div>
+
+      {/* Account Settings Modal */}
+      {isSettingsOpen && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center font-sans px-4">
+          <div className="fixed inset-0 bg-[#1C1C1E]/60 backdrop-blur-sm" onClick={() => setIsSettingsOpen(false)} />
+          <div className="relative w-full max-w-sm bg-white rounded-3xl shadow-2xl p-6 z-10 animate-scaleIn">
+             <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-black text-[#1C1C1E]">Account Settings</h3>
+                <button onClick={() => setIsSettingsOpen(false)} className="text-gray-400 hover:text-[#1C1C1E]">
+                  <X size={20} strokeWidth={3} />
+                </button>
+             </div>
+             
+             <div className="space-y-6">
+               <div className="p-4 bg-[#F8F9FA] rounded-2xl border border-[#E8EAEF] flex items-center justify-between">
+                 <div>
+                   <h4 className="font-extrabold text-sm text-[#1C1C1E]">Push Notifications</h4>
+                   <p className="text-[11px] text-gray-500 font-bold mt-0.5">Alerts for new bookings</p>
+                 </div>
+                 <button onClick={() => setNotificationsEnabled(!notificationsEnabled)} className={`w-12 h-6 rounded-full transition-colors relative ${notificationsEnabled ? 'bg-[#D9FB41]' : 'bg-gray-300'}`}>
+                    <div className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-transform shadow-sm`} style={{transform: notificationsEnabled ? 'translateX(26px)' : 'translateX(2px)'}}></div>
+                 </button>
+               </div>
+               
+               {notificationsEnabled && (
+                 <div className="p-4 border border-[#E8EAEF] rounded-2xl animate-in fade-in slide-in-from-top-2">
+                   <h4 className="font-extrabold text-sm text-[#1C1C1E] mb-3">Alert Sound</h4>
+                   <div className="flex flex-col gap-2">
+                     <label className="flex items-center gap-3 p-2 hover:bg-[#F8F9FA] rounded-xl cursor-pointer">
+                       <input type="radio" name="sound" value="chime" checked={notificationSound === 'chime'} onChange={() => setNotificationSound('chime')} className="w-4 h-4 accent-[#1C1C1E]" />
+                       <span className="text-sm font-bold text-gray-700">Gentle Chime</span>
+                     </label>
+                     <label className="flex items-center gap-3 p-2 hover:bg-[#F8F9FA] rounded-xl cursor-pointer">
+                       <input type="radio" name="sound" value="bell" checked={notificationSound === 'bell'} onChange={() => setNotificationSound('bell')} className="w-4 h-4 accent-[#1C1C1E]" />
+                       <span className="text-sm font-bold text-gray-700">Classic Bell</span>
+                     </label>
+                     <label className="flex items-center gap-3 p-2 hover:bg-[#F8F9FA] rounded-xl cursor-pointer">
+                       <input type="radio" name="sound" value="pulse" checked={notificationSound === 'pulse'} onChange={() => setNotificationSound('pulse')} className="w-4 h-4 accent-[#1C1C1E]" />
+                       <span className="text-sm font-bold text-gray-700">Modern Pulse</span>
+                     </label>
+                   </div>
+                 </div>
+               )}
+             </div>
+             
+             <button onClick={() => setIsSettingsOpen(false)} className="w-full mt-6 py-3.5 bg-[#1C1C1E] text-white font-extrabold rounded-xl hover:bg-black transition-colors flex items-center justify-center gap-2">
+               Save Preferences
+             </button>
+          </div>
+        </div>
+      )}
 
     </div>
   );
