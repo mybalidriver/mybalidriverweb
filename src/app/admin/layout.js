@@ -8,6 +8,7 @@ import {
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 
 export default function AdminLayout({ children }) {
   const { data: session } = useSession();
@@ -16,7 +17,64 @@ export default function AdminLayout({ children }) {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [notificationSound, setNotificationSound] = useState('chime');
+  const [customSoundUrl, setCustomSoundUrl] = useState(null);
   const [customAvatar, setCustomAvatar] = useState(null);
+
+  const sounds = {
+    chime: 'https://cdn.freesound.org/previews/415/415510_5121236-lq.mp3',
+    bell: 'https://cdn.freesound.org/previews/335/335908_5865517-lq.mp3',
+    pulse: 'https://cdn.freesound.org/previews/253/253172_4404552-lq.mp3'
+  };
+
+  const playSoundPreview = (soundKey) => {
+    setNotificationSound(soundKey);
+    let src = sounds[soundKey];
+    if (soundKey === 'custom' && customSoundUrl) src = customSoundUrl;
+    
+    if (src) {
+      const audio = new Audio(src);
+      audio.play().catch(e => console.error("Audio preview failed", e));
+    }
+  };
+
+  const handleCustomSoundUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setCustomSoundUrl(url);
+      playSoundPreview('custom');
+    }
+  };
+
+  React.useEffect(() => {
+    if (!notificationsEnabled) return;
+    
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'bookings' }, (payload) => {
+          let src = sounds[notificationSound];
+          if (notificationSound === 'custom' && customSoundUrl) src = customSoundUrl;
+          if (src) {
+             const audio = new Audio(src);
+             audio.play().catch(e => console.error("Audio playback failed", e));
+          }
+          if (typeof window !== "undefined" && window.Notification && Notification.permission === 'granted') {
+             new Notification('New Booking Received!', {
+               body: `${payload.new?.service_name || 'A new tour'} was booked.`,
+               icon: '/icon.jpg'
+             });
+          }
+      })
+      .subscribe();
+      
+    if (typeof window !== "undefined" && window.Notification && Notification.permission === 'default') {
+       Notification.requestPermission();
+    }
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [notificationsEnabled, notificationSound, customSoundUrl]);
 
   const handleAvatarUpload = (e) => {
     const file = e.target.files?.[0];
@@ -223,16 +281,27 @@ export default function AdminLayout({ children }) {
                    <h4 className="font-extrabold text-sm text-[#1C1C1E] mb-3">Alert Sound</h4>
                    <div className="flex flex-col gap-2">
                      <label className="flex items-center gap-3 p-2 hover:bg-[#F8F9FA] rounded-xl cursor-pointer">
-                       <input type="radio" name="sound" value="chime" checked={notificationSound === 'chime'} onChange={() => setNotificationSound('chime')} className="w-4 h-4 accent-[#1C1C1E]" />
+                       <input type="radio" name="sound" value="chime" checked={notificationSound === 'chime'} onChange={() => playSoundPreview('chime')} className="w-4 h-4 accent-[#1C1C1E]" />
                        <span className="text-sm font-bold text-gray-700">Gentle Chime</span>
                      </label>
                      <label className="flex items-center gap-3 p-2 hover:bg-[#F8F9FA] rounded-xl cursor-pointer">
-                       <input type="radio" name="sound" value="bell" checked={notificationSound === 'bell'} onChange={() => setNotificationSound('bell')} className="w-4 h-4 accent-[#1C1C1E]" />
+                       <input type="radio" name="sound" value="bell" checked={notificationSound === 'bell'} onChange={() => playSoundPreview('bell')} className="w-4 h-4 accent-[#1C1C1E]" />
                        <span className="text-sm font-bold text-gray-700">Classic Bell</span>
                      </label>
                      <label className="flex items-center gap-3 p-2 hover:bg-[#F8F9FA] rounded-xl cursor-pointer">
-                       <input type="radio" name="sound" value="pulse" checked={notificationSound === 'pulse'} onChange={() => setNotificationSound('pulse')} className="w-4 h-4 accent-[#1C1C1E]" />
+                       <input type="radio" name="sound" value="pulse" checked={notificationSound === 'pulse'} onChange={() => playSoundPreview('pulse')} className="w-4 h-4 accent-[#1C1C1E]" />
                        <span className="text-sm font-bold text-gray-700">Modern Pulse</span>
+                     </label>
+                     
+                     <div className="h-px bg-[#E8EAEF] my-1"></div>
+                     
+                     <label className="flex items-center gap-3 p-2 hover:bg-[#F8F9FA] rounded-xl cursor-pointer relative overflow-hidden">
+                       <input type="radio" name="sound" value="custom" checked={notificationSound === 'custom'} onChange={() => customSoundUrl && playSoundPreview('custom')} className="w-4 h-4 accent-[#1C1C1E]" />
+                       <div className="flex flex-col">
+                         <span className="text-sm font-bold text-gray-700">Custom Ringtone</span>
+                         <span className="text-[10px] text-gray-400 font-bold">{customSoundUrl ? 'Custom sound loaded' : 'Upload from phone (.mp3, .wav)'}</span>
+                       </div>
+                       <input type="file" accept="audio/*" onChange={handleCustomSoundUpload} className="absolute inset-0 opacity-0 cursor-pointer w-full h-full" />
                      </label>
                    </div>
                  </div>
