@@ -49,6 +49,8 @@ export async function generateMetadata({ params }) {
   };
 }
 
+export const revalidate = 3600; // Cache on server for 1 hour
+
 export default async function TourPage({ params }) {
   const resolvedParams = await params;
   const slug = resolvedParams.slug;

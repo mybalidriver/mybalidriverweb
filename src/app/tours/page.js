@@ -5,7 +5,7 @@ import { Filter, ChevronDown, Check } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { generateSlug } from "@/lib/utils";
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 3600; // Cache on server for 1 hour
 
 
 const SidebarFilter = ({ title, options }) => (

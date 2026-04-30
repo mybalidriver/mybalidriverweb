@@ -26,7 +26,7 @@ const getBlogUrl = (slug) => {
   return `/blog/${cleanSlug}`;
 };
 
-export const revalidate = 60; // Revalidate every minute
+export const revalidate = 3600; // Server-side caching for 1 hour
 
 export default async function Blog() {
   const { data: dbArticles, error } = await supabase
