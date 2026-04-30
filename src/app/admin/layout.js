@@ -6,7 +6,7 @@ import {
   Briefcase, Users, Newspaper, Home, Menu, X, Bell, Search, ChevronDown, Activity, Smartphone
 } from "lucide-react";
 import Link from "next/link";
-import { useSession } from "next-auth/react";
+import { useSession, signIn } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
@@ -16,16 +16,20 @@ export default function AdminLayout({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   
-  // Enforce Authentication
-  if (status === "loading") {
-    return <div className="fixed inset-0 bg-[#F8F9FA] z-[200] flex items-center justify-center"><div className="w-10 h-10 border-4 border-gray-200 border-t-[#D9FB41] rounded-full animate-spin"></div></div>;
-  }
-  
-  if (status === "unauthenticated") {
-    if (typeof window !== "undefined") {
-      window.location.href = "/api/auth/signin?callbackUrl=/admin";
+  React.useEffect(() => {
+    if (status === "unauthenticated") {
+      signIn(undefined, { callbackUrl: '/admin' });
     }
-    return <div className="fixed inset-0 bg-[#F8F9FA] z-[200] flex items-center justify-center text-sm font-bold text-gray-500">Redirecting to Secure Login...</div>;
+  }, [status]);
+  
+  // Enforce Authentication state rendering
+  if (status === "loading" || status === "unauthenticated") {
+    return (
+      <div className="fixed inset-0 bg-[#F8F9FA] z-[200] flex flex-col items-center justify-center gap-4">
+         <div className="w-10 h-10 border-4 border-gray-200 border-t-[#D9FB41] rounded-full animate-spin"></div>
+         <p className="text-sm font-bold text-gray-500">{status === "loading" ? "Verifying access..." : "Redirecting to Secure Login..."}</p>
+      </div>
+    );
   }
 
   const [customAvatar, setCustomAvatar] = useState(null);
