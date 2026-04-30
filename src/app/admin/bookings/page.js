@@ -309,9 +309,9 @@ export default function BookingsManagement() {
 
       {/* Tap-to-Expand Mobile Detail Modal */}
       {selectedBooking && (
-        <div className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center pt-20 px-4 pb-4">
+        <div className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center pt-20 sm:pt-4 px-0 sm:px-4 pb-0 sm:pb-4">
           <div className="fixed inset-0 bg-[#1C1C1E]/60 backdrop-blur-sm transition-opacity" onClick={() => setSelectedBooking(null)} />
-          <div className="relative w-full max-w-md bg-white rounded-[32px] shadow-2xl p-6 z-10 animate-slideUp sm:animate-scaleIn overflow-y-auto max-h-[85vh]">
+          <div className="relative w-full max-w-md bg-white rounded-t-[32px] sm:rounded-[32px] shadow-2xl p-6 pb-12 sm:pb-6 z-10 animate-slideUp sm:animate-scaleIn overflow-y-auto max-h-[90vh]">
              <div className="flex justify-between items-start mb-6">
                 <div>
                   <h3 className="text-2xl font-black text-[#1C1C1E]">{selectedBooking.id}</h3>
@@ -345,15 +345,31 @@ export default function BookingsManagement() {
                </div>
                
                {selectedBooking.details && (
-                 <div className="mt-4 p-4 bg-[#F8F9FA] rounded-2xl border border-[#E8EAEF]">
-                   <p className="text-[10px] font-extrabold text-[#1C1C1E] uppercase tracking-widest mb-3">Customer Form Details</p>
-                   <div className="space-y-3">
-                     {Object.entries(selectedBooking.details).map(([key, value]) => (
-                       <div key={key}>
-                         <div className="text-[10px] font-bold text-gray-500 uppercase leading-tight mb-0.5">{key.replace(/_/g, ' ')}</div>
-                         <div className="text-[14px] font-extrabold text-[#1C1C1E] leading-tight">{typeof value === 'object' ? JSON.stringify(value) : value}</div>
-                       </div>
-                     ))}
+                 <div className="mt-4 p-5 bg-[#F8F9FA] rounded-[24px] border border-[#E8EAEF]">
+                   <p className="text-[10px] font-extrabold text-[#1C1C1E] uppercase tracking-widest mb-4 flex items-center gap-1.5"><Newspaper size={12}/> Form Details</p>
+                   <div className="grid grid-cols-2 gap-4">
+                     {Object.entries(selectedBooking.details).map(([key, value]) => {
+                        if (key.toLowerCase() === 'image') return null; // Hide the long supabase image link
+                        
+                        let displayValue = typeof value === 'object' ? JSON.stringify(value) : value;
+                        
+                        // Enhance Duration
+                        if (key.toLowerCase() === 'duration' && !isNaN(displayValue)) {
+                          const isSpa = activeTab === 'Spa & Wellness';
+                          const unit = isSpa ? 'Hour' : 'Day';
+                          displayValue = `${displayValue} ${Number(displayValue) > 1 ? unit + 's' : unit}`;
+                        }
+
+                        // Determine if it should span full width
+                        const isLongValue = String(displayValue).length > 20 || key.toLowerCase().includes('location') || key.toLowerCase().includes('email') || key.toLowerCase().includes('message');
+
+                        return (
+                          <div key={key} className={isLongValue ? "col-span-2" : "col-span-1"}>
+                            <div className="text-[9px] font-black text-gray-400 uppercase tracking-widest leading-tight mb-1">{key.replace(/_/g, ' ')}</div>
+                            <div className="text-[13px] font-bold text-[#1C1C1E] leading-snug break-words">{displayValue || '-'}</div>
+                          </div>
+                        );
+                      })}
                    </div>
                  </div>
                )}
