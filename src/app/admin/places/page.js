@@ -60,7 +60,9 @@ export default function SEOPlacesManagement() {
       const res = await fetch('/api/admin/blogs');
       if (res.ok) {
         const data = await res.json();
-        setPlaces(data);
+        // Map meta_description back to meta for the frontend state
+        const mappedData = data.map(d => ({ ...d, meta: d.meta_description || d.meta }));
+        setPlaces(mappedData);
       }
     } catch (error) {
       console.error("Failed to fetch blogs:", error);

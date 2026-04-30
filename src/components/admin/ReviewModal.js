@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { X, Star, Trash2, MessageSquare, AlertCircle } from "lucide-react";
 
 export default function ReviewModal({ item, onClose }) {
-  const [reviews, setReviews] = useState(item.data?.reviewsList || []);
+  const [reviews, setReviews] = useState(item.reviewsList || []);
   const [isDeleting, setIsDeleting] = useState(null);
 
   const handleDelete = async (reviewId) => {

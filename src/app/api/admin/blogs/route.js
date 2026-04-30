@@ -38,12 +38,12 @@ export async function POST(req) {
       title: body.title,
       slug: body.slug,
       content: body.content,
-      meta: body.meta,
+      meta_description: body.meta,
       category: body.category,
       location: body.location,
       status: body.status || 'Draft',
       image: body.image,
-      images: body.images || []
+      views: '0'
     };
 
     const { data, error } = await supabase
@@ -77,6 +77,13 @@ export async function PUT(req) {
 
     // Ensure we update 'updated_at'
     updateData.updated_at = new Date().toISOString();
+    
+    // Map meta -> meta_description and drop images
+    if (updateData.meta !== undefined) {
+      updateData.meta_description = updateData.meta;
+      delete updateData.meta;
+    }
+    delete updateData.images;
 
     const { data, error } = await supabase
       .from('blogs')

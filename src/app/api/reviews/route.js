@@ -4,7 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 export async function POST(req) {
   try {
     const body = await req.json();
-    const { id, name, rating, comment, accessCode } = body;
+    const { id, name, rating, comment, accessCode, userImage } = body;
 
     // 1. Validate Access Code
     if (accessCode !== 'MBD-123') {
@@ -40,6 +40,7 @@ export async function POST(req) {
     const newReview = {
       id: Date.now().toString(),
       user: name,
+      userImage: userImage || null,
       rating: Number(rating),
       comment: comment,
       date: new Date().toISOString(),

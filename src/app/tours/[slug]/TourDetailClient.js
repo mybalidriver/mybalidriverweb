@@ -187,6 +187,7 @@ export default function TourDetailClient({ tourData, slug }) {
         body: JSON.stringify({
           id: tourData.id,
           name: nameToUse,
+          userImage: session?.user?.image || null,
           rating: reviewRating,
           comment: reviewComment,
           accessCode: reviewCode
@@ -583,20 +584,31 @@ export default function TourDetailClient({ tourData, slug }) {
                    {localReviews.length === 0 ? (
                      <p className="text-gray-500 text-sm font-medium italic">No reviews yet. Be the first to leave one!</p>
                    ) : (
-                     [...localReviews].reverse().map(review => (
-                       <div key={review.id} className="border-b border-gray-100 pb-4 last:border-0">
-                         <div className="flex items-center justify-between mb-2">
-                            <span className="font-bold text-primary">{review.user}</span>
-                            <span className="text-xs font-bold text-gray-400">{new Date(review.date).toLocaleDateString()}</span>
+                     <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-6 no-scrollbar -mx-4 px-4 md:mx-0 md:px-0">
+                       {[...localReviews].reverse().map(review => (
+                         <div key={review.id} className="min-w-[280px] max-w-[320px] snap-center bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col shrink-0">
+                           <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center gap-3">
+                                 {review.userImage ? (
+                                   <img src={review.userImage} alt={review.user} className="w-8 h-8 rounded-full shadow-sm object-cover" />
+                                 ) : (
+                                   <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xs shadow-sm">
+                                      {review.user?.charAt(0) || 'U'}
+                                   </div>
+                                 )}
+                                 <span className="font-bold text-primary text-sm">{review.user}</span>
+                              </div>
+                              <span className="text-[10px] font-bold text-gray-400">{new Date(review.date).toLocaleDateString()}</span>
+                           </div>
+                           <div className="flex items-center gap-0.5 mb-3">
+                             {[...Array(5)].map((_, i) => (
+                               <Star key={i} size={12} className={i < review.rating ? "fill-[#F59E0B] text-[#F59E0B]" : "fill-gray-200 text-gray-200"} />
+                             ))}
+                           </div>
+                           <p className="text-sm font-medium text-gray-600 leading-relaxed line-clamp-4">{review.comment}</p>
                          </div>
-                         <div className="flex items-center gap-0.5 mb-2">
-                           {[...Array(5)].map((_, i) => (
-                             <Star key={i} size={12} className={i < review.rating ? "fill-[#F59E0B] text-[#F59E0B]" : "fill-gray-200 text-gray-200"} />
-                           ))}
-                         </div>
-                         <p className="text-sm font-medium text-text-secondary leading-relaxed">{review.comment}</p>
-                       </div>
-                     ))
+                       ))}
+                     </div>
                    )}
                 </div>
               </div>

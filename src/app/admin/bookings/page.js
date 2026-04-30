@@ -11,6 +11,8 @@ export default function BookingsManagement() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null);
   const [selectedBooking, setSelectedBooking] = useState(null);
+  const [viewMode, setViewMode] = useState("List"); // "List" | "Calendar"
+  const [currentDate, setCurrentDate] = useState(new Date());
 
   useEffect(() => {
     fetchBookings();
@@ -114,6 +116,20 @@ export default function BookingsManagement() {
             <h1 className="text-3xl font-black text-[#1C1C1E] tracking-tight">Booking Management</h1>
             <p className="text-sm text-gray-500 font-medium mt-1">Review, manage, and execute customer booking actions.</p>
           </div>
+          <div className="flex bg-[#F8F9FA] p-1 rounded-xl overflow-x-auto no-scrollbar shadow-sm border border-[#E8EAEF]">
+            <button
+              onClick={() => setViewMode("List")}
+              className={`flex-1 min-w-[80px] px-4 py-2 rounded-lg text-xs font-extrabold transition-all ${viewMode === "List" ? 'bg-white text-[#1C1C1E] shadow-sm' : 'text-gray-500 hover:text-[#1C1C1E]'}`}
+            >
+              List View
+            </button>
+            <button
+              onClick={() => setViewMode("Calendar")}
+              className={`flex-1 min-w-[80px] px-4 py-2 rounded-lg text-xs font-extrabold transition-all ${viewMode === "Calendar" ? 'bg-white text-[#1C1C1E] shadow-sm' : 'text-gray-500 hover:text-[#1C1C1E]'}`}
+            >
+              Calendar
+            </button>
+          </div>
         </div>
 
         {/* Filters and Search */}
@@ -145,8 +161,9 @@ export default function BookingsManagement() {
         </div>
 
         {/* Table View */}
+        {viewMode === "List" && (
         <div className="bg-white border border-[#E8EAEF] rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.03)] overflow-hidden mt-4">
-          <div className="overflow-x-hidden">
+          <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse cursor-pointer">
               <thead>
                 <tr className="bg-[#F8F9FA] border-b border-[#E8EAEF]">
@@ -216,6 +233,72 @@ export default function BookingsManagement() {
             </table>
           </div>
         </div>
+        )}
+
+        {/* Calendar View */}
+        {viewMode === "Calendar" && (
+          <div className="bg-white border border-[#E8EAEF] rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.03)] overflow-hidden mt-4 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-black text-[#1C1C1E] capitalize">
+                {currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
+              </h2>
+              <div className="flex gap-2">
+                <button onClick={() => setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() - 1)))} className="p-2 bg-[#F8F9FA] rounded-lg hover:bg-gray-200">
+                  <span className="font-bold text-gray-500">&larr;</span>
+                </button>
+                <button onClick={() => setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() + 1)))} className="p-2 bg-[#F8F9FA] rounded-lg hover:bg-gray-200">
+                  <span className="font-bold text-gray-500">&rarr;</span>
+                </button>
+              </div>
+            </div>
+            <div className="grid grid-cols-7 gap-px bg-[#E8EAEF] border border-[#E8EAEF] rounded-xl overflow-hidden">
+              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+                <div key={day} className="bg-[#F8F9FA] text-center py-3 text-[10px] font-black uppercase text-gray-500 tracking-widest">
+                  {day}
+                </div>
+              ))}
+              {(() => {
+                const year = currentDate.getFullYear();
+                const month = currentDate.getMonth();
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+                const firstDayIndex = new Date(year, month, 1).getDay();
+                
+                const days = [];
+                for (let i = 0; i < firstDayIndex; i++) {
+                  days.push(<div key={`empty-${i}`} className="bg-white min-h-[100px] p-2"></div>);
+                }
+                for (let i = 1; i <= daysInMonth; i++) {
+                  const dateStr = new Date(Date.UTC(year, month, i)).toISOString().split('T')[0];
+                  // Format the bookings to match dateStr
+                  const dayBookings = currentItems.filter(b => {
+                     try {
+                        return new Date(b.date).toISOString().split('T')[0] === dateStr;
+                     } catch(e) {
+                        return b.date === dateStr; // fallback
+                     }
+                  });
+                  days.push(
+                    <div key={`day-${i}`} className="bg-white min-h-[100px] p-2 border-t border-transparent hover:border-blue-500 transition-colors">
+                      <span className={`text-xs font-bold inline-block w-6 h-6 text-center leading-6 rounded-full mb-1 ${dayBookings.length > 0 ? 'bg-primary text-white' : 'text-gray-400'}`}>{i}</span>
+                      <div className="flex flex-col gap-1 mt-1">
+                        {dayBookings.slice(0, 3).map((bk, idx) => (
+                          <div key={idx} onClick={() => setSelectedBooking(bk)} className={`text-[9px] font-bold p-1.5 rounded-md truncate cursor-pointer hover:bg-opacity-80 
+                            ${bk.status === 'Confirmed' ? 'bg-[#D9FB41] text-[#1C1C1E]' : 'bg-[#F8F9FA] text-[#1C1C1E]'}`}>
+                            {bk.user}
+                          </div>
+                        ))}
+                        {dayBookings.length > 3 && (
+                          <div className="text-[9px] font-bold text-gray-400 pl-1">+{dayBookings.length - 3} more</div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                }
+                return days;
+              })()}
+            </div>
+          </div>
+        )}
 
       </div>
 
