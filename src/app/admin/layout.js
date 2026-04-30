@@ -19,6 +19,36 @@ export default function AdminLayout({ children }) {
   const [notificationSound, setNotificationSound] = useState('chime');
   const [customSoundUrl, setCustomSoundUrl] = useState(null);
   const [customAvatar, setCustomAvatar] = useState(null);
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [showInstallModal, setShowInstallModal] = useState(false);
+
+  React.useEffect(() => {
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        console.log('User accepted the install prompt');
+      } else {
+        console.log('User dismissed the install prompt');
+      }
+      setDeferredPrompt(null);
+    } else {
+      setShowInstallModal(true);
+    }
+  };
 
   const sounds = {
     chime: 'https://cdn.freesound.org/previews/415/415510_5121236-lq.mp3',
@@ -153,7 +183,7 @@ export default function AdminLayout({ children }) {
 
         {/* System Settings */}
         <div className="p-5 border-t border-[#E8EAEF] flex flex-col gap-1">
-           <button onClick={() => alert("To install the MyBaliDriver Admin App on your phone:\n\n🍏 iOS (iPhone/iPad):\n1. Open this page in Safari\n2. Tap the 'Share' icon at the bottom\n3. Tap 'Add to Home Screen'\n\n🤖 Android:\n1. Open this page in Chrome\n2. Tap the 3-dot menu at the top right\n3. Tap 'Install app' or 'Add to Home screen'")} className="flex items-center gap-3 px-4 py-3 w-full text-left rounded-xl text-sm font-bold text-[#1C1C1E] bg-[#D9FB41] hover:bg-[#C5E838] transition-all mb-2 shadow-sm">
+           <button onClick={handleInstallClick} className="flex items-center gap-3 px-4 py-3 w-full text-left rounded-xl text-sm font-bold text-[#1C1C1E] bg-[#D9FB41] hover:bg-[#C5E838] transition-all mb-2 shadow-sm">
               <Smartphone size={18} /> Download Mobile App
             </button>
            <button onClick={() => setIsSettingsOpen(true)} className="flex items-center gap-3 px-4 py-3 w-full text-left rounded-xl text-sm font-bold text-gray-500 hover:text-[#1C1C1E] hover:bg-[#F8F9FA] transition-all">
@@ -313,6 +343,54 @@ export default function AdminLayout({ children }) {
              
              <button onClick={() => setIsSettingsOpen(false)} className="w-full mt-6 py-3.5 bg-[#1C1C1E] text-white font-extrabold rounded-xl hover:bg-black transition-colors flex items-center justify-center gap-2">
                Save Preferences
+             </button>
+          </div>
+        </div>
+      )}
+
+      {/* iOS / Fallback Install Modal */}
+      {showInstallModal && (
+        <div className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center sm:px-4 pb-0 sm:pb-4">
+          <div className="fixed inset-0 bg-[#1C1C1E]/60 backdrop-blur-sm" onClick={() => setShowInstallModal(false)} />
+          <div className="relative w-full max-w-sm bg-white rounded-t-[32px] sm:rounded-3xl shadow-2xl p-6 z-10 animate-slideUp sm:animate-scaleIn">
+             <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-black text-[#1C1C1E]">Install App</h3>
+                <button onClick={() => setShowInstallModal(false)} className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-200 transition-colors">
+                  <X size={16} strokeWidth={3} />
+                </button>
+             </div>
+             
+             <div className="space-y-6">
+               <div className="flex items-center gap-4 bg-[#F8F9FA] p-4 rounded-2xl border border-[#E8EAEF]">
+                 <img src="/icon.jpg" alt="Logo" className="w-12 h-12 rounded-xl object-cover shadow-sm" />
+                 <div>
+                   <p className="text-sm font-black text-[#1C1C1E]">MyBaliDriver Admin</p>
+                   <p className="text-[11px] font-bold text-gray-500">Add to Home Screen</p>
+                 </div>
+               </div>
+
+               <div className="space-y-4">
+                  <div>
+                    <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">🍏 iOS (iPhone & iPad)</h4>
+                    <ol className="text-sm font-bold text-gray-600 space-y-1.5 ml-2 border-l-2 border-[#E8EAEF] pl-3">
+                      <li>1. Open this page in Safari</li>
+                      <li>2. Tap the Share icon <span className="inline-block bg-gray-100 px-1 rounded text-xs leading-none py-0.5">↗</span> at the bottom</li>
+                      <li>3. Scroll down and tap <span className="text-[#1C1C1E]">"Add to Home Screen"</span></li>
+                    </ol>
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-1.5 mt-5">🤖 Android</h4>
+                    <ol className="text-sm font-bold text-gray-600 space-y-1.5 ml-2 border-l-2 border-[#E8EAEF] pl-3">
+                      <li>1. Open this page in Chrome</li>
+                      <li>2. Tap the 3-dot menu <span className="inline-block bg-gray-100 px-1 rounded text-xs leading-none py-0.5">⋮</span> at the top</li>
+                      <li>3. Tap <span className="text-[#1C1C1E]">"Install app"</span> or <span className="text-[#1C1C1E]">"Add to Home Screen"</span></li>
+                    </ol>
+                  </div>
+               </div>
+             </div>
+             
+             <button onClick={() => setShowInstallModal(false)} className="w-full mt-8 py-3.5 bg-[#1C1C1E] text-white font-extrabold rounded-xl hover:bg-black transition-colors">
+               Got it
              </button>
           </div>
         </div>
