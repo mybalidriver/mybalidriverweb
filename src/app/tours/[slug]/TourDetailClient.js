@@ -6,12 +6,12 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import ListingCard from "@/components/listing/ListingCard";
-import BookingModal from "@/components/booking/BookingModal";
+import dynamic from "next/dynamic";
 import { useSession, signIn } from "next-auth/react";
 import { supabase } from "@/lib/supabase";
 import { generateSlug } from "@/lib/utils";
 
-
+const BookingModal = dynamic(() => import("@/components/booking/BookingModal"), { ssr: false });
 
 export default function TourDetailClient({ tourData, slug, relatedTours }) {
   const router = useRouter();

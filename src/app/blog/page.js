@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 import { ChevronRight, Calendar } from "lucide-react";
 import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
@@ -66,7 +67,7 @@ export default async function Blog() {
             <Link href={getBlogUrl(articles[0].slug)} className="group bg-surface rounded-[32px] overflow-hidden shadow-floating border border-border mb-16 flex flex-col md:flex-row cursor-pointer transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl block">
               <div className="md:w-3/5 relative overflow-hidden aspect-[4/3] md:aspect-auto bg-gray-100">
                 {articles[0].image ? (
-                  <img src={articles[0].image} alt={articles[0].title} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" />
+                  <Image src={articles[0].image} alt={articles[0].title} fill sizes="(max-width: 768px) 100vw, 60vw" className="object-cover transition-transform duration-1000 group-hover:scale-105" />
                 ) : (
                   <div className="w-full h-full bg-black flex items-center justify-center text-white/10 text-6xl font-black">DISCOVER BALI</div>
                 )}
@@ -99,7 +100,7 @@ export default async function Blog() {
                     <Link key={article.id} href={getBlogUrl(article.slug)} className="bg-surface border border-border rounded-[24px] shadow-soft flex flex-col group cursor-pointer hover:shadow-floating hover:-translate-y-2 transition-all duration-500 overflow-hidden block">
                       <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
                         {article.image ? (
-                          <img src={article.image} alt={article.title} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" />
+                          <Image src={article.image} alt={article.title} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover transition-transform duration-1000 group-hover:scale-105" />
                         ) : (
                            <div className="w-full h-full bg-black flex items-center justify-center text-white/10 text-3xl font-black">DB</div>
                         )}

@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrowLeft, MapPin, Share2, Calendar, Eye, Sparkles, UserCircle, Send } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { supabase } from '@/lib/supabase';
 import StructuredData from '@/components/seo/StructuredData';
 import { getSeoDescription, generateBlogJsonLd, injectSmartLinks } from '@/lib/seo';
@@ -162,7 +163,7 @@ export default async function BlogDetail({ params }) {
 
         {/* Hero Header Section */}
         <div className="relative w-full h-[50vh] md:h-[65vh] bg-black">
-          <img src={post.image || 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?w=1200'} alt={post.title} className="absolute inset-0 w-full h-full object-cover opacity-80" />
+          <Image src={post.image || 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?w=1200'} alt={post.title} fill sizes="100vw" priority className="absolute inset-0 w-full h-full object-cover opacity-80" />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-black/30"></div>
 
           {/* Top Navigation Bar */}
@@ -212,8 +213,8 @@ export default async function BlogDetail({ params }) {
             <h3 className="text-2xl font-black text-primary mb-6">Gallery</h3>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
               {post.images.map((img, idx) => (
-                <div key={idx} className={`rounded-2xl overflow-hidden shadow-sm aspect-square ${idx === 0 ? 'col-span-2 row-span-2' : ''}`}>
-                  <img src={img} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500 cursor-pointer" alt="Gallery item" />
+                <div key={idx} className={`relative rounded-2xl overflow-hidden shadow-sm aspect-square ${idx === 0 ? 'col-span-2 row-span-2' : ''}`}>
+                  <Image src={img} fill sizes="(max-width: 768px) 50vw, 33vw" className="object-cover hover:scale-105 transition-transform duration-500 cursor-pointer" alt="Gallery item" />
                 </div>
               ))}
             </div>
