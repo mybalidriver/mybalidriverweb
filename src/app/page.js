@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import useSWR from "swr";
 import { TreePine, Umbrella, Mountain, Droplets, Search, Plane, Building, Building2, Train, Bus, BriefcaseBusiness, Heart, HeartOff, MapPin, Map, Car, Bike, Wifi, Navigation, Sparkles, Landmark, Camera, Waves, Compass, ChevronDown, ChevronLeft, ChevronRight, Settings2, Star, Zap, Home as HomeIcon, Flower2, Globe, ArrowUpRight, Play, Pause } from "lucide-react";
 import { TourIcon, SpaIcon, TransportIcon, ScooterIcon, ThinSparklesIcon, TowelsIcon, LotusIcon, CreattieTourIcon, CreattieSpaIcon, CreattieScooterIcon, CreattieTransportIcon, CreattieEsimIcon, AirbnbTourIcon, AirbnbSpaIcon, AirbnbScooterIcon, AirbnbTransportIcon, AirbnbEsimIcon } from "@/components/icons/CategoryIcons";
 import ListingCard from "@/components/listing/ListingCard";
@@ -138,8 +139,70 @@ export default function Home() {
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [isServiceDropdownOpen, setIsServiceDropdownOpen] = useState(false);
   const [priceFilter, setPriceFilter] = useState([0, 5000000]);
-  const [recommendedPlaces, setRecommendedPlaces] = useState([]);
-  const [heroSettings, setHeroSettings] = useState(null);
+  // SWR Fetchers
+  const fetcherListings = async () => {
+    const { supabase } = await import('@/lib/supabase');
+    const { data, error } = await supabase
+      .from('listings')
+      .select('id, type, title, location, price, duration, category, rating, reviews, status, image, company_name, originalService:data->originalService, isCampaignPinned:data->isCampaignPinned, campaignTitle:data->campaignTitle, campaignDescription:data->campaignDescription, campaignLabel:data->campaignLabel, campaignVideo:data->campaignVideo, campaignYoutubeLink:data->campaignYoutubeLink, campaignRecommendation:data->campaignRecommendation, campaignIgLink:data->campaignIgLink, isBestTripPinned:data->isBestTripPinned, spaSetting:data->spaSetting')
+      .eq('status', 'Active');
+    
+    if (error) throw error;
+    
+    return data.map(d => ({
+      ...d,
+      service: d.originalService || d.type
+    }));
+  };
+
+  const fetcherSettings = async () => {
+    const { supabase } = await import('@/lib/supabase');
+    const { data, error } = await supabase
+      .from('homepage_settings')
+      .select('campaign_video, campaign_youtube_link, campaign_recommendation, campaign_ig_link, campaign_recommendation_2, campaign_ig_link_2')
+      .eq('id', 1)
+      .single();
+    
+    if (error && error.code !== 'PGRST116') throw error;
+    
+    return data ? {
+      campaignVideo: data.campaign_video || "",
+      campaignYoutubeLink: data.campaign_youtube_link || "",
+      campaignRecommendation: data.campaign_recommendation || "",
+      campaignIgLink: data.campaign_ig_link || "",
+      campaignRecommendation2: data.campaign_recommendation_2 || "",
+      campaignIgLink2: data.campaign_ig_link_2 || ""
+    } : null;
+  };
+
+  const fetcherBlogs = async () => {
+    const { supabase } = await import('@/lib/supabase');
+    const { data, error } = await supabase
+      .from('blogs')
+      .select('id, title, slug, image, category')
+      .eq('status', 'Published')
+      .order('created_at', { ascending: false })
+      .limit(4);
+      
+    if (error) throw error;
+    return data;
+  };
+
+  const { data: heroSettings = null, mutate: mutateSettings } = useSWR('homepage_settings', fetcherSettings, {
+    revalidateOnFocus: false,
+    revalidateIfStale: false,
+  });
+
+  const { data: allListings = [] } = useSWR('listings', fetcherListings, {
+    revalidateOnFocus: false,
+    revalidateIfStale: false,
+  });
+
+  const { data: recommendedPlaces = [] } = useSWR('blogs', fetcherBlogs, {
+    revalidateOnFocus: false,
+    revalidateIfStale: false,
+  });
+
   const [isDesktop, setIsDesktop] = useState(true);
   const [isPlaying, setIsPlaying] = useState(true);
   const [activeMobileLabelIdx, setActiveMobileLabelIdx] = useState(0);
@@ -211,78 +274,12 @@ export default function Home() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const fetchHeroSettings = async () => {
-    try {
-      const { supabase } = await import('@/lib/supabase');
-      const { data, error } = await supabase.from('homepage_settings').select('*').eq('id', 1).single();
-      if (error && error.code !== 'PGRST116') throw error;
-      
-      if (data) {
-        setHeroSettings({
-          campaignVideo: data.campaign_video || "",
-          campaignYoutubeLink: data.campaign_youtube_link || "",
-          campaignRecommendation: data.campaign_recommendation || "",
-          campaignIgLink: data.campaign_ig_link || "",
-          campaignRecommendation2: data.campaign_recommendation_2 || "",
-          campaignIgLink2: data.campaign_ig_link_2 || ""
-        });
-      }
-    } catch (err) {
-      console.error("Failed to fetch hero settings:", err.message);
-    }
-  };
-
   useEffect(() => {
-    fetchHeroSettings();
-    window.addEventListener("homepage_hero_settings_changed", fetchHeroSettings);
-    return () => window.removeEventListener("homepage_hero_settings_changed", fetchHeroSettings);
-  }, []);
+    const handler = () => mutateSettings();
+    window.addEventListener("homepage_hero_settings_changed", handler);
+    return () => window.removeEventListener("homepage_hero_settings_changed", handler);
+  }, [mutateSettings]);
 
-  // Dynamic Data from Admin
-  const [allListings, setAllListings] = useState([]);
-
-  useEffect(() => {
-    const fetchPublicListings = async () => {
-      const { supabase } = await import('@/lib/supabase');
-      const { data, error } = await supabase.from('listings').select('*').eq('status', 'Active');
-      if (data) {
-         const publicItems = data.map(d => ({
-           id: d.id,
-           service: d.data?.originalService || d.type,
-           title: d.title,
-           location: d.location,
-           price: d.price,
-           duration: d.duration,
-           category: d.category,
-           rating: d.rating,
-           reviews: d.reviews,
-           status: d.status,
-           image: d.image,
-           company: d.company_name,
-           ...(d.data || {}) // Spread gallery, itinerary, pins, etc.
-         }));
-         setAllListings(publicItems);
-      }
-    };
-    fetchPublicListings();
-  }, []);
-
-  useEffect(() => {
-    const fetchBlogs = async () => {
-      const { supabase } = await import('@/lib/supabase');
-      const { data, error } = await supabase
-        .from('blogs')
-        .select('*')
-        .eq('status', 'Published')
-        .order('created_at', { ascending: false })
-        .limit(4);
-        
-      if (data) {
-        setRecommendedPlaces(data);
-      }
-    };
-    fetchBlogs();
-  }, []);
 
   const nextCamp = () => setCurrentCampIdx((prev) => (prev + 1) % campaigns.length);
   const prevCamp = () => setCurrentCampIdx((prev) => (prev - 1 + campaigns.length) % campaigns.length);
@@ -571,7 +568,7 @@ export default function Home() {
           {displayCampaigns.map((camp, idx) => (
             <div key={camp.id} className="relative w-full shrink-0 snap-center aspect-[4/3] rounded-[28px] overflow-hidden shadow-soft border border-border bg-black select-none">
               {camp.campaignYoutubeLink && idx === 0 && !isDesktop ? (
-                <iframe ref={camp.isHeroSlide ? heroMediaRef : null} src={getYoutubeEmbedUrl(camp.campaignYoutubeLink)} className="absolute inset-0 w-full h-[200%] -top-[50%] scale-150 pointer-events-none" frameBorder="0" allow="autoplay; fullscreen" />
+                <iframe loading="lazy" ref={camp.isHeroSlide ? heroMediaRef : null} src={getYoutubeEmbedUrl(camp.campaignYoutubeLink)} className="absolute inset-0 w-full h-[200%] -top-[50%] scale-150 pointer-events-none" frameBorder="0" allow="autoplay; fullscreen" />
               ) : camp.campaignVideo && idx === 0 && !isDesktop ? (
                 <video ref={camp.isHeroSlide ? heroMediaRef : null} src={camp.campaignVideo} autoPlay loop playsInline className="absolute inset-0 w-full h-full object-cover pointer-events-none" />
               ) : (
@@ -681,7 +678,7 @@ export default function Home() {
               className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${idx === currentCampIdx ? 'opacity-100 pointer-events-auto z-10' : 'opacity-0 pointer-events-none z-0'}`}
             >
               {camp.campaignYoutubeLink && idx === 0 && isDesktop ? (
-                 <iframe ref={camp.isHeroSlide ? heroMediaRef : null} src={getYoutubeEmbedUrl(camp.campaignYoutubeLink)} className="absolute inset-0 w-[150vw] h-[150vh] -top-[25vh] -left-[25vw] scale-110 pointer-events-none" frameBorder="0" allow="autoplay; fullscreen" />
+                 <iframe loading="lazy" ref={camp.isHeroSlide ? heroMediaRef : null} src={getYoutubeEmbedUrl(camp.campaignYoutubeLink)} className="absolute inset-0 w-[150vw] h-[150vh] -top-[25vh] -left-[25vw] scale-110 pointer-events-none" frameBorder="0" allow="autoplay; fullscreen" />
               ) : camp.campaignVideo && idx === 0 && isDesktop ? (
                  <video ref={camp.isHeroSlide ? heroMediaRef : null} src={camp.campaignVideo} autoPlay loop playsInline className={`absolute inset-0 w-full h-full object-cover transition-transform duration-[20s] ease-linear ${idx === currentCampIdx ? 'scale-110' : 'scale-100'} pointer-events-none`} />
               ) : (

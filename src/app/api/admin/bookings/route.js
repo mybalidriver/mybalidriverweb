@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+
+export const runtime = 'edge';
 
 // Initialize Supabase with the SERVICE ROLE KEY (Bypasses RLS)
 const supabaseAdmin = createClient(
