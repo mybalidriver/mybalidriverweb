@@ -32,49 +32,40 @@ export default function SplashScreen({ children }) {
     return true;
   }, []);
 
-  // Smooth progress interpolation — animates `progress` toward `targetProgress`
+  // Smooth progress interpolation — animates toward target
   useEffect(() => {
-    if (!showSplash || !mounted || !isMobile) return;
+    if (!showSplash || isReady) return;
 
-    const smoothInterval = setInterval(() => {
+    const interval = setInterval(() => {
       setProgress(prev => {
         const diff = targetProgress - prev;
         if (Math.abs(diff) < 0.5) return targetProgress;
-        // Ease toward target — smaller steps as we get closer
+        // Ease toward target: fast when far, slow when close
         return prev + diff * 0.08;
       });
-    }, 16); // 60fps
+    }, 16); // ~60fps
 
-    return () => clearInterval(smoothInterval);
-  }, [targetProgress, showSplash, mounted, isMobile]);
+    return () => clearInterval(interval);
+  }, [targetProgress, showSplash, isReady]);
 
   useEffect(() => {
-    if (!mounted || !showSplash || !isMobile) {
-      if (!isMobile && mounted) setIsReady(true);
+    if (!mounted || !showSplash) return;
+    if (!isMobile) {
+      setIsReady(true);
       return;
     }
 
     const MIN_SPLASH_MS = 2000;
     const MAX_SPLASH_MS = 6000;
-    const start = Date.now();
+    const startTime = Date.now();
     let minTimerDone = false;
     let resourcesReady = false;
 
-    // Phase-based target progress
-    // Phase 1: 0-35% (fast ramp — DOM parsing)
-    setTargetProgress(10);
-    setTimeout(() => setTargetProgress(25), 200);
-    setTimeout(() => setTargetProgress(35), 500);
-
-    // Phase 2: 35-65% (API data settling)
-    setTimeout(() => setTargetProgress(50), 800);
-    setTimeout(() => setTargetProgress(65), 1200);
-
-    // Phase 3: 65-85% (images loading, hold here until ready)
-    setTimeout(() => setTargetProgress(75), 1500);
-    setTimeout(() => {
-      if (!resourcesReady) setTargetProgress(85);
-    }, 1800);
+    // Stage-based progress targets
+    const stageTimer1 = setTimeout(() => setTargetProgress(25), 200);
+    const stageTimer2 = setTimeout(() => setTargetProgress(45), 600);
+    const stageTimer3 = setTimeout(() => setTargetProgress(65), 1000);
+    const stageTimer4 = setTimeout(() => setTargetProgress(80), 1500);
 
     const tryDismiss = () => {
       if (minTimerDone && resourcesReady) {
@@ -102,7 +93,7 @@ export default function SplashScreen({ children }) {
     const poll = setInterval(() => {
       if (checkReady()) {
         resourcesReady = true;
-        setTargetProgress(95);
+        setTargetProgress(92);
         clearInterval(poll);
         tryDismiss();
       }
@@ -110,7 +101,7 @@ export default function SplashScreen({ children }) {
 
     const onLoad = () => {
       resourcesReady = true;
-      setTargetProgress(95);
+      setTargetProgress(92);
       clearInterval(poll);
       tryDismiss();
     };
@@ -118,13 +109,17 @@ export default function SplashScreen({ children }) {
 
     const onAppReady = () => {
       resourcesReady = true;
-      setTargetProgress(95);
+      setTargetProgress(92);
       clearInterval(poll);
       tryDismiss();
     };
     window.addEventListener("app-content-ready", onAppReady);
 
     return () => {
+      clearTimeout(stageTimer1);
+      clearTimeout(stageTimer2);
+      clearTimeout(stageTimer3);
+      clearTimeout(stageTimer4);
       clearTimeout(minTimer);
       clearTimeout(maxTimer);
       clearInterval(poll);
@@ -143,8 +138,8 @@ export default function SplashScreen({ children }) {
           <motion.div
             key="splash"
             initial={{ opacity: 1 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.55, ease: [0.4, 0, 0.2, 1] }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
             className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white"
             style={{ touchAction: "none" }}
           >
@@ -198,7 +193,7 @@ export default function SplashScreen({ children }) {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.6, duration: 0.4 }}
+              transition={{ delay: 0.7, duration: 0.4 }}
               className="absolute bottom-[14%] flex flex-col items-center gap-3 w-[200px]"
             >
               <div className="w-full h-[3px] bg-black/5 rounded-full overflow-hidden">
@@ -207,6 +202,7 @@ export default function SplashScreen({ children }) {
                   style={{ width: `${progress}%` }}
                 />
               </div>
+
               <span className="text-[#1C1C1E]/40 text-[11px] font-bold tabular-nums tracking-wide">
                 {Math.round(progress)}%
               </span>

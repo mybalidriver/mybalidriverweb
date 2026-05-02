@@ -191,20 +191,21 @@ export default function HomeClient({ initialListings = [], initialSettings = nul
   const { data: heroSettings = initialSettings, mutate: mutateSettings } = useSWR('homepage_settings', fetcherSettings, {
     fallbackData: initialSettings,
     revalidateOnMount: false,
+    keepPreviousData: true,
   });
 
   const { data: allListings = initialListings } = useSWR('listings', fetcherListings, {
     fallbackData: initialListings,
     revalidateOnFocus: false,
     revalidateIfStale: false,
-    revalidateOnMount: false,
+    keepPreviousData: true,
   });
 
   const { data: recommendedPlaces = initialBlogs } = useSWR('blogs', fetcherBlogs, {
     fallbackData: initialBlogs,
     revalidateOnFocus: false,
     revalidateIfStale: false,
-    revalidateOnMount: false,
+    keepPreviousData: true,
   });
 
   const [isDesktop, setIsDesktop] = useState(true);
