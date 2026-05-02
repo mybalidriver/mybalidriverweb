@@ -3,6 +3,7 @@ import ListingCard from "@/components/listing/ListingCard";
 import UniversalSearchBar from "@/components/search/UniversalSearchBar";
 import { Filter, ChevronDown, Check } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { getActiveListings } from "@/lib/cache";
 import { generateSlug } from "@/lib/utils";
 
 export const revalidate = 3600; // Cache on server for 1 hour
@@ -26,12 +27,10 @@ const SidebarFilter = ({ title, options }) => (
 );
 
 export default async function Tours() {
-  const { data: tours } = await supabase
-    .from('listings')
-    .select('*')
-    .eq('type', 'Tour')
-    .eq('status', 'Active')
-    .order('created_at', { ascending: false });
+  const allListings = await getActiveListings();
+  const tours = allListings
+    .filter(t => t.type === 'Tour')
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
   const displayTours = tours || [];
 

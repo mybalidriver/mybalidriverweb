@@ -88,7 +88,20 @@ const formatContent = (htmlOrText) => {
   return html;
 };
 
-export const revalidate = 0; // Disable static cache to ensure newly published blogs never 404
+export async function generateStaticParams() {
+  const { data: blogs } = await supabase.from('blogs').select('slug').eq('status', 'Published');
+  
+  if (!blogs) return [];
+
+  return blogs.map((blog) => {
+    // Some slugs in DB include /blog/ prefix, we must strip it for the param
+    const cleanSlug = blog.slug.replace(/^\/blog\//, '');
+    return { slug: cleanSlug };
+  });
+}
+
+export const dynamicParams = true;
+export const revalidate = 60; // 60 second ISR cache to balance extreme speed with fresh content
 
 export async function generateMetadata({ params }) {
   const resolvedParams = await params;

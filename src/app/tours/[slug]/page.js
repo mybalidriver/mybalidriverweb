@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { getActiveListings } from "@/lib/cache";
 import TourDetailClient from "./TourDetailClient";
 import { generateSlug } from "@/lib/utils";
 import StructuredData from "@/components/seo/StructuredData";
@@ -9,7 +10,7 @@ export async function generateMetadata({ params }) {
   const slug = resolvedParams.slug;
   
   // We need to fetch all active tours and find the one that matches the slug
-  const { data: allListings } = await supabase.from('listings').select('*').eq('status', 'Active');
+  const allListings = await getActiveListings();
   
   const listing = allListings?.find(item => generateSlug(item.title) === slug) || 
                   allListings?.find(item => item.id === slug); // fallback for direct UUIDs
@@ -51,11 +52,23 @@ export async function generateMetadata({ params }) {
 
 export const revalidate = 3600; // Cache on server for 1 hour
 
+export async function generateStaticParams() {
+  const listings = await getActiveListings();
+  
+  if (!listings) return [];
+
+  return listings.map((listing) => ({
+    slug: generateSlug(listing.title),
+  }));
+}
+
+export const dynamicParams = true;
+
 export default async function TourPage({ params }) {
   const resolvedParams = await params;
   const slug = resolvedParams.slug;
 
-  const { data: allListings } = await supabase.from('listings').select('*').eq('status', 'Active');
+  const allListings = await getActiveListings();
   
   let data = allListings?.find(item => generateSlug(item.title) === slug);
   if (!data) {

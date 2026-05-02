@@ -574,7 +574,7 @@ export default function HomeClient({ initialListings = [], initialSettings = nul
                 ) : camp.campaignVideo && idx === 0 && !isDesktop ? (
                   <video ref={camp.isHeroSlide ? heroMediaRef : null} src={camp.campaignVideo} autoPlay loop playsInline className="absolute inset-0 w-full h-full object-cover pointer-events-none" />
                 ) : (
-                  <Image src={camp.image} alt={camp.badge || "Campaign Image"} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
+                  <Image src={camp.image} alt={camp.badge || "Campaign Image"} priority={idx === 0} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-[#1C1C1E] via-[#1C1C1E]/40 to-transparent z-0" />
 
