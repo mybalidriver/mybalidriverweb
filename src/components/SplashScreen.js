@@ -56,10 +56,8 @@ export default function SplashScreen({ children }) {
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
               className="relative z-10 flex flex-col items-center"
             >
-              {/* Logo mark */}
-              <div className="w-20 h-20 rounded-[22px] bg-[#cce823] flex items-center justify-center shadow-[0_0_60px_rgba(204,232,35,0.3)] mb-6">
-                <span className="text-[#1C1C1E] text-[32px] font-black tracking-tighter leading-none">M</span>
-              </div>
+              {/* Logo */}
+              <img src="/icon.jpg" alt="MyBaliDriver" className="w-24 h-24 rounded-[28px] shadow-[0_0_60px_rgba(204,232,35,0.3)] mb-6 object-contain" />
 
               {/* Brand name */}
               <motion.h1
