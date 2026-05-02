@@ -40,7 +40,7 @@ export const metadata = {
     siteName: "MyBaliDriver",
     images: [
       {
-        url: "https://kmbeugpxtctqkywsvhqj.supabase.co/storage/v1/object/public/discovering_bali_images/gallery/qvau6l8uff_1777343958194.jpg",
+        url: "https://www.bobbybaliguide.com/api/og-image",
         width: 1200,
         height: 630,
         alt: "Ubud Full-Day Tour: Monkey Forest, Rice Terraces, Temple & Waterfall",
@@ -64,7 +64,7 @@ export const metadata = {
     card: "summary_large_image",
     title: "MyBaliDriver | Best Private Drivers & Premium Tours in Bali",
     description: "Experience the best of Bali and Ubud with MyBaliDriver. Top-rated private car charters, experienced local guides, and bespoke luxury tour packages.",
-    images: ["https://kmbeugpxtctqkywsvhqj.supabase.co/storage/v1/object/public/discovering_bali_images/gallery/qvau6l8uff_1777343958194.jpg"],
+    images: ["https://www.bobbybaliguide.com/api/og-image"],
   },
 };
 
