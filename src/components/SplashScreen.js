@@ -1,51 +1,71 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function SplashScreen({ children }) {
   const [isReady, setIsReady] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [showSplash, setShowSplash] = useState(true);
+  const [progress, setProgress] = useState(0);
+  const progressRef = useRef(0);
 
   // Detect mobile once on mount
   useEffect(() => {
-    setIsMobile(window.innerWidth < 768);
+    const mobile = window.innerWidth < 768;
+    setIsMobile(mobile);
     setMounted(true);
+
+    // Only show splash on FIRST cold load, not on back-navigation
+    if (sessionStorage.getItem("splashDone")) {
+      setShowSplash(false);
+      setIsReady(true);
+    }
   }, []);
 
   const checkReady = useCallback(() => {
-    // 1. DOM must be fully interactive
     if (document.readyState !== "complete") return false;
-
-    // 2. All visible images must be loaded (or errored — either way, settled)
     const images = document.querySelectorAll("img");
     for (const img of images) {
-      // Skip images that are hidden or off-screen (lazy-loaded below fold)
       if (img.loading === "lazy") continue;
       if (!img.complete) return false;
     }
-
     return true;
   }, []);
 
   useEffect(() => {
-    if (!mounted) return;
+    if (!mounted || !showSplash) return;
     if (!isMobile) {
       setIsReady(true);
       return;
     }
 
-    // Minimum display time so the splash doesn't just flash
-    const MIN_SPLASH_MS = 1800;
+    const MIN_SPLASH_MS = 2000;
     const MAX_SPLASH_MS = 6000;
-    const startTime = Date.now();
     let minTimerDone = false;
     let resourcesReady = false;
 
+    // Smooth progress animation
+    const progressInterval = setInterval(() => {
+      setProgress(prev => {
+        // Fast to 30%, slow through 30-70%, then wait at 85% for resources
+        if (prev < 30) return prev + 3;
+        if (prev < 60) return prev + 1.5;
+        if (prev < 85) return prev + 0.8;
+        if (resourcesReady) return Math.min(prev + 5, 100);
+        return prev; // Hold at ~85 until resources ready
+      });
+    }, 50);
+
     const tryDismiss = () => {
       if (minTimerDone && resourcesReady) {
-        setIsReady(true);
+        // Jump to 100% then dismiss
+        setProgress(100);
+        setTimeout(() => {
+          setIsReady(true);
+          sessionStorage.setItem("splashDone", "1");
+        }, 300);
       }
     };
 
@@ -55,9 +75,13 @@ export default function SplashScreen({ children }) {
       tryDismiss();
     }, MIN_SPLASH_MS);
 
-    // Max timer (safety net — never wait longer than this)
+    // Max timer (safety net)
     const maxTimer = setTimeout(() => {
-      setIsReady(true);
+      setProgress(100);
+      setTimeout(() => {
+        setIsReady(true);
+        sessionStorage.setItem("splashDone", "1");
+      }, 200);
     }, MAX_SPLASH_MS);
 
     // Poll for resource readiness
@@ -69,7 +93,6 @@ export default function SplashScreen({ children }) {
       }
     }, 150);
 
-    // Also listen for the window load event
     const onLoad = () => {
       resourcesReady = true;
       clearInterval(poll);
@@ -77,7 +100,6 @@ export default function SplashScreen({ children }) {
     };
     window.addEventListener("load", onLoad);
 
-    // Listen for custom "app-ready" event from HomeClient
     const onAppReady = () => {
       resourcesReady = true;
       clearInterval(poll);
@@ -89,21 +111,18 @@ export default function SplashScreen({ children }) {
       clearTimeout(minTimer);
       clearTimeout(maxTimer);
       clearInterval(poll);
+      clearInterval(progressInterval);
       window.removeEventListener("load", onLoad);
       window.removeEventListener("app-content-ready", onAppReady);
     };
-  }, [mounted, isMobile, checkReady]);
+  }, [mounted, isMobile, showSplash, checkReady]);
 
-  // Desktop — render immediately
-  if (!isMobile && mounted) return children;
+  // Desktop or splash already shown this session — render immediately
+  if ((!isMobile && mounted) || !showSplash) return children;
 
-  // SSR / first paint — render nothing visible to avoid hydration flash
+  // SSR — hide children to prevent flash
   if (!mounted) {
-    return (
-      <div style={{ visibility: "hidden" }}>
-        {children}
-      </div>
-    );
+    return <div style={{ visibility: "hidden" }}>{children}</div>;
   }
 
   return (
@@ -166,29 +185,27 @@ export default function SplashScreen({ children }) {
               </motion.p>
             </motion.div>
 
-            {/* Loading dots */}
+            {/* Progress section */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.9, duration: 0.4 }}
-              className="absolute bottom-[16%] flex items-center gap-2"
+              transition={{ delay: 0.8, duration: 0.4 }}
+              className="absolute bottom-[14%] flex flex-col items-center gap-3 w-[200px]"
             >
-              {[0, 1, 2].map((i) => (
+              {/* Progress bar */}
+              <div className="w-full h-[3px] bg-black/5 rounded-full overflow-hidden">
                 <motion.div
-                  key={i}
-                  animate={{
-                    scale: [1, 1.4, 1],
-                    opacity: [0.3, 1, 0.3],
-                  }}
-                  transition={{
-                    duration: 1,
-                    repeat: Infinity,
-                    delay: i * 0.2,
-                    ease: "easeInOut",
-                  }}
-                  className="w-[6px] h-[6px] rounded-full bg-[#cce823]"
+                  className="h-full bg-[#cce823] rounded-full"
+                  initial={{ width: "0%" }}
+                  animate={{ width: `${progress}%` }}
+                  transition={{ duration: 0.15, ease: "linear" }}
                 />
-              ))}
+              </div>
+
+              {/* Percentage */}
+              <span className="text-[#1C1C1E]/40 text-[11px] font-bold tabular-nums tracking-wide">
+                {Math.round(progress)}%
+              </span>
             </motion.div>
 
             {/* Bottom tagline */}
@@ -196,7 +213,7 @@ export default function SplashScreen({ children }) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 0.2 }}
               transition={{ delay: 1.2, duration: 0.5 }}
-              className="absolute bottom-[7%] text-[#1C1C1E] text-[10px] font-semibold tracking-[0.15em] uppercase"
+              className="absolute bottom-[6%] text-[#1C1C1E] text-[10px] font-semibold tracking-[0.15em] uppercase"
             >
               Bali, Indonesia
             </motion.p>
