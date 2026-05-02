@@ -88,7 +88,7 @@ const formatContent = (htmlOrText) => {
   return html;
 };
 
-export const revalidate = 3600; // Cache this page for 1 hour to ensure lightning fast load times
+export const revalidate = 0; // Disable static cache to ensure newly published blogs never 404
 
 export async function generateMetadata({ params }) {
   const resolvedParams = await params;
