@@ -121,7 +121,7 @@ export async function generateMetadata({ params }) {
   }
 
   const optimizedDescription = getSeoDescription(post.meta_description || post.content);
-  const coverImg = post.image || "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80";
+  const coverImg = post.image || "";
 
   return {
     title: `${post.title} | Discovering Bali Blog`,
@@ -176,7 +176,7 @@ export default async function BlogDetail({ params }) {
 
         {/* Hero Header Section */}
         <div className="relative w-full h-[50vh] md:h-[65vh] bg-black">
-          <Image src={post.image || 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?w=1200'} alt={post.title} fill sizes="100vw" priority className="absolute inset-0 w-full h-full object-cover opacity-80" />
+          {post.image && <Image src={post.image} alt={post.title} fill sizes="100vw" priority className="absolute inset-0 w-full h-full object-cover opacity-80" />}
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-black/30"></div>
 
           {/* Top Navigation Bar */}
