@@ -27,7 +27,7 @@ export default function SplashScreen({ children }) {
     const timer = setTimeout(() => {
       setIsLoading(false);
       sessionStorage.setItem("splashShown", "1");
-    }, 2200);
+    }, 2400);
 
     return () => clearTimeout(timer);
   }, []);
@@ -41,72 +41,90 @@ export default function SplashScreen({ children }) {
           <motion.div
             key="splash"
             initial={{ opacity: 1 }}
-            exit={{ opacity: 0, scale: 1.05 }}
-            transition={{ duration: 0.5, ease: "easeInOut" }}
-            className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#1C1C1E]"
+            exit={{ opacity: 0, y: -30 }}
+            transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
+            className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white"
             style={{ touchAction: "none" }}
           >
-            {/* Ambient glow */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] rounded-full bg-[#cce823]/10 blur-[100px] pointer-events-none" />
+            {/* Soft ambient gradient */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+              <div className="absolute top-[20%] left-1/2 -translate-x-1/2 w-[400px] h-[400px] rounded-full bg-[#cce823]/8 blur-[120px]" />
+              <div className="absolute bottom-[20%] left-1/2 -translate-x-1/2 w-[300px] h-[300px] rounded-full bg-sky-200/20 blur-[100px]" />
+            </div>
 
             {/* Logo container */}
             <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
+              initial={{ scale: 0.85, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
               className="relative z-10 flex flex-col items-center"
             >
-              {/* Logo */}
-              <img src="/icon.jpg" alt="MyBaliDriver" className="w-24 h-24 rounded-[28px] shadow-[0_0_60px_rgba(204,232,35,0.3)] mb-6 object-contain" />
+              {/* Logo with pulse ring */}
+              <div className="relative mb-8">
+                <motion.div
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: [0, 1.3, 1], opacity: [0, 0.15, 0] }}
+                  transition={{ duration: 2, ease: "easeOut", repeat: Infinity, repeatDelay: 0.5 }}
+                  className="absolute inset-[-16px] rounded-full border-2 border-[#cce823]/30"
+                />
+                <img
+                  src="/icon.jpg"
+                  alt="MyBaliDriver"
+                  className="w-[88px] h-[88px] rounded-[24px] shadow-[0_12px_40px_rgba(0,0,0,0.08)] object-contain"
+                />
+              </div>
 
               {/* Brand name */}
               <motion.h1
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3, duration: 0.5 }}
-                className="text-white text-[22px] font-black tracking-tight mb-1"
+                transition={{ delay: 0.35, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                className="text-[#1C1C1E] text-[22px] font-black tracking-tight mb-1.5"
               >
                 mybalidriver
               </motion.h1>
 
               <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 0.5 }}
-                transition={{ delay: 0.5, duration: 0.5 }}
-                className="text-white text-[11px] font-bold tracking-[0.3em] uppercase"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 0.45, y: 0 }}
+                transition={{ delay: 0.55, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                className="text-[#1C1C1E] text-[11px] font-semibold tracking-[0.25em] uppercase"
               >
                 Premium Bali Tours
               </motion.p>
             </motion.div>
 
-            {/* Loading indicator */}
+            {/* Loading dots */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.8, duration: 0.4 }}
-              className="absolute bottom-[15%] flex flex-col items-center gap-4"
+              transition={{ delay: 0.9, duration: 0.4 }}
+              className="absolute bottom-[16%] flex items-center gap-2"
             >
-              {/* Animated progress bar */}
-              <div className="w-[120px] h-[3px] bg-white/10 rounded-full overflow-hidden">
+              {[0, 1, 2].map((i) => (
                 <motion.div
-                  initial={{ x: "-100%" }}
-                  animate={{ x: "100%" }}
+                  key={i}
+                  animate={{
+                    scale: [1, 1.4, 1],
+                    opacity: [0.3, 1, 0.3],
+                  }}
                   transition={{
-                    duration: 1.2,
+                    duration: 1,
                     repeat: Infinity,
+                    delay: i * 0.2,
                     ease: "easeInOut",
                   }}
-                  className="w-1/2 h-full bg-[#cce823] rounded-full"
+                  className="w-[6px] h-[6px] rounded-full bg-[#cce823]"
                 />
-              </div>
+              ))}
             </motion.div>
 
-            {/* Bottom safe area text */}
+            {/* Bottom tagline */}
             <motion.p
               initial={{ opacity: 0 }}
-              animate={{ opacity: 0.25 }}
-              transition={{ delay: 1, duration: 0.5 }}
-              className="absolute bottom-[6%] text-white text-[10px] font-semibold tracking-[0.15em] uppercase"
+              animate={{ opacity: 0.2 }}
+              transition={{ delay: 1.2, duration: 0.5 }}
+              className="absolute bottom-[7%] text-[#1C1C1E] text-[10px] font-semibold tracking-[0.15em] uppercase"
             >
               Bali, Indonesia
             </motion.p>
