@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import useSWR from "swr";
-import { TreePine, Umbrella, Mountain, Droplets, Search, Plane, Building, Building2, Train, Bus, BriefcaseBusiness, Heart, HeartOff, MapPin, Map, Car, Bike, Wifi, Navigation, Sparkles, Landmark, Camera, Waves, Compass, ChevronDown, ChevronLeft, ChevronRight, Settings2, Star, Zap, Home as HomeIcon, Flower2, Globe, ArrowUpRight, Play, Pause } from "lucide-react";
+import { TreePine, Umbrella, Mountain, Droplets, Search, Plane, Building, Building2, Train, Bus, BriefcaseBusiness, Heart, HeartOff, MapPin, Map, Car, Bike, Wifi, Navigation, Sparkles, Landmark, Camera, Waves, Compass, ChevronDown, ChevronLeft, ChevronRight, Settings2, Star, Zap, Home as HomeIcon, Flower2, Globe, ArrowUpRight, Play, Pause, Volume2, VolumeX } from "lucide-react";
 import { TourIcon, SpaIcon, TransportIcon, ScooterIcon, ThinSparklesIcon, TowelsIcon, LotusIcon, CreattieTourIcon, CreattieSpaIcon, CreattieScooterIcon, CreattieTransportIcon, CreattieEsimIcon, AirbnbTourIcon, AirbnbSpaIcon, AirbnbScooterIcon, AirbnbTransportIcon, AirbnbEsimIcon } from "@/components/icons/CategoryIcons";
 import ListingCard from "@/components/listing/ListingCard";
 import Link from "next/link";
@@ -207,6 +207,7 @@ export default function HomeClient({ initialListings = [], initialSettings = nul
 
   const [isDesktop, setIsDesktop] = useState(true);
   const [isPlaying, setIsPlaying] = useState(true);
+  const [isMuted, setIsMuted] = useState(true);
   const [activeMobileLabelIdx, setActiveMobileLabelIdx] = useState(0);
   const [showHeroLabel, setShowHeroLabel] = useState(true);
   const [hasShownMidRollLabel, setHasShownMidRollLabel] = useState(false);
@@ -243,22 +244,37 @@ export default function HomeClient({ initialListings = [], initialSettings = nul
     }
   }, [isPlaying, hasShownMidRollLabel]);
 
+  
+  const toggleMute = (e) => {
+    e.stopPropagation();
+    const nextMute = !isMuted;
+    setIsMuted(nextMute);
+    if (heroMediaRef.current) {
+      if (heroMediaRef.current.tagName === 'IFRAME') {
+        heroMediaRef.current.contentWindow.postMessage(JSON.stringify({
+          event: 'command',
+          func: nextMute ? 'mute' : 'unMute',
+          args: []
+        }), '*');
+        if (!nextMute) {
+          heroMediaRef.current.contentWindow.postMessage(JSON.stringify({
+            event: 'command',
+            func: 'setVolume',
+            args: [100]
+          }), '*');
+        }
+      } else if (heroMediaRef.current.tagName === 'VIDEO') {
+        heroMediaRef.current.muted = nextMute;
+      }
+    }
+  };
+
   const togglePlayPause = () => {
     const nextState = !isPlaying;
     setIsPlaying(nextState);
     if (heroMediaRef.current) {
       if (heroMediaRef.current.tagName === 'IFRAME') {
         if (nextState) {
-          heroMediaRef.current.contentWindow.postMessage(JSON.stringify({
-            event: 'command',
-            func: 'unMute',
-            args: []
-          }), '*');
-          heroMediaRef.current.contentWindow.postMessage(JSON.stringify({
-            event: 'command',
-            func: 'setVolume',
-            args: [100]
-          }), '*');
           heroMediaRef.current.contentWindow.postMessage(JSON.stringify({
             event: 'command',
             func: 'playVideo',
@@ -650,7 +666,18 @@ export default function HomeClient({ initialListings = [], initialSettings = nul
                   </>
                 )}
 
+
+                {camp.isHeroSlide && (camp.campaignYoutubeLink || camp.campaignVideo) && (
+                  <button
+                    onClick={toggleMute}
+                    className="absolute bottom-[8%] right-[4%] z-40 w-10 h-10 rounded-full bg-black/40 backdrop-blur-md border border-white/20 text-white flex items-center justify-center transition-all pointer-events-auto active:scale-95 shadow-xl"
+                    title={isMuted ? "Unmute" : "Mute"}
+                  >
+                    {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+                  </button>
+                )}
                 {/* Mobile Center Play/Pause */}
+
                 {camp.isHeroSlide && (camp.campaignYoutubeLink || camp.campaignVideo) && (
                   <div className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none">
                     <button
@@ -735,7 +762,18 @@ export default function HomeClient({ initialListings = [], initialSettings = nul
                 </div>
               )}
 
+
+              {camp.isHeroSlide && (camp.campaignYoutubeLink || camp.campaignVideo) && (
+                <button
+                  onClick={toggleMute}
+                  className="absolute bottom-[6%] right-[16%] z-40 w-12 h-12 rounded-full bg-black/40 backdrop-blur-md border border-white/20 text-white flex items-center justify-center hover:bg-black/60 hover:scale-105 transition-all pointer-events-auto active:scale-95 shadow-xl"
+                  title={isMuted ? "Unmute" : "Mute"}
+                >
+                  {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
+                </button>
+              )}
               {/* Desktop Center Play/Pause Toggle */}
+
               {camp.isHeroSlide && (camp.campaignYoutubeLink || camp.campaignVideo) && (
                 <div className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none">
                   <button
