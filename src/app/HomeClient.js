@@ -313,6 +313,13 @@ export default function HomeClient({ initialListings = [], initialSettings = nul
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Signal to SplashScreen that content is ready once SWR data has settled
+  useEffect(() => {
+    if (allListings && allListings.length > 0 && recommendedPlaces) {
+      window.dispatchEvent(new Event("app-content-ready"));
+    }
+  }, [allListings, recommendedPlaces]);
+
   // Delay video loading to prioritize LCP image
   useEffect(() => {
     if (isDesktop) {

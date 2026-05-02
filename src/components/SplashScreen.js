@@ -1,48 +1,120 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function SplashScreen({ children }) {
-  const [isLoading, setIsLoading] = useState(true);
+  const [isReady, setIsReady] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
+  // Detect mobile once on mount
   useEffect(() => {
-    const mobile = window.innerWidth < 768;
-    setIsMobile(mobile);
-
-    if (!mobile) {
-      setIsLoading(false);
-      return;
-    }
-
-    // Check if already shown this session
-    const hasShown = sessionStorage.getItem("splashShown");
-    if (hasShown) {
-      setIsLoading(false);
-      return;
-    }
-
-    // Wait for critical resources, then dismiss
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-      sessionStorage.setItem("splashShown", "1");
-    }, 2400);
-
-    return () => clearTimeout(timer);
+    setIsMobile(window.innerWidth < 768);
+    setMounted(true);
   }, []);
 
-  if (!isMobile) return children;
+  const checkReady = useCallback(() => {
+    // 1. DOM must be fully interactive
+    if (document.readyState !== "complete") return false;
+
+    // 2. All visible images must be loaded (or errored — either way, settled)
+    const images = document.querySelectorAll("img");
+    for (const img of images) {
+      // Skip images that are hidden or off-screen (lazy-loaded below fold)
+      if (img.loading === "lazy") continue;
+      if (!img.complete) return false;
+    }
+
+    return true;
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    if (!isMobile) {
+      setIsReady(true);
+      return;
+    }
+
+    // Minimum display time so the splash doesn't just flash
+    const MIN_SPLASH_MS = 1800;
+    const MAX_SPLASH_MS = 6000;
+    const startTime = Date.now();
+    let minTimerDone = false;
+    let resourcesReady = false;
+
+    const tryDismiss = () => {
+      if (minTimerDone && resourcesReady) {
+        setIsReady(true);
+      }
+    };
+
+    // Min timer
+    const minTimer = setTimeout(() => {
+      minTimerDone = true;
+      tryDismiss();
+    }, MIN_SPLASH_MS);
+
+    // Max timer (safety net — never wait longer than this)
+    const maxTimer = setTimeout(() => {
+      setIsReady(true);
+    }, MAX_SPLASH_MS);
+
+    // Poll for resource readiness
+    const poll = setInterval(() => {
+      if (checkReady()) {
+        resourcesReady = true;
+        clearInterval(poll);
+        tryDismiss();
+      }
+    }, 150);
+
+    // Also listen for the window load event
+    const onLoad = () => {
+      resourcesReady = true;
+      clearInterval(poll);
+      tryDismiss();
+    };
+    window.addEventListener("load", onLoad);
+
+    // Listen for custom "app-ready" event from HomeClient
+    const onAppReady = () => {
+      resourcesReady = true;
+      clearInterval(poll);
+      tryDismiss();
+    };
+    window.addEventListener("app-content-ready", onAppReady);
+
+    return () => {
+      clearTimeout(minTimer);
+      clearTimeout(maxTimer);
+      clearInterval(poll);
+      window.removeEventListener("load", onLoad);
+      window.removeEventListener("app-content-ready", onAppReady);
+    };
+  }, [mounted, isMobile, checkReady]);
+
+  // Desktop — render immediately
+  if (!isMobile && mounted) return children;
+
+  // SSR / first paint — render nothing visible to avoid hydration flash
+  if (!mounted) {
+    return (
+      <div style={{ visibility: "hidden" }}>
+        {children}
+      </div>
+    );
+  }
 
   return (
     <>
       <AnimatePresence>
-        {isLoading && (
+        {!isReady && (
           <motion.div
             key="splash"
             initial={{ opacity: 1 }}
-            exit={{ opacity: 0, y: -30 }}
-            transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.55, ease: [0.4, 0, 0.2, 1] }}
             className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white"
             style={{ touchAction: "none" }}
           >
@@ -132,8 +204,8 @@ export default function SplashScreen({ children }) {
         )}
       </AnimatePresence>
 
-      {/* Always render children behind splash */}
-      <div style={{ visibility: isLoading ? "hidden" : "visible" }}>
+      {/* Content renders behind the splash — hidden until ready */}
+      <div style={{ visibility: isReady ? "visible" : "hidden" }}>
         {children}
       </div>
     </>
