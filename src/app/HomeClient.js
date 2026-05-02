@@ -197,12 +197,14 @@ export default function HomeClient({ initialListings = [], initialSettings = nul
     fallbackData: initialListings,
     revalidateOnFocus: false,
     revalidateIfStale: false,
+    revalidateOnMount: false,
   });
 
   const { data: recommendedPlaces = initialBlogs } = useSWR('blogs', fetcherBlogs, {
     fallbackData: initialBlogs,
     revalidateOnFocus: false,
     revalidateIfStale: false,
+    revalidateOnMount: false,
   });
 
   const [isDesktop, setIsDesktop] = useState(true);
