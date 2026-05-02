@@ -248,13 +248,32 @@ export default function HomeClient({ initialListings = [], initialSettings = nul
     setIsPlaying(nextState);
     if (heroMediaRef.current) {
       if (heroMediaRef.current.tagName === 'IFRAME') {
-        heroMediaRef.current.contentWindow.postMessage(JSON.stringify({
-          event: 'command',
-          func: nextState ? 'playVideo' : 'pauseVideo',
-          args: []
-        }), '*');
+        if (nextState) {
+          heroMediaRef.current.contentWindow.postMessage(JSON.stringify({
+            event: 'command',
+            func: 'unMute',
+            args: []
+          }), '*');
+          heroMediaRef.current.contentWindow.postMessage(JSON.stringify({
+            event: 'command',
+            func: 'setVolume',
+            args: [100]
+          }), '*');
+          heroMediaRef.current.contentWindow.postMessage(JSON.stringify({
+            event: 'command',
+            func: 'playVideo',
+            args: []
+          }), '*');
+        } else {
+          heroMediaRef.current.contentWindow.postMessage(JSON.stringify({
+            event: 'command',
+            func: 'pauseVideo',
+            args: []
+          }), '*');
+        }
       } else if (heroMediaRef.current.tagName === 'VIDEO') {
         if (nextState) {
+          heroMediaRef.current.muted = false;
           heroMediaRef.current.play();
         } else {
           heroMediaRef.current.pause();
@@ -570,7 +589,7 @@ export default function HomeClient({ initialListings = [], initialSettings = nul
             {displayCampaigns.map((camp, idx) => (
               <div key={camp.id} className="relative w-full shrink-0 snap-center aspect-[4/3] rounded-[28px] overflow-hidden shadow-soft border border-border bg-black select-none">
                 {camp.campaignYoutubeLink && idx === 0 && !isDesktop ? (
-                  <iframe loading="lazy" ref={camp.isHeroSlide ? heroMediaRef : null} src={getYoutubeEmbedUrl(camp.campaignYoutubeLink)} className="absolute inset-0 w-full h-[200%] -top-[50%] scale-150" frameBorder="0" allow="autoplay; fullscreen" />
+                  <iframe loading="lazy" ref={camp.isHeroSlide ? heroMediaRef : null} src={getYoutubeEmbedUrl(camp.campaignYoutubeLink)} className="absolute inset-0 w-full h-[200%] -top-[50%] scale-150 pointer-events-none" frameBorder="0" allow="autoplay; fullscreen" />
                 ) : camp.campaignVideo && idx === 0 && !isDesktop ? (
                   <video ref={camp.isHeroSlide ? heroMediaRef : null} src={camp.campaignVideo} autoPlay loop playsInline className="absolute inset-0 w-full h-full object-cover pointer-events-none" />
                 ) : (
@@ -632,7 +651,7 @@ export default function HomeClient({ initialListings = [], initialSettings = nul
                 )}
 
                 {/* Mobile Center Play/Pause */}
-                {camp.isHeroSlide && !camp.campaignYoutubeLink && camp.campaignVideo && (
+                {camp.isHeroSlide && (camp.campaignYoutubeLink || camp.campaignVideo) && (
                   <div className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none">
                     <button
                       onClick={togglePlayPause}
@@ -680,7 +699,7 @@ export default function HomeClient({ initialListings = [], initialSettings = nul
               className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${idx === currentCampIdx ? 'opacity-100 pointer-events-auto z-10' : 'opacity-0 pointer-events-none z-0'}`}
             >
               {camp.campaignYoutubeLink && idx === 0 && isDesktop ? (
-                <iframe loading="lazy" ref={camp.isHeroSlide ? heroMediaRef : null} src={getYoutubeEmbedUrl(camp.campaignYoutubeLink)} className="absolute inset-0 w-[150vw] h-[150vh] -top-[25vh] -left-[25vw] scale-110" frameBorder="0" allow="autoplay; fullscreen" />
+                <iframe loading="lazy" ref={camp.isHeroSlide ? heroMediaRef : null} src={getYoutubeEmbedUrl(camp.campaignYoutubeLink)} className="absolute inset-0 w-[150vw] h-[150vh] -top-[25vh] -left-[25vw] scale-110 pointer-events-none" frameBorder="0" allow="autoplay; fullscreen" />
               ) : camp.campaignVideo && idx === 0 && isDesktop ? (
                 <video ref={camp.isHeroSlide ? heroMediaRef : null} src={camp.campaignVideo} autoPlay loop playsInline className={`absolute inset-0 w-full h-full object-cover transition-transform duration-[20s] ease-linear ${idx === currentCampIdx ? 'scale-110' : 'scale-100'} pointer-events-none`} />
               ) : (
@@ -717,7 +736,7 @@ export default function HomeClient({ initialListings = [], initialSettings = nul
               )}
 
               {/* Desktop Center Play/Pause Toggle */}
-              {camp.isHeroSlide && !camp.campaignYoutubeLink && camp.campaignVideo && (
+              {camp.isHeroSlide && (camp.campaignYoutubeLink || camp.campaignVideo) && (
                 <div className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none">
                   <button
                     onClick={togglePlayPause}
