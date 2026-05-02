@@ -146,7 +146,7 @@ export default async function BlogDetail({ params }) {
 
   const { data: post } = await supabase
     .from('blogs')
-    .select('title, category, location, created_at, content, image, images, meta_description')
+    .select('title, category, location, created_at, content, image, meta_description')
     .or(`slug.eq.${slug},slug.eq./blog/${slug},slug.eq.blog/${slug}`)
     .single();
 
