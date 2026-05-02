@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import BottomNav from "@/components/navigation/BottomNav";
 import AuthProvider from "@/components/providers/AuthProvider";
 import GoogleTranslate from "@/components/GoogleTranslate";
+import SplashScreen from "@/components/SplashScreen";
 const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600", "700", "800"] });
 const playfair = Playfair_Display({ subsets: ["latin"], weight: ["400", "500", "600", "700", "800"], variable: '--font-playfair' });
 
@@ -40,7 +41,7 @@ export const metadata = {
     siteName: "MyBaliDriver",
     images: [
       {
-        url: "https://www.bobbybaliguide.com/api/og-image",
+        url: "/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "Ubud Full-Day Tour: Monkey Forest, Rice Terraces, Temple & Waterfall",
@@ -64,7 +65,7 @@ export const metadata = {
     card: "summary_large_image",
     title: "MyBaliDriver | Best Private Drivers & Premium Tours in Bali",
     description: "Experience the best of Bali and Ubud with MyBaliDriver. Top-rated private car charters, experienced local guides, and bespoke luxury tour packages.",
-    images: ["https://www.bobbybaliguide.com/api/og-image"],
+    images: ["/og-image.jpg"],
   },
 };
 
@@ -87,21 +88,23 @@ export default function RootLayout({ children }) {
       </head>
       <body className={`${inter.className} ${playfair.variable} min-h-screen flex flex-col bg-background selection:bg-accent selection:text-primary pb-24 md:pb-0`}>
         <AuthProvider>
-          <GoogleTranslate />
-          {/* Navbar handles its own desktop/mobile responsive states now */}
-          <Navbar />
-          
-          <main className="flex-grow w-full relative pt-20 md:pt-24">
-            {children}
-          </main>
-          
-          {/* New App-style floating bottom navigation */}
-          <BottomNav />
+          <SplashScreen>
+            <GoogleTranslate />
+            {/* Navbar handles its own desktop/mobile responsive states now */}
+            <Navbar />
+            
+            <main className="flex-grow w-full relative pt-20 md:pt-24">
+              {children}
+            </main>
+            
+            {/* New App-style floating bottom navigation */}
+            <BottomNav />
 
-          {/* Hide default Footer on mobile as we rely on bottom nav */}
-          <div className="hidden md:block">
-            <Footer />
-          </div>
+            {/* Hide default Footer on mobile as we rely on bottom nav */}
+            <div className="hidden md:block">
+              <Footer />
+            </div>
+          </SplashScreen>
         </AuthProvider>
       </body>
     </html>
