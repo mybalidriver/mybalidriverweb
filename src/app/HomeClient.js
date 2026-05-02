@@ -87,21 +87,21 @@ const campaigns = [
     title: "Ubud Heritage",
     subtitle: "Experience the lush green beauty of Tegalalang.",
     badge: "Exclusive",
-    image: "https://images.unsplash.com/photo-1536152470836-b943b246224c?auto=format&fit=crop&w=800&q=80"
+    image: ""
   },
   {
     id: 2,
     title: "Ubud Wellness\nRetreat",
     subtitle: "Complimentary 60-min massage with any villa booking.",
     badge: "Best Deal",
-    image: "https://images.unsplash.com/photo-1519823551278-64ac92734fb1?auto=format&fit=crop&w=800&q=80",
+    image: "",
   },
   {
     id: 3,
     title: "Nusa Penida\nIsland Hopper",
     subtitle: "Fast boat & tour package starting at $49.",
     badge: "Limited Time",
-    image: "https://images.unsplash.com/photo-1577717903315-1691ae25ab3f?auto=format&fit=crop&w=800&q=80",
+    image: "",
   }
 ];
 
@@ -323,6 +323,46 @@ export default function HomeClient({ initialListings = [], initialSettings = nul
     }
   }, [isDesktop]);
 
+  // Track native YouTube play/pause state for Instagram labels
+  useEffect(() => {
+    if (!showVideo || !heroMediaRef.current || heroMediaRef.current.tagName !== 'IFRAME') return;
+
+    let player;
+    const initPlayer = () => {
+      try {
+        player = new window.YT.Player(heroMediaRef.current, {
+          events: {
+            'onStateChange': (event) => {
+              if (event.data === 1) {
+                setIsPlaying(true);
+              } else if (event.data === 2 || event.data === 0) {
+                setIsPlaying(false);
+              }
+            }
+          }
+        });
+      } catch (e) {
+        console.error("YT Player init error", e);
+      }
+    };
+
+    if (!window.YT) {
+      const tag = document.createElement('script');
+      tag.src = 'https://www.youtube.com/iframe_api';
+      document.body.appendChild(tag);
+      
+      const checkYT = setInterval(() => {
+        if (window.YT && window.YT.Player) {
+          clearInterval(checkYT);
+          initPlayer();
+        }
+      }, 100);
+      return () => clearInterval(checkYT);
+    } else {
+      setTimeout(initPlayer, 500);
+    }
+  }, [showVideo]);
+
   useEffect(() => {
     const handler = () => mutateSettings();
     window.addEventListener("homepage_hero_settings_changed", handler);
@@ -362,7 +402,7 @@ export default function HomeClient({ initialListings = [], initialSettings = nul
     subtitle: t.campaignDescription, // Description
     location: t.location, // Explicitly pass location
     badge: t.campaignLabel !== undefined ? t.campaignLabel : "Featured Deal",
-    image: t.image || "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80",
+    image: t.image || "",
     targetId: t.id,
     originalTitle: t.title,
     campaignVideo: t.campaignVideo,
@@ -377,7 +417,7 @@ export default function HomeClient({ initialListings = [], initialSettings = nul
     campaignYoutubeLink: "https://www.youtube.com/watch?v=uN1A72bE0l4",
     campaignRecommendation: "Highly Recommended by Zondela",
     campaignIgLink: "https://instagram.com/zondela",
-    image: "https://images.unsplash.com/photo-1536152470836-b943b246224c?auto=format&fit=crop&w=1200&q=80"
+    image: ""
   };
 
   const actualHero = heroSettings ? {
@@ -619,18 +659,18 @@ export default function HomeClient({ initialListings = [], initialSettings = nul
                 {camp.campaignYoutubeLink && idx === 0 && !isDesktop ? (
                   showVideo ? (
                     <iframe loading="lazy" ref={camp.isHeroSlide ? heroMediaRef : null} src={getYoutubeEmbedUrl(camp.campaignYoutubeLink)} className="absolute inset-0 w-full h-full" frameBorder="0" allow="autoplay; fullscreen" allowFullScreen />
-                  ) : (
+                  ) : camp.image ? (
                     <Image src={camp.image} alt={camp.badge || "Campaign Image"} priority={idx === 0} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
-                  )
+                  ) : null
                 ) : camp.campaignVideo && idx === 0 && !isDesktop ? (
                   showVideo ? (
                     <video ref={camp.isHeroSlide ? heroMediaRef : null} src={camp.campaignVideo} autoPlay loop playsInline className="absolute inset-0 w-full h-full object-cover pointer-events-none" />
-                  ) : (
+                  ) : camp.image ? (
                     <Image src={camp.image} alt={camp.badge || "Campaign Image"} priority={idx === 0} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
-                  )
-                ) : (
+                  ) : null
+                ) : camp.image ? (
                   <Image src={camp.image} alt={camp.badge || "Campaign Image"} priority={idx === 0} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
-                )}
+                ) : null}
                 <div className="absolute inset-0 bg-gradient-to-t from-[#1C1C1E] via-[#1C1C1E]/40 to-transparent z-0 pointer-events-none" />
 
                 <div className="absolute top-4 left-4 z-20 flex flex-col gap-2">
@@ -748,18 +788,18 @@ export default function HomeClient({ initialListings = [], initialSettings = nul
               {camp.campaignYoutubeLink && idx === 0 && isDesktop ? (
                 showVideo ? (
                   <iframe loading="lazy" ref={camp.isHeroSlide ? heroMediaRef : null} src={getYoutubeEmbedUrl(camp.campaignYoutubeLink)} className="absolute inset-0 w-full h-full" frameBorder="0" allow="autoplay; fullscreen" allowFullScreen />
-                ) : (
+                ) : camp.image ? (
                   <Image src={camp.image} alt={camp.badge || "Hero Image"} priority={idx === 0} fill sizes="100vw" className={`object-cover transition-transform duration-[20s] ease-linear ${idx === currentCampIdx ? 'scale-110' : 'scale-100'}`} />
-                )
+                ) : null
               ) : camp.campaignVideo && idx === 0 && isDesktop ? (
                 showVideo ? (
                   <video ref={camp.isHeroSlide ? heroMediaRef : null} src={camp.campaignVideo} autoPlay loop playsInline className={`absolute inset-0 w-full h-full object-cover transition-transform duration-[20s] ease-linear ${idx === currentCampIdx ? 'scale-110' : 'scale-100'} pointer-events-none`} />
-                ) : (
+                ) : camp.image ? (
                   <Image src={camp.image} alt={camp.badge || "Hero Image"} priority={idx === 0} fill sizes="100vw" className={`object-cover transition-transform duration-[20s] ease-linear ${idx === currentCampIdx ? 'scale-110' : 'scale-100'}`} />
-                )
-              ) : (
+                ) : null
+              ) : camp.image ? (
                 <Image src={camp.image} alt={camp.badge || "Hero Image"} priority={idx === 0} fill sizes="100vw" className={`object-cover transition-transform duration-[20s] ease-linear ${idx === currentCampIdx ? 'scale-110' : 'scale-100'}`} />
-              )}
+              ) : null}
 
               {/* Gradient Overlays */}
               <div className="absolute inset-0 bg-black/20 z-0 pointer-events-none" />
@@ -1003,8 +1043,8 @@ export default function HomeClient({ initialListings = [], initialSettings = nul
           </div>
           <div className="flex overflow-x-auto no-scrollbar gap-4 pb-4 md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-6 snap-x snap-mandatory">
             {recommendedPlaces.map((place, index) => (
-              <Link href={place.slug || "#"} key={place.id} className={`block relative rounded-[32px] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.06)] group cursor-pointer border border-border shrink-0 snap-center ${index === 0 ? 'w-[85vw] md:w-auto md:col-span-2 aspect-[4/3] md:aspect-[2/1]' : 'w-[200px] md:w-auto aspect-[3/4] md:aspect-square'}`}>
-                <Image src={place.image || 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?w=800'} alt={place.title || "Place Image"} fill sizes="(max-width: 768px) 50vw, 20vw" className="object-cover transition-transform duration-700 group-hover:scale-105" />
+              <Link href={place.slug ? (place.slug.startsWith('http') ? place.slug : `https://www.bobbybaliguide.com/discovering-bali/${place.slug.replace(/^\//, '')}`) : "#"} key={place.id} className={`block relative rounded-[32px] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.06)] group cursor-pointer border border-border shrink-0 snap-center ${index === 0 ? 'w-[85vw] md:w-auto md:col-span-2 aspect-[4/3] md:aspect-[2/1]' : 'w-[200px] md:w-auto aspect-[3/4] md:aspect-square'}`}>
+                {place.image && <Image src={place.image} alt={place.title || "Place Image"} fill sizes="(max-width: 768px) 50vw, 20vw" className="object-cover transition-transform duration-700 group-hover:scale-105" />}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
 
                 {/* Top Badge */}
