@@ -217,12 +217,12 @@ export default function ListingCard({ item, linkTo }) {
           <div className="flex flex-col justify-end">
             <span className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-0.5">From</span>
             <div className="flex items-end gap-1">
-              <span className="font-extrabold text-[17px] text-primary tracking-tight leading-none">
+               <span className="font-extrabold text-[15px] sm:text-[17px] text-primary tracking-tight leading-none">
                 {formattedPrice}
               </span>
             </div>
           </div>
-          <button className="text-[13px] font-extrabold text-primary bg-accent px-4 py-2 rounded-xl shrink-0 shadow-sm transition-transform active:scale-95 group-hover:scale-105">
+          <button className="text-[13px] font-extrabold text-primary bg-accent px-5 py-2.5 rounded-full shrink-0 shadow-sm transition-transform active:scale-95 hover:bg-[#cce823]/90">
             Book
           </button>
         </div>
