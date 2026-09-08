@@ -196,6 +196,7 @@ export default function HomeClient({ initialListings = [], initialSettings = nul
 
   const { data: allListings = initialListings } = useSWR('listings', fetcherListings, {
     fallbackData: initialListings,
+    revalidateOnMount: false,
     revalidateOnFocus: false,
     revalidateIfStale: false,
     keepPreviousData: true,
@@ -203,6 +204,7 @@ export default function HomeClient({ initialListings = [], initialSettings = nul
 
   const { data: recommendedPlaces = initialBlogs } = useSWR('blogs', fetcherBlogs, {
     fallbackData: initialBlogs,
+    revalidateOnMount: false,
     revalidateOnFocus: false,
     revalidateIfStale: false,
     keepPreviousData: true,

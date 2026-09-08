@@ -6,7 +6,7 @@ import { supabase } from "@/lib/supabase";
 import { getActiveListings } from "@/lib/cache";
 import { generateSlug } from "@/lib/utils";
 
-export const revalidate = 0; // Disable cache so admin edits show immediately
+export const revalidate = 3600;
 
 
 const SidebarFilter = ({ title, options }) => (

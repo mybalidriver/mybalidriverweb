@@ -50,7 +50,7 @@ export async function generateMetadata({ params }) {
   };
 }
 
-export const revalidate = 0; // Disable cache so admin edits show immediately
+export const revalidate = 3600;
 
 export async function generateStaticParams() {
   const listings = await getActiveListings();
