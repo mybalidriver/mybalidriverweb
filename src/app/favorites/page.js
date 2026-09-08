@@ -3,50 +3,29 @@
 import React, { useState, useEffect } from "react";
 import { Heart, Search } from "lucide-react";
 import WishlistCard from "@/components/listing/WishlistCard";
-import { useSession, signIn } from "next-auth/react";
 import { generateSlug } from "@/lib/utils";
-import { supabase } from "@/lib/supabase";
 
 export default function FavoritesPage() {
-  const { data: session, status } = useSession();
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Clear persistent cache on mount so new payload data works in admin (Dev hack only)
   useEffect(() => {
-    localStorage.removeItem("bali_bookings");
-    localStorage.removeItem("bali_dashboard");
+    const fetchLocalFavorites = () => {
+      try {
+        const saved = localStorage.getItem('bali_favorites');
+        if (saved) {
+          setFavorites(JSON.parse(saved));
+        }
+      } catch (err) {
+        console.error("Failed to load favorites", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchLocalFavorites();
   }, []);
 
-  useEffect(() => {
-    if (status === "unauthenticated") {
-       signIn('google');
-    } else if (session?.user?.email) {
-       fetchFavorites(session.user.email);
-    }
-  }, [session, status]);
-
-  const fetchFavorites = async (email) => {
-     try {
-       const { data, error } = await supabase
-         .from('bookings')
-         .select('*')
-         .eq('details->>isWishlist', 'true')
-         .eq('details->>customer_email', email)
-         .order('created_at', { ascending: false });
-       
-       if (data) {
-          const parsedFavorites = data.map(b => b.details?.item).filter(Boolean);
-          setFavorites(parsedFavorites);
-       }
-     } catch (err) {
-       console.error("Failed to fetch favorites:", err);
-     } finally {
-       setLoading(false);
-     }
-  };
-
-  if (status === "loading" || loading) {
+  if (loading) {
      return <div className="min-h-[100dvh] flex items-center justify-center bg-[#F8FAFC]"><div className="w-8 h-8 rounded-full border-4 border-gray-200 border-t-primary animate-spin"></div></div>;
   }
 
@@ -70,7 +49,7 @@ export default function FavoritesPage() {
                <Heart size={32} className="text-gray-300" />
              </div>
              <h3 className="text-xl font-bold text-primary mb-2">No saved trips yet</h3>
-             <p className="text-gray-500 font-medium">When you see a trip you like, click the heart icon to save it here.</p>
+             <p className="text-gray-500 font-medium">When you see a trip you like, click the heart icon to save it directly to your device.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">

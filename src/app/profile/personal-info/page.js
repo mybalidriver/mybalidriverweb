@@ -3,15 +3,13 @@
 import React, { useState } from "react";
 import { ChevronLeft, Save, ShieldCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
 
 export default function PersonalInfoPage() {
   const router = useRouter();
-  const { data: session } = useSession();
   const [isSaving, setIsSaving] = useState(false);
 
   // Extract name parts (rough estimate)
-  const names = (session?.user?.name || "").split(" ");
+  const names = "".split(" ");
   const firstName = names[0] || "";
   const lastName = names.slice(1).join(" ") || "";
 
@@ -83,11 +81,11 @@ export default function PersonalInfoPage() {
               <label className="text-[13px] font-bold text-text-secondary pl-1">Email Address</label>
               <input 
                 type="email" 
-                defaultValue={session?.user?.email || ""}
+                defaultValue={""}
                 disabled
                 className="w-full bg-gray-100 border border-border rounded-xl px-4 py-3.5 text-[15px] text-text-secondary opacity-70 cursor-not-allowed" 
               />
-              <span className="text-[11px] text-gray-400 pl-1">Connected via your Google Account.</span>
+              <span className="text-[11px] text-gray-400 pl-1">Email is not required for guest bookings.</span>
             </div>
             
             <div className="flex flex-col md:flex-row gap-5">

@@ -4,12 +4,10 @@ import React, { useState } from "react";
 import { Home, Map, CalendarCheck, Heart, User } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useSession, signIn } from "next-auth/react";
 
 export default function BottomNav() {
   const pathname = usePathname();
   const router = useRouter();
-  const { data: session } = useSession();
 
   if (pathname?.startsWith('/admin')) {
     return null;
@@ -42,12 +40,12 @@ export default function BottomNav() {
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
-          
-          if (item.id === "profile" && !session) {
+          if (item.id === "profile") {
             return (
-              <button 
+              <Link 
                 key={item.id} 
-                onClick={() => signIn('google')}
+                href="/profile"
+                onClick={() => setActiveTab(item.id)}
                 className="relative flex flex-col items-center justify-center w-10 h-10"
               >
                 {isActive && (
@@ -57,7 +55,7 @@ export default function BottomNav() {
                   size={22} 
                   className={`relative z-10 transition-colors duration-300 ${isActive ? "text-primary stroke-[2.5px]" : "text-white/70 hover:text-white"}`} 
                 />
-              </button>
+              </Link>
             );
           }
 

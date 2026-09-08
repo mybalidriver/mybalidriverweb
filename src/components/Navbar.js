@@ -5,12 +5,9 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Search, MapPin, Globe, Menu, Bell, Settings2, ChevronDown, User, Map, Bus, Sparkles, Car } from "lucide-react";
 
-import { useSession, signIn, signOut } from "next-auth/react";
-
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
-  const { data: session, status } = useSession();
   
   if (pathname?.startsWith('/admin')) {
     return null;
@@ -84,29 +81,12 @@ export default function Navbar() {
       {/* MOBILE LAYOUT (Inspired by the Reference Image) */}
       <div className="md:hidden px-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          {session ? (
-            <div className="w-11 h-11 bg-gray-200 rounded-full overflow-hidden border border-border cursor-pointer shadow-sm" onClick={() => router.push('/profile')}>
-              <img src={session.user.image || "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80"} referrerPolicy="no-referrer" alt="Avatar" className="w-full h-full object-cover" />
-            </div>
-          ) : (
-            <div className="w-11 h-11 bg-accent rounded-full flex justify-center items-center cursor-pointer hover:brightness-95 transition-colors shadow-sm" onClick={() => signIn('google')}>
-               <User size={20} className="text-primary" />
-            </div>
-          )}
+          <div className="w-11 h-11 bg-accent rounded-full flex justify-center items-center cursor-pointer hover:brightness-95 transition-colors shadow-sm" onClick={() => router.push('/profile')}>
+             <User size={20} className="text-primary" />
+          </div>
           <div className="flex flex-col">
-            {session ? (
-              <>
-                <span className="text-xs text-text-secondary font-medium">Hey, <span className="text-text-primary font-bold">{session.user.name?.split(' ')[0]} 👋</span></span>
-                <div className="flex items-center gap-1 text-[10px] text-text-secondary mt-0.5">
-                  <span className="text-[#25D366] font-bold">Verified</span>
-                </div>
-              </>
-            ) : (
-              <>
-                <span className="text-[13px] font-extrabold text-primary cursor-pointer hover:opacity-70 transition-opacity" onClick={() => signIn('google')}>Log In</span>
-                <span className="text-[10px] text-text-secondary mt-0.5 font-medium">Sign in to save bookings</span>
-              </>
-            )}
+            <span className="text-[13px] font-extrabold text-primary cursor-pointer hover:opacity-70 transition-opacity" onClick={() => router.push('/profile')}>Profile</span>
+            <span className="text-[10px] text-text-secondary mt-0.5 font-medium">View your saved trips</span>
           </div>
         </div>
         <div className="relative z-50">
@@ -228,15 +208,9 @@ export default function Navbar() {
             )}
           </div>
           
-          {session ? (
-            <div className="w-9 h-9 bg-gray-200 rounded-full overflow-hidden border border-border cursor-pointer hover:border-black transition-colors shadow-soft" onClick={() => router.push('/profile')}>
-              <img src={session.user.image || "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80"} referrerPolicy="no-referrer" alt="Avatar" className="w-full h-full object-cover" />
-            </div>
-          ) : (
-            <button onClick={() => signIn('google')} className={`w-9 h-9 border rounded-full flex items-center justify-center transition-all duration-500 shadow-soft ${isScrolled ? 'bg-dark-surface border-transparent text-white hover:scale-105 active:scale-95' : 'bg-black/20 backdrop-blur-md border-white/30 text-white hover:bg-white/20'}`}>
-              <User size={16} />
-            </button>
-          )}
+          <button onClick={() => router.push('/profile')} className={`w-9 h-9 border rounded-full flex items-center justify-center transition-all duration-500 shadow-soft ${isScrolled ? 'bg-dark-surface border-transparent text-white hover:scale-105 active:scale-95' : 'bg-black/20 backdrop-blur-md border-white/30 text-white hover:bg-white/20'}`}>
+            <User size={16} />
+          </button>
         </div>
       </div>
       
