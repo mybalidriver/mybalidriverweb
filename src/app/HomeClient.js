@@ -81,30 +81,6 @@ const getYoutubeEmbedUrl = (url) => {
     : null;
 };
 
-const campaigns = [
-  {
-    id: 1,
-    title: "Ubud Heritage",
-    subtitle: "Experience the lush green beauty of Tegalalang.",
-    badge: "Exclusive",
-    image: ""
-  },
-  {
-    id: 2,
-    title: "Ubud Wellness\nRetreat",
-    subtitle: "Complimentary 60-min massage with any villa booking.",
-    badge: "Best Deal",
-    image: "",
-  },
-  {
-    id: 3,
-    title: "Nusa Penida\nIsland Hopper",
-    subtitle: "Fast boat & tour package starting at $49.",
-    badge: "Limited Time",
-    image: "",
-  }
-];
-
 const popularTrips = [];
 
 
@@ -382,8 +358,7 @@ export default function HomeClient({ initialListings = [], initialSettings = nul
   }, [mutateSettings]);
 
 
-  const nextCamp = () => setCurrentCampIdx((prev) => (prev + 1) % campaigns.length);
-  const prevCamp = () => setCurrentCampIdx((prev) => (prev - 1 + campaigns.length) % campaigns.length);
+
 
   const currentCategories = getCategoriesForService(activeService);
 
@@ -443,8 +418,11 @@ export default function HomeClient({ initialListings = [], initialSettings = nul
     campaignIgLink2: heroSettings.campaignIgLink2 || "",
   } : defaultHero;
 
-  const tourCampaigns = pinnedCampaigns.length > 0 ? pinnedCampaigns : campaigns;
+  const tourCampaigns = pinnedCampaigns;
   const displayCampaigns = [actualHero, ...tourCampaigns];
+
+  const nextCamp = () => setCurrentCampIdx((prev) => (prev + 1) % displayCampaigns.length);
+  const prevCamp = () => setCurrentCampIdx((prev) => (prev - 1 + displayCampaigns.length) % displayCampaigns.length);
 
   const bestTrips = allListings.filter(t => t.isBestTripPinned && t.service === activeService);
   const displayPopularTrips = bestTrips.length > 0 ? bestTrips : popularTrips;
@@ -778,7 +756,7 @@ export default function HomeClient({ initialListings = [], initialSettings = nul
 
           {/* Dot Indicators */}
           <div className="flex justify-center mt-5 gap-2 items-center">
-            {campaigns.map((_, idx) => (
+            {displayCampaigns.map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => {
