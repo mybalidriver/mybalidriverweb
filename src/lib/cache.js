@@ -15,10 +15,28 @@ export const getHomepageListings = unstable_cache(
 
 export const getActiveListings = unstable_cache(
   async () => {
-    const { data } = await supabase.from('listings').select('*').eq('status', 'Active');
+    // Only select the essential fields needed for lists and slug generation
+    // DO NOT select('*') as it includes the massive 'data' column which breaks the 2MB cache limit
+    const { data } = await supabase
+      .from('listings')
+      .select('id, type, title, location, price, duration, category, rating, reviews, status, image, company_name, originalService:data->originalService, isCampaignPinned:data->isCampaignPinned, campaignTitle:data->campaignTitle, campaignDescription:data->campaignDescription, campaignLabel:data->campaignLabel, campaignVideo:data->campaignVideo, campaignYoutubeLink:data->campaignYoutubeLink, campaignRecommendation:data->campaignRecommendation, campaignIgLink:data->campaignIgLink, isBestTripPinned:data->isBestTripPinned, spaSetting:data->spaSetting, tourTiers:data->tourTiers, allInclusiveTiers:data->allInclusiveTiers, allInclusiveSurcharge:data->allInclusiveSurcharge, pricingType:data->pricingType, min60:data->min60, min90:data->min90, min120:data->min120, dailyPrice:data->dailyPrice, weeklyPrice:data->weeklyPrice, monthlyPrice:data->monthlyPrice, badge:data->badge')
+      .eq('status', 'Active');
     return data || [];
   },
-  ['active-listings'],
+  ['active-listings-slim-ui'],
+  { revalidate: 3600, tags: ['listings'] }
+);
+
+export const getTourById = unstable_cache(
+  async (id) => {
+    const { data } = await supabase
+      .from('listings')
+      .select('*')
+      .eq('id', id)
+      .single();
+    return data || null;
+  },
+  ['tour-by-id'],
   { revalidate: 3600, tags: ['listings'] }
 );
 

@@ -6,18 +6,50 @@ export const revalidate = 3600;
 
 export default async function Page() {
 
-  const listingsData = await getHomepageListings();
-  
+  // Fetch all initial data in parallel to prevent sequential waterfalls
+  const [listingsData, initialBlogs, settingsData] = await Promise.all([
+    getHomepageListings(),
+    getPublishedBlogs(4),
+    getHomepageSettings()
+  ]);
+
   const initialListings = (listingsData || []).map(d => ({
-    ...d,
+    id: d.id,
+    type: d.type,
+    title: d.title,
+    location: d.location,
+    price: d.price,
+    duration: d.duration,
+    category: d.category,
+    rating: d.rating,
+    reviews: d.reviews,
+    status: d.status,
+    image: d.image,
+    company_name: d.company_name,
+    originalService: d.originalService,
+    isCampaignPinned: d.isCampaignPinned,
+    campaignTitle: d.campaignTitle,
+    campaignDescription: d.campaignDescription,
+    campaignLabel: d.campaignLabel,
+    campaignVideo: d.campaignVideo,
+    campaignYoutubeLink: d.campaignYoutubeLink,
+    campaignRecommendation: d.campaignRecommendation,
+    campaignIgLink: d.campaignIgLink,
+    isBestTripPinned: d.isBestTripPinned,
+    spaSetting: d.spaSetting,
+    tourTiers: d.tourTiers,
+    allInclusiveTiers: d.allInclusiveTiers,
+    allInclusiveSurcharge: d.allInclusiveSurcharge,
+    pricingType: d.pricingType,
+    min60: d.min60,
+    min90: d.min90,
+    min120: d.min120,
+    dailyPrice: d.dailyPrice,
+    weeklyPrice: d.weeklyPrice,
+    monthlyPrice: d.monthlyPrice,
+    badge: d.badge,
     service: d.originalService || d.type
   }));
-
-  // Fetch blogs
-  const initialBlogs = await getPublishedBlogs(4);
-
-  // Fetch settings
-  const settingsData = await getHomepageSettings();
 
   const initialSettings = settingsData ? {
     campaignVideo: settingsData.campaign_video || "",

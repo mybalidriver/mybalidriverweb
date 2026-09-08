@@ -9,12 +9,22 @@ export async function generateMetadata({ params }) {
   const resolvedParams = await params;
   const slug = resolvedParams.slug;
   
-  // We need to fetch all active tours and find the one that matches the slug
+  // Use the slim cached listings just to find the ID
   const allListings = await getActiveListings();
-  
-  const listing = allListings?.find(item => generateSlug(item.title) === slug) || 
-                  allListings?.find(item => item.id === slug); // fallback for direct UUIDs
+  const slimListing = allListings?.find(item => generateSlug(item.title) === slug) || 
+                      allListings?.find(item => item.id === slug); // fallback for direct UUIDs
                   
+  if (!slimListing) {
+    return {
+      title: "Tour Not Found | Discovering Bali",
+      description: "This tour could not be found."
+    };
+  }
+
+  // Fetch only the full data for this specific tour
+  const { getTourById } = await import("@/lib/cache");
+  const listing = await getTourById(slimListing.id);
+  
   if (!listing) {
     return {
       title: "Tour Not Found | Discovering Bali",
@@ -70,11 +80,20 @@ export default async function TourPage({ params }) {
 
   const allListings = await getActiveListings();
   
-  let data = allListings?.find(item => generateSlug(item.title) === slug);
-  if (!data) {
-     // fallback if they visit via ID directly
-     data = allListings?.find(item => item.id === slug);
+  const slimData = allListings?.find(item => generateSlug(item.title) === slug) || 
+                   allListings?.find(item => item.id === slug);
+
+  if (!slimData) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background">
+        <h1 className="text-2xl font-black text-primary mb-2">Tour Not Found</h1>
+        <p className="font-bold text-text-secondary">The tour you are looking for does not exist.</p>
+      </div>
+    );
   }
+
+  const { getTourById } = await import("@/lib/cache");
+  const data = await getTourById(slimData.id);
 
   if (!data) {
     return (
