@@ -72,8 +72,8 @@ export default function Navbar() {
     { id: "Activities", icon: Sparkles },
   ];
 
-  // Hide the global Navbar on individual tour detail pages or the map page
-  if (pathname.match(/^\/tours\/.+/) || pathname === '/map') return null;
+  // Hide the global Navbar on the tours page or map page
+  if (pathname.startsWith('/tours') || pathname === '/map') return null;
 
   return (
     <header className={`fixed z-50 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] left-1/2 -translate-x-1/2 w-full ${isScrolled ? "top-0 bg-white md:bg-white/90 md:backdrop-blur-md shadow-sm border-b border-border md:top-4 md:w-[85%] md:max-w-[1000px] md:rounded-full md:shadow-[0_8px_30px_rgb(0,0,0,0.08)] md:border md:border-gray-100 md:py-2.5" : "top-0 bg-white md:bg-transparent md:border-b-0 md:w-[95%] md:max-w-[1400px] md:py-5 pt-4 pb-4"}`}>

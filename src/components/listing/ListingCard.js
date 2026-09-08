@@ -202,7 +202,7 @@ export default function ListingCard({ item, linkTo, isGrid, priority = false }) 
         </div>
         
         {/* Title */}
-        <h3 className="font-extrabold text-[16px] leading-[1.3] text-primary line-clamp-2 mb-2 group-hover:text-accent transition-colors">
+        <h3 className={`font-extrabold leading-[1.3] text-primary line-clamp-2 mb-2 group-hover:text-accent transition-colors ${isGrid ? 'text-[14px]' : 'text-[16px]'}`}>
           {item.title}
         </h3>
         
@@ -223,7 +223,7 @@ export default function ListingCard({ item, linkTo, isGrid, priority = false }) 
               </span>
             </div>
           </div>
-          <button className="text-[13px] font-extrabold text-primary bg-accent px-5 py-2.5 rounded-full shrink-0 shadow-sm transition-transform active:scale-95 hover:bg-[#cce823]/90">
+          <button className={`font-extrabold text-primary bg-accent rounded-full shrink-0 shadow-sm transition-transform active:scale-95 hover:bg-[#cce823]/90 ${isGrid ? 'text-[12px] px-4 py-2' : 'text-[13px] px-5 py-2.5'}`}>
             Book
           </button>
         </div>

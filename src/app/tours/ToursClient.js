@@ -18,39 +18,42 @@ export default function ToursClient({ initialTours }) {
       });
 
   return (
-    <div className="w-full bg-background min-h-[100dvh] pt-24 pb-20">
+    <div className="w-full bg-background min-h-[100dvh] pt-0 pb-20">
       <div className="container mx-auto px-4 lg:max-w-5xl">
         
-        {/* Search Bar & Filter Button */}
-        <div className="flex items-center gap-3 mb-6">
-          <div className="flex-1 bg-white rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-gray-100 flex items-center px-5 py-3 h-[60px] cursor-pointer hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-shadow">
-            <Search size={22} className="text-text-primary mr-4 stroke-[2.5]" />
-            <div className="flex flex-col">
-              <span className="text-[15px] font-extrabold text-text-primary leading-tight">Where to? Search tours...</span>
-              <span className="text-[13px] font-medium text-text-secondary leading-tight mt-0.5">Anywhere • Any week • Add guests</span>
+        {/* Sticky Header Wrapper */}
+        <div className="sticky top-0 z-40 bg-background pt-4 pb-2 mb-4 -mx-4 px-4 sm:mx-0 sm:px-0">
+          {/* Search Bar & Filter Button */}
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex-1 bg-white rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-gray-100 flex items-center px-5 py-3 h-[60px] cursor-pointer hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-shadow">
+              <Search size={22} className="text-text-primary mr-4 stroke-[2.5]" />
+              <div className="flex flex-col">
+                <span className="text-[15px] font-extrabold text-text-primary leading-tight">Where to? Search tours...</span>
+                <span className="text-[13px] font-medium text-text-secondary leading-tight mt-0.5">Anywhere • Any week • Add guests</span>
+              </div>
             </div>
-          </div>
-          
-          <button className="w-[60px] h-[60px] shrink-0 bg-white rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-gray-100 flex items-center justify-center hover:bg-gray-50 transition-colors">
-            <SlidersHorizontal size={20} className="text-text-primary stroke-[2.5]" />
-          </button>
-        </div>
-
-        {/* Categories Row */}
-        <div className="flex overflow-x-auto no-scrollbar gap-2 mb-6 pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`whitespace-nowrap px-6 py-2.5 rounded-full font-extrabold text-[15px] transition-all active:scale-95 ${
-                activeCategory === cat 
-                  ? "bg-[#2A2A2A] text-white shadow-md" 
-                  : "bg-white text-text-secondary hover:bg-gray-50 border border-gray-100"
-              }`}
-            >
-              {cat}
+            
+            <button className="w-[60px] h-[60px] shrink-0 bg-white rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-gray-100 flex items-center justify-center hover:bg-gray-50 transition-colors">
+              <SlidersHorizontal size={20} className="text-text-primary stroke-[2.5]" />
             </button>
-          ))}
+          </div>
+
+          {/* Categories Row */}
+          <div className="flex overflow-x-auto no-scrollbar gap-2 pb-2">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
+                className={`whitespace-nowrap px-6 py-2.5 rounded-full font-extrabold text-[15px] transition-all active:scale-95 ${
+                  activeCategory === cat 
+                    ? "bg-[#2A2A2A] text-white shadow-md" 
+                    : "bg-white text-text-secondary hover:bg-gray-50 border border-gray-100"
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Info Row */}
