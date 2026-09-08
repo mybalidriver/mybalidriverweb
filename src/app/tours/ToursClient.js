@@ -2,11 +2,14 @@
 
 import React, { useState } from "react";
 import ListingCard from "@/components/listing/ListingCard";
-import { Search, SlidersHorizontal, ChevronDown } from "lucide-react";
+import { Search, SlidersHorizontal, ChevronDown, MapPin } from "lucide-react";
 import { generateSlug } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function ToursClient({ initialTours }) {
   const [activeCategory, setActiveCategory] = useState("All");
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [priceFilter, setPriceFilter] = useState([0, 5000000]);
   
   const categories = ["All", "Adventure", "Water", "Nature", "Culture"];
 
@@ -18,7 +21,7 @@ export default function ToursClient({ initialTours }) {
       });
 
   return (
-    <div className="w-full bg-background min-h-[100dvh] pt-0 pb-20">
+    <div className="w-full bg-background min-h-[100dvh] pt-0 pb-20 -mt-20 md:-mt-24">
       <div className="container mx-auto px-4 lg:max-w-5xl">
         
         {/* Sticky Header Wrapper */}
@@ -33,7 +36,10 @@ export default function ToursClient({ initialTours }) {
               </div>
             </div>
             
-            <button className="w-[60px] h-[60px] shrink-0 bg-white rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-gray-100 flex items-center justify-center hover:bg-gray-50 transition-colors">
+            <button 
+              onClick={() => setIsFilterModalOpen(true)}
+              className="w-[60px] h-[60px] shrink-0 bg-white rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-gray-100 flex items-center justify-center hover:bg-gray-50 transition-colors"
+            >
               <SlidersHorizontal size={20} className="text-text-primary stroke-[2.5]" />
             </button>
           </div>
@@ -81,6 +87,67 @@ export default function ToursClient({ initialTours }) {
             </button>
           </div>
         )}
+
+        {/* Apple-style Filter Bottom Sheet */}
+        <AnimatePresence>
+          {isFilterModalOpen && (
+            <div className="fixed inset-0 z-[100] flex flex-col justify-end">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                onClick={() => setIsFilterModalOpen(false)}
+              />
+
+              <motion.div
+                initial={{ y: "100%" }}
+                animate={{ y: 0 }}
+                exit={{ y: "100%" }}
+                transition={{ type: "spring", damping: 25, stiffness: 300, mass: 0.8 }}
+                className="bg-white w-full rounded-t-[32px] p-6 relative flex flex-col pointer-events-auto h-fit pb-12"
+              >
+                <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-6"></div>
+
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="text-[22px] font-extrabold text-primary tracking-tight">Filters</h3>
+                  <button onClick={() => setPriceFilter([0, 5000000])} className="text-secondary font-bold text-[15px] active:scale-95 transition-transform">Reset</button>
+                </div>
+
+                {/* Price Filter Options */}
+                <div className="mb-8">
+                  <h4 className="text-[17px] font-extrabold text-primary mb-4">Price Range</h4>
+                  <div className="flex flex-col gap-3">
+                    {[
+                      { label: "Any price", min: 0, max: 5000000 },
+                      { label: "Under Rp 500k", min: 0, max: 500000 },
+                      { label: "Rp 500k - Rp 1M", min: 500000, max: 1000000 },
+                      { label: "Over Rp 1M+", min: 1000000, max: 5000000 },
+                    ].map((opt, i) => {
+                      const isSelected = priceFilter[0] === opt.min && priceFilter[1] === opt.max;
+                      return (
+                        <label key={i} className={`flex items-center justify-between p-4 rounded-2xl border transition-all w-full cursor-pointer touch-manipulation active:scale-[0.98] ${isSelected ? 'border-primary bg-primary text-white shadow-md' : 'border-border bg-white text-primary hover:border-gray-300'}`}>
+                          <span className="font-bold text-[15px]">{opt.label}</span>
+                          <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors ${isSelected ? 'border-none bg-accent' : 'border border-gray-300'}`}>
+                            {isSelected && <MapPin size={12} className="text-primary" strokeWidth={3} />}
+                          </div>
+                          <input type="radio" className="hidden" name="price" checked={isSelected} onChange={() => setPriceFilter([opt.min, opt.max])} />
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setIsFilterModalOpen(false)}
+                  className="w-full bg-accent text-primary font-extrabold py-4 rounded-2xl shadow-lg active:scale-95 transition-transform flex justify-center items-center gap-2 mb-2"
+                >
+                  Show {displayTours.length} Results
+                </button>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
 
       </div>
     </div>
