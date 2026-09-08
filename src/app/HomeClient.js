@@ -446,195 +446,6 @@ export default function HomeClient({ initialListings = [], initialSettings = nul
     <div className="w-full bg-background min-h-[100dvh] font-sans pb-32">
 
       <div className="w-full pt-[28px] md:pt-[100px] pb-4">
-        {/* Mobile Top Header Search (Hidden on Desktop) */}
-        <div className="md:hidden relative z-40 px-5">
-
-          {/* Location Filter (Animated Segmented Control Style) */}
-          <div className="bg-[#cce823] rounded-[32px] p-1.5 shadow-[0_4px_20px_rgba(204,232,35,0.3)] mb-4">
-            <div className="flex items-center overflow-x-auto no-scrollbar hide-scroll" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-              {["All Bali", "Ubud", "Canggu", "Seminyak", "Nusa Penida", "Uluwatu"].map((loc) => {
-                const isActive = (searchQuery.toLowerCase() === loc.toLowerCase()) || (searchQuery === "" && loc === "All Bali");
-                return (
-                  <button
-                    key={loc}
-                    onClick={() => setSearchQuery(loc === "All Bali" ? "" : loc)}
-                    className="relative flex items-center justify-center px-5 py-2.5 rounded-[24px] active:scale-95 outline-none shrink-0"
-                  >
-                    {/* Animated Sliding White Pill */}
-                    {isActive && (
-                      <motion.div
-                        layoutId="locationActiveIndicator"
-                        className="absolute inset-0 bg-white rounded-[24px] shadow-sm"
-                        transition={{ type: "spring", stiffness: 400, damping: 28 }}
-                      />
-                    )}
-
-                    {/* Text Label or Icon */}
-                    <div className="relative z-10 flex items-center justify-center">
-                      {loc === "All Bali" ? (
-                        <BaliGateIcon isActive={isActive} className={`w-5 h-5 transition-colors duration-300 ${isActive ? 'text-[#1C1C1E]' : 'text-[#1C1C1E]/60 hover:text-[#1C1C1E]'}`} />
-                      ) : (
-                        <span className={`text-[14px] tracking-tight whitespace-nowrap transition-colors duration-300 ${isActive ? 'text-[#1C1C1E] font-extrabold' : 'text-[#1C1C1E]/70 font-bold hover:text-[#1C1C1E]'}`}>
-                          {loc}
-                        </span>
-                      )}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="flex items-center bg-white border border-border shadow-soft rounded-full pl-2 pr-2 py-2 relative mb-6">
-
-            {/* Mobile Service Dropdown Trigger inside Search Bar */}
-            <button
-              onClick={() => setIsServiceDropdownOpen(!isServiceDropdownOpen)}
-              className="flex items-center gap-1.5 pl-3 pr-2 py-1.5 rounded-full hover:bg-gray-50 text-primary active:scale-95 transition-all outline-none"
-            >
-              <span className="font-extrabold text-[14px] tracking-tight">{activeService}</span>
-              <ChevronDown size={14} className={`text-text-secondary transition-transform duration-300 ${isServiceDropdownOpen ? 'rotate-180' : ''}`} />
-            </button>
-            <div className="h-5 w-[1px] bg-border/80 mx-1 shrink-0"></div>
-
-            <Search size={18} className="text-text-secondary shrink-0 mr-2" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onFocus={() => setIsSearchFocused(true)}
-              onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
-              placeholder={`Search...`}
-              className="flex-1 min-w-0 outline-none text-[15px] font-medium bg-transparent text-primary placeholder:text-text-secondary pr-2"
-            />
-
-            {/* Filter Modal Toggle */}
-            <button
-              onClick={() => setIsFilterModalOpen(true)}
-              className={`w-[38px] h-[38px] rounded-full flex items-center justify-center shrink-0 shadow-sm transition-all active:scale-95 bg-accent text-primary hover:scale-105`}
-            >
-              <Settings2 size={16} strokeWidth={2.5} />
-            </button>
-
-            {/* Mobile Service Dropdown */}
-            {isServiceDropdownOpen && (
-              <div className="absolute top-[60px] left-0 bg-white rounded-2xl p-2 shadow-2xl flex flex-col min-w-[160px] border border-border animate-in fade-in zoom-in-95 duration-200 z-[70]">
-                {services.map((s) => {
-                  const Icon = s.icon;
-                  return (
-                    <button
-                      key={s.id}
-                      onClick={() => {
-                        if (s.id === "Transport" || s.id === "Car Rental") {
-                          router.push(`/map?service=${s.id === "Car Rental" ? "CarRental" : "Transport"}`);
-                          return;
-                        }
-                        setActiveService(s.id);
-                        setIsServiceDropdownOpen(false);
-                        setActiveCat("All");
-                        setSearchQuery("");
-
-                        if (s.id === "Scooter") {
-                          setTimeout(() => {
-                            const el = document.getElementById("categories-section");
-                            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                          }, 50);
-                        }
-                      }}
-                      className={`flex items-center gap-3 px-4 py-2.5 rounded-xl font-bold text-[13px] text-left transition-colors ${activeService === s.id ? 'bg-primary text-accent' : 'bg-transparent text-text-secondary hover:bg-gray-50 hover:text-primary'} outline-none`}
-                    >
-                      {Icon && <Icon size={16} className={activeService === s.id ? 'text-accent' : 'text-text-secondary'} strokeWidth={2} />}
-                      {s.id}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-
-          {/* Search Autocomplete Dropdown */}
-          {isSearchFocused && searchQuery.length > 0 && (
-            <div className="absolute top-[100%] mt-2 left-6 right-6 bg-white rounded-2xl p-2 shadow-2xl border border-border animate-in fade-in zoom-in-95 duration-200 z-[60]">
-              {searchSuggestions.length > 0 ? (
-                searchSuggestions.map((loc, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => { setSearchQuery(loc); setIsSearchFocused(false); }}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 active:bg-gray-100 transition-colors text-left"
-                  >
-                    {allListings.some(t => t.location === loc) ? <MapPin size={16} className="text-secondary" /> : <Search size={16} className="text-secondary" />}
-                    <span className="font-bold text-[14px] text-primary truncate block flex-1">{loc}</span>
-                  </button>
-                ))
-              ) : (
-                <div className="px-4 py-3 text-[14px] text-text-secondary font-medium text-center">
-                  No places found
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-        {/* Apple-style Filter Bottom Sheet */}
-        <AnimatePresence>
-          {isFilterModalOpen && (
-            <div className="fixed inset-0 z-[100] flex flex-col justify-end">
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-                onClick={() => setIsFilterModalOpen(false)}
-              />
-
-              <motion.div
-                initial={{ y: "100%" }}
-                animate={{ y: 0 }}
-                exit={{ y: "100%" }}
-                transition={{ type: "spring", damping: 25, stiffness: 300, mass: 0.8 }}
-                className="bg-white w-full rounded-t-[32px] p-6 relative flex flex-col pointer-events-auto h-fit pb-12"
-              >
-                <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-6"></div>
-
-                <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-[22px] font-extrabold text-primary tracking-tight">Filters</h3>
-                  <button onClick={() => setPriceFilter([0, 5000000])} className="text-secondary font-bold text-[15px] active:scale-95 transition-transform">Reset</button>
-                </div>
-
-                {/* Price Filter Options */}
-                <div className="mb-8">
-                  <h4 className="text-[17px] font-extrabold text-primary mb-4">Price Range</h4>
-                  <div className="flex flex-col gap-3">
-                    {[
-                      { label: "Any price", min: 0, max: 5000000 },
-                      { label: "Under Rp 500k", min: 0, max: 500000 },
-                      { label: "Rp 500k - Rp 1M", min: 500000, max: 1000000 },
-                      { label: "Over Rp 1M+", min: 1000000, max: 5000000 },
-                    ].map((opt, i) => {
-                      const isSelected = priceFilter[0] === opt.min && priceFilter[1] === opt.max;
-                      return (
-                        <label key={i} className={`flex items-center justify-between p-4 rounded-2xl border transition-all w-full cursor-pointer touch-manipulation active:scale-[0.98] ${isSelected ? 'border-primary bg-primary text-white shadow-md' : 'border-border bg-white text-primary hover:border-gray-300'}`}>
-                          <span className="font-bold text-[15px]">{opt.label}</span>
-                          <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors ${isSelected ? 'border-none bg-accent' : 'border border-gray-300'}`}>
-                            {isSelected && <MapPin size={12} className="text-primary" strokeWidth={3} />}
-                          </div>
-                          <input type="radio" className="hidden" name="price" checked={isSelected} onChange={() => setPriceFilter([opt.min, opt.max])} />
-                        </label>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => setIsFilterModalOpen(false)}
-                  className="w-full bg-accent text-primary font-extrabold py-4 rounded-2xl shadow-lg active:scale-95 transition-transform flex justify-center items-center gap-2 mb-2"
-                >
-                  Show {filteredTours.length} Results
-                </button>
-              </motion.div>
-            </div>
-          )}
-        </AnimatePresence>
-
         {/* Mobile-only Campaign Swipe Carousel */}
         <section className="md:hidden pt-4 pb-6 relative z-10">
           <div
@@ -919,61 +730,204 @@ export default function HomeClient({ initialListings = [], initialSettings = nul
 
       <div className="max-w-[1400px] mx-auto min-h-screen">
 
-        {/* Popular Trips */}
-        <section className="pt-2 mb-8 relative">
-          <div className="px-6 flex justify-between items-end mb-4">
-            <h2 className="text-[20px] font-bold text-primary flex items-center gap-2">
-              {getPopularTripsTitle()}
-            </h2>
-            <Link
-              href={activeService === "Tour" ? "/tours" : activeService === "Transport" ? "/map" : "/esim"}
-              className="text-sm font-semibold text-text-secondary hover:text-text-primary cursor-pointer transition-colors"
-            >
-              See more
-            </Link>
+        {/* Sticky Search & Filter & Categories */}
+        <div className="sticky top-0 z-40 bg-background pt-4 pb-2 mb-6 -mx-4 px-4 sm:mx-0 sm:px-0 shadow-sm border-b border-border/40">
+          
+        {/* Mobile Top Header Search (Hidden on Desktop) */}
+        <div className="md:hidden relative z-40 px-5">
+
+          {/* Location Filter (Animated Segmented Control Style) */}
+          <div className="bg-[#cce823] rounded-[32px] p-1.5 shadow-[0_4px_20px_rgba(204,232,35,0.3)] mb-4">
+            <div className="flex items-center overflow-x-auto no-scrollbar hide-scroll" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+              {["All Bali", "Ubud", "Canggu", "Seminyak", "Nusa Penida", "Uluwatu"].map((loc) => {
+                const isActive = (searchQuery.toLowerCase() === loc.toLowerCase()) || (searchQuery === "" && loc === "All Bali");
+                return (
+                  <button
+                    key={loc}
+                    onClick={() => setSearchQuery(loc === "All Bali" ? "" : loc)}
+                    className="relative flex items-center justify-center px-5 py-2.5 rounded-[24px] active:scale-95 outline-none shrink-0"
+                  >
+                    {/* Animated Sliding White Pill */}
+                    {isActive && (
+                      <motion.div
+                        layoutId="locationActiveIndicator"
+                        className="absolute inset-0 bg-white rounded-[24px] shadow-sm"
+                        transition={{ type: "spring", stiffness: 400, damping: 28 }}
+                      />
+                    )}
+
+                    {/* Text Label or Icon */}
+                    <div className="relative z-10 flex items-center justify-center">
+                      {loc === "All Bali" ? (
+                        <BaliGateIcon isActive={isActive} className={`w-5 h-5 transition-colors duration-300 ${isActive ? 'text-[#1C1C1E]' : 'text-[#1C1C1E]/60 hover:text-[#1C1C1E]'}`} />
+                      ) : (
+                        <span className={`text-[14px] tracking-tight whitespace-nowrap transition-colors duration-300 ${isActive ? 'text-[#1C1C1E] font-extrabold' : 'text-[#1C1C1E]/70 font-bold hover:text-[#1C1C1E]'}`}>
+                          {loc}
+                        </span>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
-          {/* Horizontal Scroll Area */}
-          <div className="flex overflow-x-auto no-scrollbar gap-5 px-6 pb-6 snap-x snap-mandatory hide-scroll">
-            {displayPopularTrips.length > 0 ? displayPopularTrips.map((trip) => (
-              <Link href={`/tours/${generateSlug(trip.title)}`} key={trip.id} className="block relative w-[240px] md:w-[280px] aspect-[4/5] rounded-[28px] overflow-hidden shadow-soft shrink-0 snap-start group border border-border bg-white">
-                <Image src={trip.image} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover transition-transform duration-[8s] ease-out group-hover:scale-110" alt={trip.title || "Trip Image"} />
+          <div className="flex items-center bg-white border border-border shadow-soft rounded-full pl-2 pr-2 py-2 relative mb-6">
 
-                {/* Heart Button */}
-                <button className="absolute top-4 right-4 w-[34px] h-[34px] bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-gray-400 shadow-xl z-10 transition-transform active:scale-95 hover:text-red-500 hover:scale-110">
-                  <Heart size={16} strokeWidth={2.5} />
-                </button>
+            {/* Mobile Service Dropdown Trigger inside Search Bar */}
+            <button
+              onClick={() => setIsServiceDropdownOpen(!isServiceDropdownOpen)}
+              className="flex items-center gap-1.5 pl-3 pr-2 py-1.5 rounded-full hover:bg-gray-50 text-primary active:scale-95 transition-all outline-none"
+            >
+              <span className="font-extrabold text-[14px] tracking-tight">{activeService}</span>
+              <ChevronDown size={14} className={`text-text-secondary transition-transform duration-300 ${isServiceDropdownOpen ? 'rotate-180' : ''}`} />
+            </button>
+            <div className="h-5 w-[1px] bg-border/80 mx-1 shrink-0"></div>
 
-                {/* Bottom Overlay Card */}
-                <div className="absolute left-3 right-3 bottom-3 bg-white/95 backdrop-blur-md px-4 py-3.5 rounded-2xl flex flex-col gap-1.5 shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
-                  <h3 className="font-extrabold text-[15px] leading-snug text-primary line-clamp-2">{trip.title}</h3>
-                  <div className="flex justify-between items-end mt-1">
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      <Star size={12} strokeWidth={2.5} className="fill-[#F59E0B] text-[#F59E0B]" />
-                      <span className="text-[12px] font-bold text-primary">5.0</span>
-                    </div>
-                    <div className="flex flex-col items-end shrink-0">
-                      <span className="font-extrabold text-[15px] text-primary tracking-tight pr-1">
-                        IDR {Number(trip.price > 1000 ? trip.price : trip.price * 1000).toLocaleString('id-ID')}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            )) : (
-              <div className="w-full text-center py-6 text-gray-400 font-medium text-sm">
-                No items pinned as Best Trips for this category.
+            <Search size={18} className="text-text-secondary shrink-0 mr-2" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => setIsSearchFocused(true)}
+              onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
+              placeholder={`Search...`}
+              className="flex-1 min-w-0 outline-none text-[15px] font-medium bg-transparent text-primary placeholder:text-text-secondary pr-2"
+            />
+
+            {/* Filter Modal Toggle */}
+            <button
+              onClick={() => setIsFilterModalOpen(true)}
+              className={`w-[38px] h-[38px] rounded-full flex items-center justify-center shrink-0 shadow-sm transition-all active:scale-95 bg-accent text-primary hover:scale-105`}
+            >
+              <Settings2 size={16} strokeWidth={2.5} />
+            </button>
+
+            {/* Mobile Service Dropdown */}
+            {isServiceDropdownOpen && (
+              <div className="absolute top-[60px] left-0 bg-white rounded-2xl p-2 shadow-2xl flex flex-col min-w-[160px] border border-border animate-in fade-in zoom-in-95 duration-200 z-[70]">
+                {services.map((s) => {
+                  const Icon = s.icon;
+                  return (
+                    <button
+                      key={s.id}
+                      onClick={() => {
+                        if (s.id === "Transport" || s.id === "Car Rental") {
+                          router.push(`/map?service=${s.id === "Car Rental" ? "CarRental" : "Transport"}`);
+                          return;
+                        }
+                        setActiveService(s.id);
+                        setIsServiceDropdownOpen(false);
+                        setActiveCat("All");
+                        setSearchQuery("");
+
+                        if (s.id === "Scooter") {
+                          setTimeout(() => {
+                            const el = document.getElementById("categories-section");
+                            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                          }, 50);
+                        }
+                      }}
+                      className={`flex items-center gap-3 px-4 py-2.5 rounded-xl font-bold text-[13px] text-left transition-colors ${activeService === s.id ? 'bg-primary text-accent' : 'bg-transparent text-text-secondary hover:bg-gray-50 hover:text-primary'} outline-none`}
+                    >
+                      {Icon && <Icon size={16} className={activeService === s.id ? 'text-accent' : 'text-text-secondary'} strokeWidth={2} />}
+                      {s.id}
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>
-        </section>
 
+          {/* Search Autocomplete Dropdown */}
+          {isSearchFocused && searchQuery.length > 0 && (
+            <div className="absolute top-[100%] mt-2 left-6 right-6 bg-white rounded-2xl p-2 shadow-2xl border border-border animate-in fade-in zoom-in-95 duration-200 z-[60]">
+              {searchSuggestions.length > 0 ? (
+                searchSuggestions.map((loc, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => { setSearchQuery(loc); setIsSearchFocused(false); }}
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 active:bg-gray-100 transition-colors text-left"
+                  >
+                    {allListings.some(t => t.location === loc) ? <MapPin size={16} className="text-secondary" /> : <Search size={16} className="text-secondary" />}
+                    <span className="font-bold text-[14px] text-primary truncate block flex-1">{loc}</span>
+                  </button>
+                ))
+              ) : (
+                <div className="px-4 py-3 text-[14px] text-text-secondary font-medium text-center">
+                  No places found
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+        {/* Apple-style Filter Bottom Sheet */}
+        <AnimatePresence>
+          {isFilterModalOpen && (
+            <div className="fixed inset-0 z-[100] flex flex-col justify-end">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                onClick={() => setIsFilterModalOpen(false)}
+              />
 
-        {/* Categories */}
-        <section id="categories-section" className="px-6 mb-8 mt-2">
-          <div className="flex justify-between items-end mb-4">
+              <motion.div
+                initial={{ y: "100%" }}
+                animate={{ y: 0 }}
+                exit={{ y: "100%" }}
+                transition={{ type: "spring", damping: 25, stiffness: 300, mass: 0.8 }}
+                className="bg-white w-full rounded-t-[32px] p-6 relative flex flex-col pointer-events-auto h-fit pb-12"
+              >
+                <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-6"></div>
+
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="text-[22px] font-extrabold text-primary tracking-tight">Filters</h3>
+                  <button onClick={() => setPriceFilter([0, 5000000])} className="text-secondary font-bold text-[15px] active:scale-95 transition-transform">Reset</button>
+                </div>
+
+                {/* Price Filter Options */}
+                <div className="mb-8">
+                  <h4 className="text-[17px] font-extrabold text-primary mb-4">Price Range</h4>
+                  <div className="flex flex-col gap-3">
+                    {[
+                      { label: "Any price", min: 0, max: 5000000 },
+                      { label: "Under Rp 500k", min: 0, max: 500000 },
+                      { label: "Rp 500k - Rp 1M", min: 500000, max: 1000000 },
+                      { label: "Over Rp 1M+", min: 1000000, max: 5000000 },
+                    ].map((opt, i) => {
+                      const isSelected = priceFilter[0] === opt.min && priceFilter[1] === opt.max;
+                      return (
+                        <label key={i} className={`flex items-center justify-between p-4 rounded-2xl border transition-all w-full cursor-pointer touch-manipulation active:scale-[0.98] ${isSelected ? 'border-primary bg-primary text-white shadow-md' : 'border-border bg-white text-primary hover:border-gray-300'}`}>
+                          <span className="font-bold text-[15px]">{opt.label}</span>
+                          <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors ${isSelected ? 'border-none bg-accent' : 'border border-gray-300'}`}>
+                            {isSelected && <MapPin size={12} className="text-primary" strokeWidth={3} />}
+                          </div>
+                          <input type="radio" className="hidden" name="price" checked={isSelected} onChange={() => setPriceFilter([opt.min, opt.max])} />
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setIsFilterModalOpen(false)}
+                  className="w-full bg-accent text-primary font-extrabold py-4 rounded-2xl shadow-lg active:scale-95 transition-transform flex justify-center items-center gap-2 mb-2"
+                >
+                  Show {filteredTours.length} Results
+                </button>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
+        
+          {/* Categories */}
+        <section id="categories-section" className="px-6 mb-4 mt-2">
+          <div className="hidden">
             <h2 className="text-[20px] font-bold text-primary">Categories</h2>
-            <Link href={activeService === "Tour" ? "/tours" : activeService === "Transport" ? "/map" : "/esim"} className="text-sm font-semibold text-text-secondary hover:text-text-primary cursor-pointer transition-colors">See more</Link>
+            
           </div>
           <div className="flex justify-center w-full overflow-hidden">
             <div className="bg-[#cce823] rounded-[32px] p-1.5 shadow-[0_4px_20px_rgba(204,232,35,0.3)] w-fit max-w-full mx-auto">
@@ -1007,18 +961,75 @@ export default function HomeClient({ initialListings = [], initialSettings = nul
             </div>
           </div>
         </section>
+        </div>
 
-        {/* Filtered Experiences */}
-        <section className="mt-6 mb-12">
-          <div className="flex flex-nowrap overflow-x-auto snap-x snap-mandatory gap-5 px-6 pb-8 md:grid md:grid-cols-3 md:px-6 no-scrollbar" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+
+        {/* Popular Trips */}
+        <section className="pt-2 mb-8 relative">
+          <div className="px-6 flex justify-between items-end mb-4">
+            <h2 className="text-[20px] font-bold text-primary flex items-center gap-2">
+              {getPopularTripsTitle()}
+            </h2>
+            
+          </div>
+
+          {/* Horizontal Scroll Area */}
+          <div className="flex overflow-x-auto no-scrollbar gap-5 px-6 pb-6 snap-x snap-mandatory hide-scroll">
+            {displayPopularTrips.length > 0 ? displayPopularTrips.map((trip) => (
+              <Link href={`/tours/${generateSlug(trip.title)}`} key={trip.id} className="block relative w-[160px] md:w-[180px] aspect-[4/5] rounded-[28px] overflow-hidden shadow-soft shrink-0 snap-start group border border-border bg-white">
+                <Image src={trip.image} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover transition-transform duration-[8s] ease-out group-hover:scale-110" alt={trip.title || "Trip Image"} />
+
+                {/* Heart Button */}
+                <button className="absolute top-4 right-4 w-[34px] h-[34px] bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-gray-400 shadow-xl z-10 transition-transform active:scale-95 hover:text-red-500 hover:scale-110">
+                  <Heart size={16} strokeWidth={2.5} />
+                </button>
+
+                {/* Bottom Overlay Card */}
+                <div className="absolute left-3 right-3 bottom-3 bg-white/95 backdrop-blur-md px-4 py-3.5 rounded-2xl flex flex-col gap-1.5 shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+                  <h3 className="font-extrabold text-[13px] leading-tight text-primary line-clamp-2">{trip.title}</h3>
+                  <div className="flex justify-between items-end mt-1">
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <Star size={12} strokeWidth={2.5} className="fill-[#F59E0B] text-[#F59E0B]" />
+                      <span className="text-[12px] font-bold text-primary">5.0</span>
+                    </div>
+                    <div className="flex flex-col items-end shrink-0">
+                      <span className="font-extrabold text-[13px] text-primary tracking-tight pr-1">
+                        IDR {Number(trip.price > 1000 ? trip.price : trip.price * 1000).toLocaleString('id-ID')}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            )) : (
+              <div className="w-full text-center py-6 text-gray-400 font-medium text-sm">
+                No items pinned as Best Trips for this category.
+              </div>
+            )}
+          </div>
+        </section>
+
+
+        
+
+        {/* Filtered Experiences Grid */}
+        <section className="px-6 mt-6 mb-12">
+          <div className="flex justify-between items-end mb-6">
+            <span className="font-medium text-text-secondary text-[15px]">Showing {filteredTours.length} Tours</span>
+            
+            <div className="flex items-center gap-2">
+              <button className="flex items-center gap-2 text-[15px] font-semibold bg-white px-4 py-2 rounded-xl border border-gray-100 hover:bg-gray-50 transition-colors shadow-sm">
+                Recommended <ChevronDown size={16} />
+              </button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
             {filteredTours.length > 0 ? (
               filteredTours.map((tour, idx) => (
-                <div key={tour.id} className="flex-none w-[85vw] sm:w-[300px] snap-center md:w-auto md:snap-align-none animate-in fade-in zoom-in duration-300">
-                  <ListingCard item={tour} linkTo={`/tours/${generateSlug(tour.title)}`} priority={idx < 4} />
-                </div>
+                <ListingCard key={tour.id} item={tour} linkTo={`/tours/${generateSlug(tour.title)}`} isGrid={true} priority={idx < 6} />
               ))
             ) : (
-              <div className="w-full text-center py-10 px-6 text-text-secondary font-medium">
+              <div className="col-span-full w-full text-center py-10 text-text-secondary font-medium">
                 No tours found for this category currently.
               </div>
             )}
