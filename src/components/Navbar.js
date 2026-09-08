@@ -81,13 +81,9 @@ export default function Navbar() {
       {/* MOBILE LAYOUT (Inspired by the Reference Image) */}
       <div className="md:hidden px-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 bg-accent rounded-full flex justify-center items-center cursor-pointer hover:brightness-95 transition-colors shadow-sm" onClick={() => router.push('/profile')}>
-             <User size={20} className="text-primary" />
-          </div>
-          <div className="flex flex-col">
-            <span className="text-[13px] font-extrabold text-primary cursor-pointer hover:opacity-70 transition-opacity" onClick={() => router.push('/profile')}>Profile</span>
-            <span className="text-[10px] text-text-secondary mt-0.5 font-medium">View your saved trips</span>
-          </div>
+          <Link href="/" className="font-black tracking-[0.1em] text-primary text-[20px] transition-opacity hover:opacity-70">
+            mybalidriver
+          </Link>
         </div>
         <div className="relative z-50">
           <button 
@@ -208,9 +204,6 @@ export default function Navbar() {
             )}
           </div>
           
-          <button onClick={() => router.push('/profile')} className={`w-9 h-9 border rounded-full flex items-center justify-center transition-all duration-500 shadow-soft ${isScrolled ? 'bg-dark-surface border-transparent text-white hover:scale-105 active:scale-95' : 'bg-black/20 backdrop-blur-md border-white/30 text-white hover:bg-white/20'}`}>
-            <User size={16} />
-          </button>
         </div>
       </div>
       
