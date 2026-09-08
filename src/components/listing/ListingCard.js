@@ -5,7 +5,7 @@ import { Heart, Star } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
-export default function ListingCard({ item, linkTo }) {
+export default function ListingCard({ item, linkTo, isGrid, priority = false }) {
   const [isSaved, setIsSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -172,6 +172,7 @@ export default function ListingCard({ item, linkTo }) {
             src={item.image} 
             alt={item.title || "Tour Image"}
             fill
+            priority={priority}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className="object-cover transition-transform duration-[10s] ease-out group-hover:scale-110" 
           />

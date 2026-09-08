@@ -1012,9 +1012,9 @@ export default function HomeClient({ initialListings = [], initialSettings = nul
         <section className="mt-6 mb-12">
           <div className="flex flex-nowrap overflow-x-auto snap-x snap-mandatory gap-5 px-6 pb-8 md:grid md:grid-cols-3 md:px-6 no-scrollbar" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             {filteredTours.length > 0 ? (
-              filteredTours.map(tour => (
+              filteredTours.map((tour, idx) => (
                 <div key={tour.id} className="flex-none w-[85vw] sm:w-[300px] snap-center md:w-auto md:snap-align-none animate-in fade-in zoom-in duration-300">
-                  <ListingCard item={tour} linkTo={`/tours/${generateSlug(tour.title)}`} />
+                  <ListingCard item={tour} linkTo={`/tours/${generateSlug(tour.title)}`} priority={idx < 4} />
                 </div>
               ))
             ) : (

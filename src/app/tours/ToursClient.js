@@ -66,8 +66,8 @@ export default function ToursClient({ initialTours }) {
 
         {/* 2-Column Grid (Mobile & Desktop identical to layout request) */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-          {displayTours.map(tour => (
-            <ListingCard key={tour.id} item={tour} linkTo={`/tours/${generateSlug(tour.title)}`} />
+          {displayTours.map((tour, idx) => (
+            <ListingCard key={tour.id} item={tour} linkTo={`/tours/${generateSlug(tour.title)}`} isGrid={true} priority={idx < 6} />
           ))}
         </div>
         
